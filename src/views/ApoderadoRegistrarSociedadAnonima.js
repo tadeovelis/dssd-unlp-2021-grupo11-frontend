@@ -3,12 +3,13 @@ import { React, Component } from "react";
 import { Container, Box, CircularProgress, Grid, Paper, Checkbox, Button, FormControl, TextField, InputAdornment, Divider, FormControlLabel } from '@material-ui/core';
 import Alert from '@material-ui/lab/Alert';
 import DescriptionIcon from '@material-ui/icons/Description';
-import DateFnsUtils from "@date-io/date-fns";
+
 import { es } from "date-fns/locale";
-import {
-    MuiPickersUtilsProvider,
-    KeyboardDatePicker,
-} from "@material-ui/pickers";
+
+import DatePicker from '@mui/lab/DatePicker';
+import AdapterDateFns from '@mui/lab/AdapterDateFns';
+import LocalizationProvider from '@mui/lab/LocalizationProvider';
+
 
 import 'assets/css/apoderado-registro-sa.css';
 
@@ -370,8 +371,8 @@ export default class ApoderadoDashboard extends Component {
                                 </FormControl>
                             </Grid>
                             <Grid item xs={4}>
-                                <MuiPickersUtilsProvider locale={es} utils={DateFnsUtils}>
-                                    <KeyboardDatePicker
+                                <LocalizationProvider locale={es} dateAdapter={AdapterDateFns}>
+                                    <DatePicker
                                         autoOk
                                         cancelLabel="Cancelar"
                                         style={{
@@ -398,7 +399,9 @@ export default class ApoderadoDashboard extends Component {
                                         margin="normal"
                                         id="fecha_creacion"
                                         required
-                                        label="Fecha de creación"
+                                        renderInput={
+                                            props => <TextField label="Fecha de creación" />
+                                        }
                                         value={this.state.fecha_creacion}
                                         onChange={this.cambiarFecha}
                                         KeyboardButtonProps={{
@@ -406,7 +409,7 @@ export default class ApoderadoDashboard extends Component {
                                         }}
                                     //error={this.state.errores.errorFechaNac}
                                     />
-                                </MuiPickersUtilsProvider>
+                                </LocalizationProvider>
                             </Grid>
                             <Grid item xs={4}>
                                 <FormControl fullWidth={true}>
