@@ -10,8 +10,10 @@ import DatePicker from '@mui/lab/DatePicker';
 import AdapterDateFns from '@mui/lab/AdapterDateFns';
 import LocalizationProvider from '@mui/lab/LocalizationProvider';
 
+import DesktopDatePicker from '@mui/lab/DesktopDatePicker';
 
 import 'assets/css/apoderado-registro-sa.css';
+import { CropLandscapeOutlined } from "@material-ui/icons";
 
 
 
@@ -79,9 +81,10 @@ export default class ApoderadoDashboard extends Component {
 
     // Maneja los cambios del checkbox de Es Apoderado
     handleChangeEsApoderado(e) {
+        let valor = e.target.checked ? "true" : "false";
         let socio = 'socio' + e.currentTarget.getAttribute('data-numdesocio');
         this.setState({
-            [socio]: { ...this.state[socio], [e.target.name]: e.target.checked }
+            [socio]: { ...this.state[socio], [e.target.name]: valor }
         }, () => this.validarSiEstanTodosLosDatosCompletados())
     }
 
@@ -248,6 +251,7 @@ export default class ApoderadoDashboard extends Component {
                 )
             }
             let jsonSocios = JSON.stringify(socios);
+            console.log(jsonSocios);
             return jsonSocios
         }
     }
@@ -319,6 +323,8 @@ export default class ApoderadoDashboard extends Component {
         formData.append('socios', socios);
         formData.append('archivo_estatuto', this.state.archivo_estatuto);
 
+        console.log(formData);
+
         fetch('http://localhost/' + ruta, {
             method: 'POST',
             credentials: 'include',
@@ -336,10 +342,13 @@ export default class ApoderadoDashboard extends Component {
                     })
 
                     // Redireccionar al dashboard
+                    /*
                     this.props.history.push({
                         pathname: '/apoderado/inicio',
                         state: { registroDeSAExitoso: true }
                     })
+                    */
+                   console.log(data);
                 }
             })
             .catch(error => console.error(error));
@@ -372,42 +381,17 @@ export default class ApoderadoDashboard extends Component {
                             </Grid>
                             <Grid item xs={4}>
                                 <LocalizationProvider locale={es} dateAdapter={AdapterDateFns}>
-                                    <DatePicker
-                                        autoOk
-                                        cancelLabel="Cancelar"
-                                        style={{
-                                            display: "flex",
-                                            minWidth: 300,
-                                        }}
-                                        InputProps={{
-                                            startAdornment: (
-                                                <InputAdornment position="start">
-                                                    <i
-                                                        style={{ fontSize: 20 }}
-                                                        className="fas fa-calendar-day"
-                                                    ></i>
-                                                </InputAdornment>
-                                            ),
-                                        }}
-                                        InputLabelProps={{ shrink: true }}
-                                        placeholder="Ej: 03/09/1994"
-                                        invalidDateMessage="La fecha no es válida. Recordá: día/mes/año"
-                                        maxDateMessage="La fecha no puede ser mayor al máximo permitido"
-                                        DialogProps={{ disableScrollLock: true }}
-                                        name="fecha_creacion"
-                                        format="dd/MM/yyyy"
-                                        margin="normal"
+                                    <DesktopDatePicker
                                         id="fecha_creacion"
+                                        name="fecha_creacion"
                                         required
-                                        renderInput={
-                                            props => <TextField label="Fecha de creación" />
-                                        }
+                                        label="Fecha de creación"
+                                        inputFormat="dd/MM/yyyy"
                                         value={this.state.fecha_creacion}
                                         onChange={this.cambiarFecha}
-                                        KeyboardButtonProps={{
-                                            "aria-label": "Cambiar fecha",
-                                        }}
-                                    //error={this.state.errores.errorFechaNac}
+                                        renderInput={params =>
+                                            <TextField {...params} helperText="Ej: 24/09/2015" />
+                                        }
                                     />
                                 </LocalizationProvider>
                             </Grid>
