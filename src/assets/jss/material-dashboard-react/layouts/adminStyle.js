@@ -9,6 +9,7 @@ const appStyle = (theme) => ({
     position: "relative",
     top: "0",
     height: "100vh",
+    padding: "50px"
   },
   mainPanel: {
     [theme.breakpoints.up("md")]: {

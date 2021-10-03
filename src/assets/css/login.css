@@ -1,0 +1,15 @@
+.login-title {
+    font-weight: 500;
+    font-size: 16pt;
+}
+.login-subtitle {
+    font-weight: 800;
+    font-size: 12pt;
+    color: gray;
+}
+
+.login-card {
+    margin: 10% auto;
+    max-width: 40%;
+    padding: 3%
+}

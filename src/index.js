@@ -20,18 +20,32 @@ import ReactDOM from "react-dom";
 import { BrowserRouter, Route, Switch, Redirect } from "react-router-dom";
 
 // core components
-import Admin from "layouts/Admin.js";
-import RTL from "layouts/RTL.js";
+import Login from "views/Login.js";
+
+// Para cambiar los colores globales de Material UI
+import { createMuiTheme } from '@material-ui/core/styles';
+import { MuiThemeProvider } from '@material-ui/core/styles';
+import { createTheme } from '@material-ui/core/styles';
 
 import "assets/css/material-dashboard-react.css?v=1.10.0";
 
+import App from "App";
+
+// Or Create your Own theme:
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: "#4ebc58",
+      contrastText: '#ffffff'
+    }
+  }
+});
+
 ReactDOM.render(
-  <BrowserRouter>
-    <Switch>
-      <Route path="/admin" component={Admin} />
-      <Route path="/rtl" component={RTL} />
-      <Redirect from="/" to="/admin/dashboard" />
-    </Switch>
-  </BrowserRouter>,
+  <MuiThemeProvider theme={theme}>
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
+  </MuiThemeProvider>,
   document.getElementById("root")
 );

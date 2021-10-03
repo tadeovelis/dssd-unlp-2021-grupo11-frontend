@@ -1,0 +1,11 @@
+.apoderado-paper {
+    padding: 40px 40px
+}
+
+.apoderado-titulo {
+    font-size: 20pt !important;
+    font-weight: 500 !important;
+    color: rgb(63, 63, 63);
+    line-height: 1.2;
+    margin: 0
+}
