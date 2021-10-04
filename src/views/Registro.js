@@ -52,7 +52,7 @@ export default class Registro extends Component {
             'password_confirmation': this.state.password_confirmation
         }
 
-        fetch('http://localhost/' + ruta, {
+        fetch(env("BACKEND_URL") + ruta, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -73,7 +73,7 @@ export default class Registro extends Component {
     registroExitoso() {
         let ruta = 'api/auth/login';
 
-        fetch('http://localhost/' + ruta, {
+        fetch(env("BACKEND_URL") + ruta, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded'

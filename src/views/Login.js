@@ -32,7 +32,7 @@ export default class Login extends Component {
     handleSubmit(e) {
         let ruta = 'api/auth/login';
 
-        fetch('http://localhost/' + ruta, {
+        fetch(env("BACKEND_URL") + ruta, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded'
