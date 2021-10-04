@@ -4,7 +4,7 @@ import { Container, Grid, Paper, Divider, Typography, Box, Button, Snackbar, Ale
 import LinearProgress, { linearProgressClasses } from '@mui/material/LinearProgress';
 import { styled } from '@mui/material/styles';
 
-import '../assets/css/apoderado.css'
+import '../assets/css/dashboard.css'
 
 
 const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
@@ -37,15 +37,6 @@ export default class ApoderadoDashboard extends Component {
     this.noMostrarAlertRegistroSAExitoso = this.noMostrarAlertRegistroSAExitoso.bind(this);
     this.noMostrarAlertPrimerInicio = this.noMostrarAlertPrimerInicio.bind(this);
   }
-
-  columns = [
-    { field: 'nombre', headerName: 'Nombre', width: 90 },
-    { field: 'email_apoderado', headerName: 'Email del apoderado', width: 90 },
-    { field: 'domicilio_legal', headerName: 'Domicilio legal', width: 90 },
-    { field: 'domicilio_real', headerName: 'Domicilio real', width: 90 },
-    { field: 'fecha_creacion', headerName: 'Fecha de creación', width: 90 },
-    { field: 'socios', headerName: 'Socios', width: 90 }
-  ];
 
   componentDidMount() {
     if (this.props.location.state.registroDeSAExitoso) {
@@ -210,9 +201,6 @@ export default class ApoderadoDashboard extends Component {
     const user = this.props.location.state.data.user;
     const auth = this.props.location.state.data.auth;
 
-    let mostrarAlertRegistroSAExitoso = this.props.location.state.registroDeSAExitoso;
-
-
     return (
       <Container>
         <Box p={2}>
@@ -227,7 +215,7 @@ export default class ApoderadoDashboard extends Component {
             </Grid>
 
             <Grid item xs={12}>
-              <Paper className="apoderado-paper">
+              <Paper className="dashboard-paper">
                 {this.state.primerInicio ? (<div>
                   <Typography variant="h6">¡Bienvenido {user.name}!</Typography>
                   <Typography variant="body1">Con este sistema podrás registrar tu Sociedad Anónima y visualizar el estado del trámite.</Typography>
@@ -241,10 +229,10 @@ export default class ApoderadoDashboard extends Component {
 
             {/* Registro de S.A. - Paper */}
             <Grid item xs={4}>
-              <Paper className="apoderado-paper">
+              <Paper className="dashboard-paper">
                 <Grid container spacing={2}>
                   <Grid item xs={12}>
-                    <h1 className="apoderado-titulo" variant="h1">Registro de Sociedad Anónima</h1>
+                    <h1 className="dashboard-titulo" variant="h1">Registro de Sociedad Anónima</h1>
                   </Grid>
                   <Grid item xs={12}>
                     <Typography>Para iniciar el trámite del registro de una S.A. hacé click en el botón:</Typography>

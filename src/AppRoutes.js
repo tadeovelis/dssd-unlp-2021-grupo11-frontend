@@ -5,8 +5,11 @@ import { Switch, Route, Redirect } from "react-router-dom";
 // Sección Opciones predefinidas
 const Login = lazy(() => import("views/Login.js"));
 const Registro = lazy(() => import("views/Registro.js"));
+
 const ApoderadoDashboard = lazy(() => import("views/ApoderadoDashboard.js"));
 const ApoderadoRegistrarSociedadAnonima = lazy(() => import("views/ApoderadoRegistrarSociedadAnonima.js"));
+
+const MesaDeEntradasDashboard = lazy(() => import("views/MesaDeEntradasDashboard.js"));
 
 class AppRoutes extends Component {
     constructor(props) {
@@ -24,6 +27,9 @@ class AppRoutes extends Component {
                     {/* Apoderado */}
                     <Route path="/apoderado/inicio" component={ApoderadoDashboard} />
                     <Route path="/apoderado/registrar-sociedad-anonima" component={ApoderadoRegistrarSociedadAnonima} />
+
+                    {/* Mesa de Entradas */}
+                    <Route path="/empleado-mesa-de-entradas/inicio" component={MesaDeEntradasDashboard} />
 
                     <Redirect to="/login" />
 
