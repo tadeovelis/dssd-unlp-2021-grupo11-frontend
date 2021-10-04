@@ -19,13 +19,10 @@ import React from "react";
 import ReactDOM from "react-dom";
 import { BrowserRouter, Route, Switch, Redirect } from "react-router-dom";
 
-// core components
-import Login from "views/Login.js";
 
 // Para cambiar los colores globales de Material UI
-import { createMuiTheme } from '@material-ui/core/styles';
-import { MuiThemeProvider } from '@material-ui/core/styles';
-import { createTheme } from '@material-ui/core/styles';
+import { ThemeProvider } from '@mui/material/styles';
+import { createTheme } from '@mui/material/styles';
 
 import "assets/css/material-dashboard-react.css?v=1.10.0";
 
@@ -42,10 +39,10 @@ const theme = createTheme({
 });
 
 ReactDOM.render(
-  <MuiThemeProvider theme={theme}>
+  <ThemeProvider theme={theme}>
     <BrowserRouter>
       <App />
     </BrowserRouter>
-  </MuiThemeProvider>,
+  </ThemeProvider>,
   document.getElementById("root")
 );

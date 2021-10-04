@@ -4,6 +4,7 @@ import { Switch, Route, Redirect } from "react-router-dom";
 
 // Sección Opciones predefinidas
 const Login = lazy(() => import("views/Login.js"));
+const Registro = lazy(() => import("views/Registro.js"));
 const ApoderadoDashboard = lazy(() => import("views/ApoderadoDashboard.js"));
 const ApoderadoRegistrarSociedadAnonima = lazy(() => import("views/ApoderadoRegistrarSociedadAnonima.js"));
 
@@ -16,9 +17,11 @@ class AppRoutes extends Component {
         return (
             <Suspense fallback={<div></div>}>
                 <Switch>
-                    {/* Login */}
+                    {/* Login y registro */}
                     <Route path="/login" component={Login} />
+                    <Route path="/registro" component={Registro} />
 
+                    {/* Apoderado */}
                     <Route path="/apoderado/inicio" component={ApoderadoDashboard} />
                     <Route path="/apoderado/registrar-sociedad-anonima" component={ApoderadoRegistrarSociedadAnonima} />
 

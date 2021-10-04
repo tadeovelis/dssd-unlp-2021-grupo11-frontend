@@ -1,20 +1,17 @@
 import { React, Component } from "react";
 
-import { Container, Box, CircularProgress, Grid, Paper, Checkbox, Button, FormControl, TextField, InputAdornment, Divider, FormControlLabel } from '@material-ui/core';
-import Alert from '@material-ui/lab/Alert';
-import DescriptionIcon from '@material-ui/icons/Description';
+import { Container, Grid, Paper, FormControl, TextField, InputAdornment, Divider, FormControlLabel } from '@mui/material';
+import { Box, Button, Checkbox, CircularProgress } from "@mui/material";
+
+import DescriptionIcon from '@mui/icons-material/Description';
 
 import { es } from "date-fns/locale";
 
-import DatePicker from '@mui/lab/DatePicker';
 import AdapterDateFns from '@mui/lab/AdapterDateFns';
 import LocalizationProvider from '@mui/lab/LocalizationProvider';
-
 import DesktopDatePicker from '@mui/lab/DesktopDatePicker';
 
 import 'assets/css/apoderado-registro-sa.css';
-import { CropLandscapeOutlined } from "@material-ui/icons";
-
 
 
 const formatosValidosEstatuto = 'application/pdf,' +
@@ -37,7 +34,7 @@ export default class ApoderadoDashboard extends Component {
 
             // Socios
             cantSocios: 1,
-            socio1: { apellido: '', nombre: '', porcentaje: 0, apoderado: false },
+            socio1: { apellido: '', nombre: '', porcentaje: 0, apoderado: 'false' },
 
             // Estatuto
             archivo_estatuto: null,
@@ -108,8 +105,6 @@ export default class ApoderadoDashboard extends Component {
             archivo_estatuto: this.state.archivo_estatuto
         }, () => this.validarSiEstanTodosLosDatosCompletados())
     }
-
-
 
 
     // Prepara un nuevo socio vacío para que la función que arma los forms prepare otro
@@ -290,6 +285,7 @@ export default class ApoderadoDashboard extends Component {
                 todosLosDatosCompletados: false
             })
         }
+        console.log(this.state.socio1)
     }
 
 
@@ -323,8 +319,6 @@ export default class ApoderadoDashboard extends Component {
         formData.append('socios', socios);
         formData.append('archivo_estatuto', this.state.archivo_estatuto);
 
-        console.log(formData);
-
         fetch('http://localhost/' + ruta, {
             method: 'POST',
             credentials: 'include',
@@ -342,13 +336,14 @@ export default class ApoderadoDashboard extends Component {
                     })
 
                     // Redireccionar al dashboard
-                    /*
                     this.props.history.push({
                         pathname: '/apoderado/inicio',
-                        state: { registroDeSAExitoso: true }
+                        state: {
+                            registroDeSAExitoso: true,
+                            refreshTramites: true,
+                            data: this.props.location.state.data
+                        }
                     })
-                    */
-                   console.log(data);
                 }
             })
             .catch(error => console.error(error));
@@ -455,7 +450,7 @@ export default class ApoderadoDashboard extends Component {
                                 {/* Forms de los socios */}
                                 <Grid item xs={12}>
                                     <Box>
-                                        {this.generarFormsSocios}
+                                        {this.generarFormsSocios()}
                                     </Box>
                                 </Grid>
                             </Grid>
