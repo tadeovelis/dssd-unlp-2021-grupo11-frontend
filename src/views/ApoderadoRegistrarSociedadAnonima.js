@@ -1,17 +1,17 @@
 import { React, Component } from "react";
 
-import { Container, Box, CircularProgress, Grid, Paper, Checkbox, Button, FormControl, TextField, InputAdornment, Divider, FormControlLabel } from '@material-ui/core';
-import Alert from '@material-ui/lab/Alert';
-import DescriptionIcon from '@material-ui/icons/Description';
-import DateFnsUtils from "@date-io/date-fns";
+import { Container, Grid, Paper, FormControl, TextField, InputAdornment, Divider, FormControlLabel } from '@mui/material';
+import { Box, Button, Checkbox, CircularProgress } from "@mui/material";
+
+import DescriptionIcon from '@mui/icons-material/Description';
+
 import { es } from "date-fns/locale";
-import {
-    MuiPickersUtilsProvider,
-    KeyboardDatePicker,
-} from "@material-ui/pickers";
+
+import AdapterDateFns from '@mui/lab/AdapterDateFns';
+import LocalizationProvider from '@mui/lab/LocalizationProvider';
+import DesktopDatePicker from '@mui/lab/DesktopDatePicker';
 
 import 'assets/css/apoderado-registro-sa.css';
-
 
 
 const formatosValidosEstatuto = 'application/pdf,' +
@@ -34,7 +34,7 @@ export default class ApoderadoDashboard extends Component {
 
             // Socios
             cantSocios: 1,
-            socio1: { apellido: '', nombre: '', porcentaje: 0, apoderado: false },
+            socio1: { apellido: '', nombre: '', porcentaje: 0, apoderado: 'false' },
 
             // Estatuto
             archivo_estatuto: null,
@@ -78,9 +78,10 @@ export default class ApoderadoDashboard extends Component {
 
     // Maneja los cambios del checkbox de Es Apoderado
     handleChangeEsApoderado(e) {
+        let valor = e.target.checked ? "true" : "false";
         let socio = 'socio' + e.currentTarget.getAttribute('data-numdesocio');
         this.setState({
-            [socio]: { ...this.state[socio], [e.target.name]: e.target.checked }
+            [socio]: { ...this.state[socio], [e.target.name]: valor }
         }, () => this.validarSiEstanTodosLosDatosCompletados())
     }
 
@@ -104,8 +105,6 @@ export default class ApoderadoDashboard extends Component {
             archivo_estatuto: this.state.archivo_estatuto
         }, () => this.validarSiEstanTodosLosDatosCompletados())
     }
-
-
 
 
     // Prepara un nuevo socio vacío para que la función que arma los forms prepare otro
@@ -247,6 +246,7 @@ export default class ApoderadoDashboard extends Component {
                 )
             }
             let jsonSocios = JSON.stringify(socios);
+            console.log(jsonSocios);
             return jsonSocios
         }
     }
@@ -285,6 +285,7 @@ export default class ApoderadoDashboard extends Component {
                 todosLosDatosCompletados: false
             })
         }
+        console.log(this.state.socio1)
     }
 
 
@@ -337,7 +338,11 @@ export default class ApoderadoDashboard extends Component {
                     // Redireccionar al dashboard
                     this.props.history.push({
                         pathname: '/apoderado/inicio',
-                        state: { registroDeSAExitoso: true }
+                        state: {
+                            registroDeSAExitoso: true,
+                            refreshTramites: true,
+                            data: this.props.location.state.data
+                        }
                     })
                 }
             })
@@ -370,43 +375,20 @@ export default class ApoderadoDashboard extends Component {
                                 </FormControl>
                             </Grid>
                             <Grid item xs={4}>
-                                <MuiPickersUtilsProvider locale={es} utils={DateFnsUtils}>
-                                    <KeyboardDatePicker
-                                        autoOk
-                                        cancelLabel="Cancelar"
-                                        style={{
-                                            display: "flex",
-                                            minWidth: 300,
-                                        }}
-                                        InputProps={{
-                                            startAdornment: (
-                                                <InputAdornment position="start">
-                                                    <i
-                                                        style={{ fontSize: 20 }}
-                                                        className="fas fa-calendar-day"
-                                                    ></i>
-                                                </InputAdornment>
-                                            ),
-                                        }}
-                                        InputLabelProps={{ shrink: true }}
-                                        placeholder="Ej: 03/09/1994"
-                                        invalidDateMessage="La fecha no es válida. Recordá: día/mes/año"
-                                        maxDateMessage="La fecha no puede ser mayor al máximo permitido"
-                                        DialogProps={{ disableScrollLock: true }}
-                                        name="fecha_creacion"
-                                        format="dd/MM/yyyy"
-                                        margin="normal"
+                                <LocalizationProvider locale={es} dateAdapter={AdapterDateFns}>
+                                    <DesktopDatePicker
                                         id="fecha_creacion"
+                                        name="fecha_creacion"
                                         required
                                         label="Fecha de creación"
+                                        inputFormat="dd/MM/yyyy"
                                         value={this.state.fecha_creacion}
                                         onChange={this.cambiarFecha}
-                                        KeyboardButtonProps={{
-                                            "aria-label": "Cambiar fecha",
-                                        }}
-                                    //error={this.state.errores.errorFechaNac}
+                                        renderInput={params =>
+                                            <TextField {...params} helperText="Ej: 24/09/2015" />
+                                        }
                                     />
-                                </MuiPickersUtilsProvider>
+                                </LocalizationProvider>
                             </Grid>
                             <Grid item xs={4}>
                                 <FormControl fullWidth={true}>
@@ -468,7 +450,7 @@ export default class ApoderadoDashboard extends Component {
                                 {/* Forms de los socios */}
                                 <Grid item xs={12}>
                                     <Box>
-                                        {this.generarFormsSocios}
+                                        {this.generarFormsSocios()}
                                     </Box>
                                 </Grid>
                             </Grid>
