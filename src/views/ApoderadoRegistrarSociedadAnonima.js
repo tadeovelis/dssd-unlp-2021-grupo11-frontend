@@ -13,6 +13,8 @@ import DesktopDatePicker from '@mui/lab/DesktopDatePicker';
 
 import 'assets/css/apoderado-registro-sa.css';
 
+import env from "@beam-australia/react-env";
+
 
 const formatosValidosEstatuto = 'application/pdf,' +
     'application/vnd.openxmlformats-officedocument.wordprocessingml.document,' +
@@ -66,11 +68,6 @@ export default class ApoderadoDashboard extends Component {
 
     // Actualiza el estado de la fecha de creacion
     cambiarFecha = (date) => {
-        if (date) {
-            console.log('---')
-            console.log(date);
-            console.log(date.toDateString());
-        }
         this.setState({
             fecha_creacion: date,
         }, () => this.validarSiEstanTodosLosDatosCompletados());
@@ -82,7 +79,9 @@ export default class ApoderadoDashboard extends Component {
         let socio = 'socio' + e.currentTarget.getAttribute('data-numdesocio');
         this.setState({
             [socio]: { ...this.state[socio], [e.target.name]: valor }
-        }, () => this.validarSiEstanTodosLosDatosCompletados())
+        }, () => {
+            this.validarSiEstanTodosLosDatosCompletados()
+        })
     }
 
     // Maneja los cambios de los forms de los socios
@@ -95,7 +94,6 @@ export default class ApoderadoDashboard extends Component {
 
     // Maneja la subida del archivo del estatuto
     handleChangeEstatuto(e) {
-        console.log(e.target.files[0].type);
         if (e.target.files[0]) {
             this.setState({
                 archivo_estatuto: e.target.files[0]
@@ -111,7 +109,7 @@ export default class ApoderadoDashboard extends Component {
     habilitarFormSocio() {
         let socio = 'socio' + (this.state.cantSocios + 1);
         this.setState({
-            [socio]: { apellido: '', nombre: '', porcentaje: 0, poderado: false }
+            [socio]: { apellido: '', nombre: '', porcentaje: 0, apoderado: 'false' }
         }, () => {
             this.setState({ cantSocios: this.state.cantSocios + 1 })
         });
@@ -125,8 +123,6 @@ export default class ApoderadoDashboard extends Component {
             for (let i = num; i < this.state.cantSocios; i++) {
                 soc = 'socio' + num;
                 nextSoc = 'socio' + (+num + 1);
-                console.log("Socio actual " + this.state[soc].nombre);
-                console.log("Socio siguiente " + this.state[nextSoc].nombre);
                 let nextSocObj = this.state[nextSoc]
                 this.setState({
                     ...this.state,
@@ -285,7 +281,6 @@ export default class ApoderadoDashboard extends Component {
                 todosLosDatosCompletados: false
             })
         }
-        console.log(this.state.socio1)
     }
 
 
@@ -319,7 +314,7 @@ export default class ApoderadoDashboard extends Component {
         formData.append('socios', socios);
         formData.append('archivo_estatuto', this.state.archivo_estatuto);
 
-        fetch('http://localhost/' + ruta, {
+        fetch(env("BACKEND_URL") + ruta, {
             method: 'POST',
             credentials: 'include',
             headers: {
