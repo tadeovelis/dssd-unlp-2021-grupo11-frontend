@@ -120,7 +120,7 @@ export default class MesaDeEntradasDashboard extends Component {
     getSolicitudes() {
         let ruta = 'api/availableEmployeeTasks';
 
-        fetch('http://localhost/' + ruta, {
+        fetch(env("BACKEND_URL") + ruta, {
             method: 'GET',
             credentials: 'include',
             headers: {
@@ -143,7 +143,7 @@ export default class MesaDeEntradasDashboard extends Component {
     getSolicitudesAsignadas() {
         let ruta = 'api/employeeTasks';
 
-        fetch('http://localhost/' + ruta, {
+        fetch(env("BACKEND_URL") + ruta, {
             method: 'GET',
             credentials: 'include',
             headers: {
@@ -169,7 +169,7 @@ export default class MesaDeEntradasDashboard extends Component {
             console.log("A");
             let ruta = 'api/sociedadAnonimaByCaseId/' + this.state.solicitudesAsignadas[i].caseId;
 
-            fetch('http://localhost/' + ruta, {
+            fetch(env("BACKEND_URL") + ruta, {
                 method: 'GET',
                 credentials: 'include',
                 headers: {
@@ -203,7 +203,7 @@ export default class MesaDeEntradasDashboard extends Component {
 
             let ruta = 'api/assignTask/' + solicitud.id;
 
-            fetch('http://localhost/' + ruta, {
+            fetch(env("BACKEND_URL") + ruta, {
                 method: 'POST',
                 credentials: 'include',
                 headers: {
@@ -231,7 +231,7 @@ export default class MesaDeEntradasDashboard extends Component {
         }, () => {
             let ruta = 'api/unassignTask/' + solicitud.id;
 
-            fetch('http://localhost/' + ruta, {
+            fetch(env("BACKEND_URL") + ruta, {
                 method: 'POST',
                 credentials: 'include',
                 headers: {
@@ -254,7 +254,7 @@ export default class MesaDeEntradasDashboard extends Component {
         let formData = new FormData();
         formData.append('aprobado', accion);
 
-        fetch('http://localhost/' + ruta, {
+        fetch(env("BACKEND_URL") + ruta, {
             method: 'POST',
             credentials: 'include',
             headers: {
