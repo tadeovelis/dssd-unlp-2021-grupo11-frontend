@@ -13,6 +13,8 @@ import DesktopDatePicker from '@mui/lab/DesktopDatePicker';
 
 import 'assets/css/apoderado-registro-sa.css';
 
+import env from "@beam-australia/react-env";
+
 
 const formatosValidosEstatuto = 'application/pdf,' +
     'application/vnd.openxmlformats-officedocument.wordprocessingml.document,' +

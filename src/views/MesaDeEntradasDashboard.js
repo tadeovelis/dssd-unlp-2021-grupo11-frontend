@@ -38,19 +38,21 @@ export default class MesaDeEntradasDashboard extends Component {
 
             sociedadesCargadas: false,
 
-            abrirDialogoConfirmacion: false,
             solicitudAConfirmar: '',
             sociedadAConfirmar: '',
-
-            mostrarAlertAprobacionExitosa: false
+            mostrarAlertAprobacionORechazoExitoso: false,
+            textoAlertAprobacionORechazoExitoso: '',
+            abrirDialogoConfirmacion: false,
+            textoDialogoConfirmacion: '',
+            textoBotonConfirmacion: '',
+            accionBotonConfirmacion: ''
         }
 
         this.asignarmeSolicitud = this.asignarmeSolicitud.bind(this);
         this.handleInfoSociedad = this.handleInfoSociedad.bind(this);
         this.handleCloseDialogoConfirmacion = this.handleCloseDialogoConfirmacion.bind(this);
         this.handleOpenDialogoConfirmacion = this.handleOpenDialogoConfirmacion.bind(this);
-        this.aceptarSolicitud = this.aceptarSolicitud.bind(this);
-        this.noMostrarAlertAprobacionExitosa = this.noMostrarAlertAprobacionExitosa.bind(this);
+        this.noMostrarAlert = this.noMostrarAlert.bind(this);
 
     }
 
@@ -79,8 +81,24 @@ export default class MesaDeEntradasDashboard extends Component {
     handleCloseDialogoConfirmacion() {
         this.setState({ abrirDialogoConfirmacion: false })
     }
-    handleOpenDialogoConfirmacion(solicitud, sociedad) {
+
+    handleOpenDialogoConfirmacion(solicitud, sociedad, accion) {
+        let texto = '';
+        let textoBoton = '';
+
+        if (accion === "true") {
+            texto = '¿Estás seguro que querés aprobar la solicitud?';
+            textoBoton = 'Aprobar';
+        }
+        else {
+            texto = '¿Estás seguro que querés rechazar la solicitud?';
+            textoBoton = 'Rechazar';
+        }
+
         this.setState({
+            textoDialogoConfirmacion: texto,
+            textoBotonConfirmacion: textoBoton,
+            accionBotonConfirmacion: accion,
             solicitudAConfirmar: solicitud,
             sociedadAConfirmar: sociedad
         }, () => this.setState({ abrirDialogoConfirmacion: true }))
@@ -97,10 +115,6 @@ export default class MesaDeEntradasDashboard extends Component {
           this.getTramitesEnCurso();
         }
         */
-    }
-
-    resetEstadosDeCargado() {
-
     }
 
     getSolicitudes() {
@@ -234,11 +248,11 @@ export default class MesaDeEntradasDashboard extends Component {
         })
     }
 
-    aceptarSolicitud() {
+    aceptarORechazarSolicitud(accion) {
         let ruta = 'api/updateSociedadAnonimaStatus/' + this.state.solicitudAConfirmar.id;
 
         let formData = new FormData();
-        formData.append('aprobado', 'true');
+        formData.append('aprobado', accion);
 
         fetch('http://localhost/' + ruta, {
             method: 'POST',
@@ -251,22 +265,34 @@ export default class MesaDeEntradasDashboard extends Component {
             .then(response => response.json())
             .then(data => {
                 console.log(data);
-                this.aprobacionExitosa();
+                this.mostrarAlert(accion);
                 this.getSolicitudesAsignadas();
                 this.getSolicitudes();
             })
             .catch(error => console.error(error));
     }
 
-    aprobacionExitosa() {
+    // Setea todo para mostrar el alert de aprobación o rechazo de solicitud
+    mostrarAlert(accion) {
+        let texto = (accion === "true")
+            ? 'Aprobaste la solicitud correctamente' : 'Rechazaste la solicitud correctamente';
+
         this.setState({
-            mostrarAlertAprobacionExitosa: true,
-            abrirDialogoConfirmacion: false
+            textoAlertAprobacionORechazoExitoso: texto
+        }, () => {
+            this.setState({
+                mostrarAlertAprobacionORechazoExitoso: true,
+                abrirDialogoConfirmacion: false,
+            })
         })
     }
-    noMostrarAlertAprobacionExitosa() {
-        this.setState({ mostrarAlertAprobacionExitosa: false })
+
+    noMostrarAlert() {
+        this.setState({
+            mostrarAlertAprobacionORechazoExitoso: false
+        })
     }
+
 
     mostrarSolicitudes() {
         return this.state.solicitudes.map((s) =>
@@ -331,8 +357,16 @@ export default class MesaDeEntradasDashboard extends Component {
                                     <Button
                                         variant="contained"
                                         color="primary"
-                                        onClick={this.handleOpenDialogoConfirmacion.bind(this, s, this.state['sociedad' + s.caseId])}>
+                                        onClick={this.handleOpenDialogoConfirmacion.bind(this, s, this.state['sociedad' + s.caseId], "true")}>
                                         Aceptar solicitud
+                                    </Button>
+                                </Grid>
+                                <Grid item>
+                                    <Button
+                                        variant="contained"
+                                        color="error"
+                                        onClick={this.handleOpenDialogoConfirmacion.bind(this, s, this.state['sociedad' + s.caseId], "false")}>
+                                        Rechazar solicitud
                                     </Button>
                                 </Grid>
                             </Grid>
@@ -513,7 +547,7 @@ export default class MesaDeEntradasDashboard extends Component {
                     <DialogTitle>Confirmar operación</DialogTitle>
                     <DialogContent>
                         <DialogContentText>
-                            ¿Estás seguro que querés aprobar la solicitud?
+                            {this.state.textoDialogoConfirmacion+' '}
                             Es la solicitud nro. <b>{this.state.solicitudAConfirmar.id}</b>, para registrar
                             la Sociedad Anónima <b>{this.state.sociedadAConfirmar.nombre}</b>.
                             Esta operación es irreversible.
@@ -522,9 +556,9 @@ export default class MesaDeEntradasDashboard extends Component {
                             <Button
                                 variant="contained"
                                 color="primary"
-                                onClick={this.aceptarSolicitud}
+                                onClick={this.aceptarORechazarSolicitud.bind(this, this.state.accionBotonConfirmacion)}
                             >
-                                Aprobar
+                                {this.state.textoBotonConfirmacion}
                             </Button>
                             <Button
                                 variant="contained"
@@ -539,18 +573,18 @@ export default class MesaDeEntradasDashboard extends Component {
 
                 {/* Alert de aprobación de solicitud exitosa */}
                 <Snackbar
-                    open={this.state.mostrarAlertAprobacionExitosa}
-                    onClose={this.noMostrarAlertAprobacionExitosa}
+                    open={this.state.mostrarAlertAprobacionORechazoExitoso}
+                    onClose={this.noMostrarAlert}
                     sx={{ width: '80%' }}
                     spacing={2}
                     anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
                 >
                     <Alert
                         variant="filled"
-                        onClose={this.noMostrarAlertAprobacionExitosa}
+                        onClose={this.noMostrarAlert}
                         closeText={'Cerrar'}
                     >
-                        <AlertTitle>Aprobaste la solicitud correctamente</AlertTitle>
+                        <AlertTitle>{this.state.textoAlertAprobacionORechazoExitoso}</AlertTitle>
                     </Alert>
                 </Snackbar>
 

@@ -12,6 +12,8 @@ import PersonIcon from '@mui/icons-material/Person';
 
 import "assets/css/login.css";
 
+import env from "@beam-australia/react-env";
+
 
 export default class Registro extends Component {
     constructor(props) {
