@@ -1,10 +1,12 @@
 import { React, Component } from "react";
 
-import { Container, Grid, Paper, Divider, Typography, Box, Button, Snackbar, Alert, AlertTitle } from '@mui/material';
+import { Container, Accordion, AccordionSummary, CircularProgress, AccordionDetails, Grid, Paper, Divider, Typography, Box, Button, Snackbar, Alert, AlertTitle, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from '@mui/material';
 import LinearProgress, { linearProgressClasses } from '@mui/material/LinearProgress';
 import { styled } from '@mui/material/styles';
 
 import LabelIcon from '@mui/icons-material/Label';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+
 
 import '../assets/css/dashboard.css'
 
@@ -30,10 +32,25 @@ export default class MesaDeEntradasDashboard extends Component {
             solicitudesCargadas: false,
 
             solicitudesAsignadas: null,
-            solicitudesAsignadasCargadas: false
+            solicitudesAsignadasCargadas: false,
+
+            abrirInfoSociedad: false,
+
+            sociedadesCargadas: false,
+
+            abrirDialogoConfirmacion: false,
+            solicitudAConfirmar: '',
+            sociedadAConfirmar: '',
+
+            mostrarAlertAprobacionExitosa: false
         }
 
         this.asignarmeSolicitud = this.asignarmeSolicitud.bind(this);
+        this.handleInfoSociedad = this.handleInfoSociedad.bind(this);
+        this.handleCloseDialogoConfirmacion = this.handleCloseDialogoConfirmacion.bind(this);
+        this.handleOpenDialogoConfirmacion = this.handleOpenDialogoConfirmacion.bind(this);
+        this.aceptarSolicitud = this.aceptarSolicitud.bind(this);
+        this.noMostrarAlertAprobacionExitosa = this.noMostrarAlertAprobacionExitosa.bind(this);
 
     }
 
@@ -51,6 +68,24 @@ export default class MesaDeEntradasDashboard extends Component {
         return [year, month, day].join('-');
     }
 
+    handleInfoSociedad(panel) {
+        console.log(panel);
+        console.log(this.state.abrirInfoSociedad);
+        this.state.abrirInfoSociedad !== panel ?
+            this.setState({ abrirInfoSociedad: panel }) :
+            this.setState({ abrirInfoSociedad: false })
+    }
+
+    handleCloseDialogoConfirmacion() {
+        this.setState({ abrirDialogoConfirmacion: false })
+    }
+    handleOpenDialogoConfirmacion(solicitud, sociedad) {
+        this.setState({
+            solicitudAConfirmar: solicitud,
+            sociedadAConfirmar: sociedad
+        }, () => this.setState({ abrirDialogoConfirmacion: true }))
+    }
+
     componentDidMount() {
         this.getSolicitudes();
         this.getSolicitudesAsignadas();
@@ -62,6 +97,10 @@ export default class MesaDeEntradasDashboard extends Component {
           this.getTramitesEnCurso();
         }
         */
+    }
+
+    resetEstadosDeCargado() {
+
     }
 
     getSolicitudes() {
@@ -103,49 +142,130 @@ export default class MesaDeEntradasDashboard extends Component {
                     solicitudesAsignadas: data,
                     solicitudesAsignadasCargadas: true
                 }, () => {
-                    console.log("Solicitudes asignadas");
-                    console.log(this.state.solicitudesAsignadas)
+                    // Obtener la sociedad asociada a la solicitud
+                    if (this.state.solicitudesAsignadas.length) this.getSociedadesAsociadasASolicitudes()
+                    else this.setState({ sociedadesCargadas: true })
                 })
             })
             .catch(error => console.error(error));
     }
 
+    getSociedadesAsociadasASolicitudes() {
+        for (let i = 0; i < this.state.solicitudesAsignadas.length; i++) {
+            console.log("A");
+            let ruta = 'api/sociedadAnonimaByCaseId/' + this.state.solicitudesAsignadas[i].caseId;
+
+            fetch('http://localhost/' + ruta, {
+                method: 'GET',
+                credentials: 'include',
+                headers: {
+                    'Authorization': 'Bearer ' + this.props.location.state.data.auth.access_token
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data);
+                    let soc = 'sociedad' + this.state.solicitudesAsignadas[i].caseId;
+                    this.setState({
+                        [soc]: data
+                    }, () => {
+                        console.log([soc]);
+                        if (i === this.state.solicitudesAsignadas.length - 1) {
+                            this.setState({ sociedadesCargadas: true })
+                        }
+                    })
+                })
+                .catch(error => console.error(error));
+        }
+    }
+
     asignarmeSolicitud(solicitud) {
-        let ruta = 'api/assignTask/' + solicitud.id;
+        // Resetear estados de carga
+        this.setState({
+            solicitudesCargadas: false,
+            sociedadesCargadas: false,
+            solicitudesAsignadasCargadas: false
+        }, () => {
+
+            let ruta = 'api/assignTask/' + solicitud.id;
+
+            fetch('http://localhost/' + ruta, {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    'Authorization': 'Bearer ' + this.props.location.state.data.auth.access_token
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("Response de Asignarme solicitud");
+                    console.log(data);
+
+                    this.getSolicitudesAsignadas();
+                    this.getSolicitudes();
+                })
+                .catch(error => console.error(error));
+        })
+    }
+
+    desasignarmeSolicitud(solicitud) {
+        // Resetear estados de carga
+        this.setState({
+            solicitudesCargadas: false,
+            sociedadesCargadas: false,
+            solicitudesAsignadasCargadas: false
+        }, () => {
+            let ruta = 'api/unassignTask/' + solicitud.id;
+
+            fetch('http://localhost/' + ruta, {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    'Authorization': 'Bearer ' + this.props.location.state.data.auth.access_token
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data);
+                    this.getSolicitudesAsignadas();
+                    this.getSolicitudes();
+                })
+                .catch(error => console.error(error));
+        })
+    }
+
+    aceptarSolicitud() {
+        let ruta = 'api/updateSociedadAnonimaStatus/' + this.state.solicitudAConfirmar.id;
+
+        let formData = new FormData();
+        formData.append('aprobado', 'true');
 
         fetch('http://localhost/' + ruta, {
             method: 'POST',
             credentials: 'include',
             headers: {
                 'Authorization': 'Bearer ' + this.props.location.state.data.auth.access_token
-            }
+            },
+            body: formData
         })
             .then(response => response.json())
             .then(data => {
-                console.log("Response de Asignarme solicitud");
                 console.log(data);
+                this.aprobacionExitosa();
                 this.getSolicitudesAsignadas();
                 this.getSolicitudes();
             })
             .catch(error => console.error(error));
     }
-    desasignarmeSolicitud(solicitud) {
-        let ruta = 'api/unassignTask/' + solicitud.id;
 
-        fetch('http://localhost/' + ruta, {
-            method: 'POST',
-            credentials: 'include',
-            headers: {
-                'Authorization': 'Bearer ' + this.props.location.state.data.auth.access_token
-            }
+    aprobacionExitosa() {
+        this.setState({
+            mostrarAlertAprobacionExitosa: true,
+            abrirDialogoConfirmacion: false
         })
-            .then(response => response.json())
-            .then(data => {
-                console.log(data);
-                this.getSolicitudesAsignadas();
-                this.getSolicitudes();
-            })
-            .catch(error => console.error(error));
+    }
+    noMostrarAlertAprobacionExitosa() {
+        this.setState({ mostrarAlertAprobacionExitosa: false })
     }
 
     mostrarSolicitudes() {
@@ -180,27 +300,126 @@ export default class MesaDeEntradasDashboard extends Component {
         return this.state.solicitudesAsignadas.map((s) =>
             <Grid item xs={12}>
                 <Box>
-                    <Grid container alignItems="center" spacing={2}>
-                        <Grid item>
-                            <LabelIcon color='info' />
-                        </Grid>
-                        <Grid item>
-                            <Typography
-                                variant="body1"
-                            >
-                                {s.name} Nro. {s.caseId}
-                            </Typography>
-                        </Grid>
-                        <Grid item>
-                            <Button
-                                variant="contained"
-                                color="info"
-                                onClick={this.desasignarmeSolicitud.bind(this, s)}>
-                                Desasignar
-                            </Button>
-                        </Grid>
-                    </Grid>
+
+                    <Accordion
+                        expanded={this.state.abrirInfoSociedad === 'panel' + s.id}
+                        onChange={this.handleInfoSociedad.bind(this, 'panel' + s.id)}>
+                        <AccordionSummary
+                            expandIcon={<ExpandMoreIcon />}
+                            id="panel"
+                        >
+                            <Grid container alignItems="center" spacing={2}>
+                                <Grid item>
+                                    <LabelIcon color='info' />
+                                </Grid>
+                                <Grid item>
+                                    <Typography
+                                        variant="body1"
+                                    >
+                                        {s.name} Nro. {s.caseId}
+                                    </Typography>
+                                </Grid>
+                                <Grid item>
+                                    <Button
+                                        variant="contained"
+                                        color="info"
+                                        onClick={this.desasignarmeSolicitud.bind(this, s)}>
+                                        Desasignar
+                                    </Button>
+                                </Grid>
+                                <Grid item>
+                                    <Button
+                                        variant="contained"
+                                        color="primary"
+                                        onClick={this.handleOpenDialogoConfirmacion.bind(this, s, this.state['sociedad' + s.caseId])}>
+                                        Aceptar solicitud
+                                    </Button>
+                                </Grid>
+                            </Grid>
+                        </AccordionSummary>
+                        <AccordionDetails>
+                            {this.mostrarInfoSociedad(this.state['sociedad' + s.caseId])}
+                        </AccordionDetails>
+                    </Accordion>
                 </Box>
+            </Grid>
+        )
+    }
+
+    mostrarInfoSociedad(s) {
+        return (
+            <Grid key={s.id} container spacing={1}>
+                <Grid item xs={12}>
+                    <Typography variant="h6">{s.nombre}</Typography>
+                </Grid>
+                <Box sx={{ width: '100%', my: 1 }}>
+                    <BorderLinearProgress
+                        variant="buffer" value={33} valueBuffer={0} />
+                </Box>
+                <Grid item xs={12}>
+                    <Typography
+                        variant="body1"
+                        sx={{
+                            color: '#6783FF',
+                            fontWeight: 800,
+                            fontSize: 14,
+                            mt: -1,
+                        }}
+                    >{this.textoEstadoEvaluacion(s)}
+                    </Typography>
+                </Grid>
+                <Grid item xs={7}>
+                    <Typography sx={{ fontSize: 18 }}>
+                        Datos generales
+                    </Typography>
+                    <Grid item xs={12}>
+                        <Divider sx={{ mb: 1, width: '95%' }} />
+                    </Grid>
+                    <Grid item xs={12}>
+                        <Typography variant="body1">Email del apoderado: {s.email_apoderado}</Typography>
+                    </Grid>
+                    <Grid item xs={12}>
+                        <Typography variant="body1">Domicilio legal: {s.domicilio_legal}</Typography>
+                    </Grid>
+                    <Grid item xs={12}>
+                        <Typography variant="body1">Domicilio real: {s.domicilio_real}</Typography>
+                    </Grid>
+                    <Grid item xs={12}>
+                        <Typography variant="body1">Fecha de creación: {this.formatDate(s.fecha_creacion)}</Typography>
+                    </Grid>
+                </Grid>
+                <Grid item xs={5}>
+                    <Grid item xs={12}>
+                        <Typography sx={{ fontSize: 18 }}>
+                            Socios
+                        </Typography>
+                    </Grid>
+                    <Grid item xs={12}>
+                        <Divider sx={{ mb: 1, width: '85%' }} />
+                    </Grid>
+                    {this.mostrarSocios(s)}
+                </Grid>
+            </Grid>
+        )
+    }
+
+    textoEstadoEvaluacion(sociedad) {
+        if (sociedad.estado_evaluacion.includes("endiente mesa de entradas")) {
+            return 'Solicitud lista para evaluar'
+        }
+        else return sociedad.estado_evaluacion
+    }
+
+    mostrarSocios(sociedad) {
+        let apoderado = sociedad.apoderado_id;
+        return sociedad.socios.map((s) =>
+            <Grid key={s.id} item xs={12}>
+                <Typography
+                    variant="body1"
+                >
+                    <b>{s.nombre} {s.apellido}
+                        {s.id === apoderado && ' (apoderado)'}</b>, con un {s.porcentaje}%.
+                </Typography>
             </Grid>
         )
     }
@@ -271,16 +490,70 @@ export default class MesaDeEntradasDashboard extends Component {
                                 </Typography>
                                 <Divider sx={{ my: 2 }} />
                                 <Grid container spacing={2}>
-                                    {this.state.solicitudesAsignadasCargadas && (this.state.solicitudesAsignadas.length !== 0) ?
-                                        this.mostrarSolicitudesAsignadas()
+                                    {(!this.state.solicitudesAsignadasCargadas || !this.state.sociedadesCargadas) ?
+                                        <CircularProgress />
                                         :
-                                        <Grid item><span>No tenés asignada ninguna solicitud.</span></Grid>
+                                        (this.state.solicitudesAsignadas.length !== 0) ?
+                                            this.mostrarSolicitudesAsignadas()
+                                            :
+                                            <Grid item><span>No tenés asignada ninguna solicitud.</span></Grid>
                                     }
                                 </Grid>
                             </Paper>
                         </Grid>
+                        {/*<Button onClick={() => console.log(this.state.abrirInfoSociedad)}>Acordión</Button>*/}
                     </Grid>
                 </Box>
+
+                {/* Diálogo de confirmación de aprobación de solicitud */}
+                <Dialog
+                    open={this.state.abrirDialogoConfirmacion}
+                    onClose={this.handleCloseDialogoConfirmacion}
+                >
+                    <DialogTitle>Confirmar operación</DialogTitle>
+                    <DialogContent>
+                        <DialogContentText>
+                            ¿Estás seguro que querés aprobar la solicitud?
+                            Es la solicitud nro. <b>{this.state.solicitudAConfirmar.id}</b>, para registrar
+                            la Sociedad Anónima <b>{this.state.sociedadAConfirmar.nombre}</b>.
+                            Esta operación es irreversible.
+                        </DialogContentText>
+                        <DialogActions>
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                onClick={this.aceptarSolicitud}
+                            >
+                                Aprobar
+                            </Button>
+                            <Button
+                                variant="contained"
+                                color="error"
+                                onClick={this.handleCloseDialogoConfirmacion}
+                            >
+                                Cancelar
+                            </Button>
+                        </DialogActions>
+                    </DialogContent>
+                </Dialog>
+
+                {/* Alert de aprobación de solicitud exitosa */}
+                <Snackbar
+                    open={this.state.mostrarAlertAprobacionExitosa}
+                    onClose={this.noMostrarAlertAprobacionExitosa}
+                    sx={{ width: '80%' }}
+                    spacing={2}
+                    anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+                >
+                    <Alert
+                        variant="filled"
+                        onClose={this.noMostrarAlertAprobacionExitosa}
+                        closeText={'Cerrar'}
+                    >
+                        <AlertTitle>Aprobaste la solicitud correctamente</AlertTitle>
+                    </Alert>
+                </Snackbar>
+
             </Container>
         )
     }

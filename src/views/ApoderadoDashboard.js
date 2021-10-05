@@ -97,6 +97,9 @@ export default class ApoderadoDashboard extends Component {
     if (sociedad.estado_evaluacion.includes("endiente mesa de entradas")) {
       return 'El trámite está siendo evaluado por la mesa de entradas'
     }
+    else if (sociedad.estado_evaluacion.includes("probado por empleado-mesa")) {
+      return '¡El trámite ya fue aprobado por mesa de entradas! Ahora un escribano está evaluando el estatuto'
+    }
     else return sociedad.estado_evaluacion
   }
 
@@ -281,7 +284,7 @@ export default class ApoderadoDashboard extends Component {
         {/* Aviso de solicitud de SA exitoso*/}
         <Snackbar
           open={this.state.mostrarAlertRegistroSAExitoso}
-          onCLose={this.noMostrarAlertRegistroSAExitoso}
+          onClose={this.noMostrarAlertRegistroSAExitoso}
           sx={{ width: '80%' }}
           spacing={2}
           anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
@@ -299,7 +302,7 @@ export default class ApoderadoDashboard extends Component {
         {/* Aviso de registro de usuario exitoso*/}
         <Snackbar
           open={this.state.alertPrimerInicio}
-          onCLose={this.noMostrarAlertPrimerInicio}
+          onClose={this.noMostrarAlertPrimerInicio}
           sx={{ width: '80%' }}
           spacing={2}
           anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
