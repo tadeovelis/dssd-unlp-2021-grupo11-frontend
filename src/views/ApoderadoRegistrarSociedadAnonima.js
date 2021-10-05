@@ -312,7 +312,7 @@ export default class ApoderadoDashboard extends Component {
         formData.append('socios', socios);
         formData.append('archivo_estatuto', this.state.archivo_estatuto);
 
-        fetch('http://localhost/' + ruta, {
+        fetch(env("BACKEND_URL") + ruta, {
             method: 'POST',
             credentials: 'include',
             headers: {

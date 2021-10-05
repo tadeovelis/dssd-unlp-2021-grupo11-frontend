@@ -76,7 +76,7 @@ export default class ApoderadoDashboard extends Component {
   getTramitesEnCurso() {
     let ruta = 'api/sociedadesAnonimas';
 
-    fetch('http://localhost/' + ruta, {
+    fetch(env("BACKEND_URL") + ruta, {
       method: 'GET',
       credentials: 'include',
       headers: {
