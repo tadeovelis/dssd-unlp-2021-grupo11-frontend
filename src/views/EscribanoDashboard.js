@@ -11,6 +11,8 @@ import '../assets/css/dashboard.css'
 
 import env from "@beam-australia/react-env";
 
+import { textoEstadoDeEvaluacion } from '../helpers/helpers';
+
 import { Link } from "react-router-dom";
 
 
@@ -90,8 +92,8 @@ export default class EscribanoDashboard extends Component {
         let textoBoton = '';
 
         if (accion === "true") {
-            texto = '¿Estás seguro que querés aprobar la solicitud?';
-            textoBoton = 'Aprobar';
+            texto = '¿Estás seguro que querés validar la solicitud?';
+            textoBoton = 'Validar';
         }
         else {
             texto = '¿Estás seguro que querés rechazar la solicitud?';
@@ -278,7 +280,7 @@ export default class EscribanoDashboard extends Component {
     // Setea todo para mostrar el alert de aprobación o rechazo de solicitud
     mostrarAlert(accion) {
         let texto = (accion === "true")
-            ? 'Aprobaste la solicitud correctamente' : 'Rechazaste la solicitud correctamente';
+            ? 'Validaste la solicitud correctamente' : 'Rechazaste la solicitud correctamente';
 
         this.setState({
             textoAlertAprobacionORechazoExitoso: texto
@@ -402,7 +404,7 @@ export default class EscribanoDashboard extends Component {
                             fontSize: 14,
                             mt: -1,
                         }}
-                    >{this.textoEstadoEvaluacion(s)}
+                    >{textoEstadoDeEvaluacion(s, "escribano")}
                     </Typography>
                 </Grid>
                 <Grid item xs={7}>
@@ -453,13 +455,6 @@ export default class EscribanoDashboard extends Component {
                 </Grid>
             </Grid>
         )
-    }
-
-    textoEstadoEvaluacion(sociedad) {
-        if (sociedad.estado_evaluacion.includes("probado por empleado-mesa")) {
-            return 'Solicitud lista para evaluar estatuto'
-        }
-        else return sociedad.estado_evaluacion
     }
 
     mostrarSocios(sociedad) {

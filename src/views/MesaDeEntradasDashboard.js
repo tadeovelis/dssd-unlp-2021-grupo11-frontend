@@ -11,6 +11,8 @@ import '../assets/css/dashboard.css'
 
 import env from "@beam-australia/react-env";
 
+import { textoEstadoDeEvaluacion } from '../helpers/helpers';
+
 
 const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
     height: 8,
@@ -400,7 +402,7 @@ export default class MesaDeEntradasDashboard extends Component {
                             fontSize: 14,
                             mt: -1,
                         }}
-                    >{this.textoEstadoEvaluacion(s)}
+                    >{textoEstadoDeEvaluacion(s, "mesa-de-entradas")}
                     </Typography>
                 </Grid>
                 <Grid item xs={7}>
@@ -436,13 +438,6 @@ export default class MesaDeEntradasDashboard extends Component {
                 </Grid>
             </Grid>
         )
-    }
-
-    textoEstadoEvaluacion(sociedad) {
-        if (sociedad.estado_evaluacion.includes("endiente mesa de entradas")) {
-            return 'Solicitud lista para evaluar'
-        }
-        else return sociedad.estado_evaluacion
     }
 
     mostrarSocios(sociedad) {

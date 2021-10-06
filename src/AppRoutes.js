@@ -8,6 +8,7 @@ const Registro = lazy(() => import("views/Registro.js"));
 
 const ApoderadoDashboard = lazy(() => import("views/ApoderadoDashboard.js"));
 const ApoderadoRegistrarSociedadAnonima = lazy(() => import("views/ApoderadoRegistrarSociedadAnonima.js"));
+const ApoderadoCorregirSociedadAnonima = lazy(() => import("views/ApoderadoCorregirSociedadAnonima.js"));
 
 const MesaDeEntradasDashboard = lazy(() => import("views/MesaDeEntradasDashboard.js"));
 
@@ -29,6 +30,7 @@ class AppRoutes extends Component {
                     {/* Apoderado */}
                     <Route path="/apoderado/inicio" component={ApoderadoDashboard} />
                     <Route path="/apoderado/registrar-sociedad-anonima" component={ApoderadoRegistrarSociedadAnonima} />
+                    <Route path="/apoderado/corregir-sociedad-anonima" component={ApoderadoCorregirSociedadAnonima} />
 
                     {/* Mesa de Entradas */}
                     <Route path="/empleado-mesa-de-entradas/inicio" component={MesaDeEntradasDashboard} />

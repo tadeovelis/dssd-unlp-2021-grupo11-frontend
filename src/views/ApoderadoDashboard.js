@@ -1,13 +1,20 @@
 import { React, Component } from "react";
 
-import { Container, Grid, Paper, Divider, Typography, Box, Button, Snackbar, Alert, AlertTitle } from '@mui/material';
+import { Container, Grid, Paper, Divider, Typography, Box, Button, Snackbar, Alert, AlertTitle, TextField } from '@mui/material';
 import LinearProgress, { linearProgressClasses } from '@mui/material/LinearProgress';
 import { styled } from '@mui/material/styles';
+import DescriptionIcon from '@mui/icons-material/Description';
 
 import '../assets/css/dashboard.css'
 
 import env from "@beam-australia/react-env";
 
+import { textoEstadoDeEvaluacion } from '../helpers/helpers';
+
+
+const formatosValidosEstatuto = 'application/pdf,' +
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document,' +
+  'application/vnd.oasis.opendocument.text';
 
 const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
   height: 8,
@@ -32,12 +39,21 @@ export default class ApoderadoDashboard extends Component {
 
       sociedades: null,
       sociedadesCargadas: false,
-      textoEstadoEvaluacion: []
+
+      mostrarAlertCorreccionSAExitosa: false,
+
+      archivo_estatuto: null,
+      mostrarAlertActualizacionEstatutoExitosa: false,
     }
 
     this.getTramitesEnCurso = this.getTramitesEnCurso.bind(this);
     this.noMostrarAlertRegistroSAExitoso = this.noMostrarAlertRegistroSAExitoso.bind(this);
+    this.noMostrarAlertCorreccionSAExitosa = this.noMostrarAlertCorreccionSAExitosa.bind(this);
+    this.noMostrarAlertActualizacionEstatutoExitosa = this.noMostrarAlertActualizacionEstatutoExitosa.bind(this);
     this.noMostrarAlertPrimerInicio = this.noMostrarAlertPrimerInicio.bind(this);
+    this.handleChangeEstatuto = this.handleChangeEstatuto.bind(this);
+    this.actualizarEstatuto = this.actualizarEstatuto.bind(this);
+
   }
 
   componentDidMount() {
@@ -51,6 +67,12 @@ export default class ApoderadoDashboard extends Component {
       this.setState({
         primerInicio: true,
         alertPrimerInicio: true
+      })
+    }
+
+    if (this.props.location.state.correccionDeSAExitosa) {
+      this.setState({
+        mostrarAlertCorreccionSAExitosa: true
       })
     }
 
@@ -69,11 +91,63 @@ export default class ApoderadoDashboard extends Component {
       mostrarAlertRegistroSAExitoso: false
     })
   }
+  noMostrarAlertCorreccionSAExitosa() {
+    this.setState({
+      mostrarAlertCorreccionSAExitosa: false
+    })
+  }
+  noMostrarAlertActualizacionEstatutoExitosa() {
+    this.setState({
+      mostrarAlertActualizacionEstatutoExitosa: false
+    })
+  }
   noMostrarAlertPrimerInicio() {
     this.setState({
       alertPrimerInicio: false
     })
   }
+
+  // Maneja la subida del archivo del estatuto
+  handleChangeEstatuto(e) {
+    if (e.target.files[0]) {
+      this.setState({
+        archivo_estatuto: e.target.files[0]
+      })
+    }
+    else this.setState({
+      archivo_estatuto: this.state.archivo_estatuto
+    })
+  }
+
+  actualizarEstatuto(sociedad) {
+    alert("Todavía no implementado");
+    return false
+    console.log(sociedad.id);
+    let ruta = 'api/estatuto';
+
+    let formData = new FormData();
+    formData.append('archivo_estatuto', this.state.archivo_estatuto);
+    formData.append('idSociedad', sociedad.id);
+
+    fetch(env("BACKEND_URL") + ruta, {
+      method: 'PUT',
+      credentials: 'include',
+      headers: {
+        'Authorization': 'Bearer ' + this.props.location.state.data.auth.access_token
+      },
+      body: formData
+    })
+      .then(response => response.json())
+      .then(data => {
+        console.log(data);
+        this.setState({
+          archivo_estatuto: null,
+          mostrarAlertActualizacionEstatutoExitosa: true,
+        }, () => this.getTramitesEnCurso())
+      })
+      .catch(error => console.error(error));
+  }
+
 
   getTramitesEnCurso() {
     let ruta = 'api/sociedadesAnonimas';
@@ -95,20 +169,15 @@ export default class ApoderadoDashboard extends Component {
       .catch(error => console.error(error));
   }
 
-  textoEstadoEvaluacion(sociedad) {
-    if (sociedad.estado_evaluacion.includes("endiente mesa de entradas")) {
-      return 'El trámite está siendo evaluado por la mesa de entradas'
-    }
-    else if (sociedad.estado_evaluacion.includes("probado por empleado-mesa")) {
-      return '¡El trámite ya fue aprobado por mesa de entradas! Ahora un escribano está evaluando el estatuto'
-    }
-    else if (sociedad.estado_evaluacion.includes("echazado por empleado-mesa")) {
-      return 'El trámite fue rechazado por la mesa de entradas. Por favor, revisá tu email para conocer los detalles'
-    }
-    
-    else return sociedad.estado_evaluacion
+  redirectACorregirSolicitud(sociedad) {
+    this.props.history.push({
+      pathname: '/apoderado/corregir-sociedad-anonima',
+      state: {
+        data: this.props.location.state.data,
+        sociedad: sociedad,
+      }
+    })
   }
-
 
   formatDate(date) {
     var d = new Date(date),
@@ -140,13 +209,14 @@ export default class ApoderadoDashboard extends Component {
     if (this.state.sociedadesCargadas) {
       return this.state.sociedades.map((s) =>
         <Box
+          key={s.id}
           sx={{
             border: '0.1px solid #e8e8e8',
             px: 3,
             py: 2,
             mb: 2
           }}>
-          <Grid key={s.id} container spacing={1}>
+          <Grid container spacing={1}>
             <Grid item xs={12}>
               <Typography variant="h6">{s.nombre}</Typography>
             </Grid>
@@ -163,8 +233,70 @@ export default class ApoderadoDashboard extends Component {
                   fontSize: 14,
                   mt: -1,
                 }}
-              >{this.textoEstadoEvaluacion(s)}
+              >{textoEstadoDeEvaluacion(s, "apoderado")}
               </Typography>
+            </Grid>
+            {/* Si tiene que corregir la solicitud... */}
+            <Grid item xs={12}>
+              {s.estado_evaluacion.includes("Rechazado por empleado-mesa") &&
+                <Grid item xs={12}>
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    color="warning"
+                    sx={{ my: 1 }}
+                    onClick={this.redirectACorregirSolicitud.bind(this, s)}
+                  >
+                    Corregir solicitud
+                  </Button>
+                </Grid>
+              }
+            </Grid>
+            {/* Si tiene que actualizar el estatuto... */}
+            <Grid item xs={12}>
+              {s.estado_evaluacion.includes("Rechazado por escribano") &&
+                <Grid container spacing={1}>
+                  <Grid item xs={5}>
+                    <label htmlFor="botonSubirEstatuto">
+                      <TextField
+                        id='botonSubirEstatuto'
+                        type="file"
+                        inputProps={{ accept: formatosValidosEstatuto }}
+                        style={{ display: 'none' }}
+                        onChange={this.handleChangeEstatuto}
+                        required
+                      />
+                      <Button
+                        variant="outlined"
+                        component="span"
+                        color="warning"
+                        startIcon={<DescriptionIcon />}
+                      >
+                        Actualizar estatuto
+                      </Button>
+                    </label>
+                  </Grid>
+                  <Grid item xs={7}>
+                    {this.state.archivo_estatuto !== null &&
+                      <span>Nombre: {this.state.archivo_estatuto.name}</span>
+                    }
+                  </Grid>
+                  <Grid item xs={12} sx={{ mb: 2, fontSize: 15 }}>
+                    <span>Recordá que los formatos válidos son: PDF, docx, ODT.</span>
+                  </Grid>
+                  {this.state.archivo_estatuto !== null &&
+                    <Grid item xs={12} sx={{ mb: 2, fontSize: 15 }}>
+                      <Button
+                        variant="contained"
+                        color="warning"
+                        onClick={this.actualizarEstatuto.bind(this, s)}
+                      >
+                        Enviar estatuto actualizado
+                      </Button>
+                    </Grid>
+                  }
+                </Grid>
+              }
             </Grid>
             <Grid item xs={7}>
               <Typography sx={{ fontSize: 18 }}>
@@ -269,15 +401,15 @@ export default class ApoderadoDashboard extends Component {
 
             {/* Listado de trámites en curso - Paper */}
             <Grid item xs={8}>
-              <Paper className="apoderado-paper">
+              <Paper className="dashboard-paper">
                 <Grid container spacing={2}>
                   <Grid item xs={12}>
-                    <h1 className="apoderado-titulo" variant="h1">Trámites en curso</h1>
+                    <h1 className="dashboard-titulo" variant="h1">Trámites en curso</h1>
                   </Grid>
                   <Grid item xs={12}>
                     {this.state.sociedadesCargadas && (this.state.sociedades.length !== 0) ?
                       this.mostrarSociedades()
-                    :
+                      :
                       <span>Todavía no tenés ningún trámite en curso</span>
                     }
                   </Grid>
@@ -287,7 +419,7 @@ export default class ApoderadoDashboard extends Component {
           </Grid>
         </Box>
 
-        {/* Aviso de solicitud de SA exitoso*/}
+        {/* Aviso de registro de solicitud de SA exitoso*/}
         <Snackbar
           open={this.state.mostrarAlertRegistroSAExitoso}
           onClose={this.noMostrarAlertRegistroSAExitoso}
@@ -303,6 +435,40 @@ export default class ApoderadoDashboard extends Component {
             <AlertTitle>¡La solicitud se ha registrado exitosamente!</AlertTitle>
             Ya podés visualizar tu trámite en la sección "Trámites en curso". La Mesa de Entradas evaluará la solicitud y
             te notificará cualquier novedad por correo electrónico, así que revisá tu bandeja de entrada regularmente.</Alert>
+        </Snackbar>
+
+        {/* Aviso de corrección de solicitud de SA exitosa*/}
+        <Snackbar
+          open={this.state.mostrarAlertCorreccionSAExitosa}
+          onClose={this.noMostrarAlertCorreccionSAExitosa}
+          sx={{ width: '80%' }}
+          spacing={2}
+          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        >
+          <Alert
+            variant="filled"
+            onClose={this.noMostrarAlertCorreccionSAExitosa}
+            closeText={'Cerrar'}
+          >
+            <AlertTitle>¡La solicitud se ha corregido exitosamente!</AlertTitle>
+            La mesa de entradas volverá a evaluar tu solicitud. Ante cualquier novedad te notificarán mediante correo electrónico.</Alert>
+        </Snackbar>
+
+        {/* Aviso de actualización de estatuto exitoso*/}
+        <Snackbar
+          open={this.state.mostrarAlertActualizacionEstatutoExitosa}
+          onClose={this.noMostrarAlertActualizacionEstatutoExitosa}
+          sx={{ width: '80%' }}
+          spacing={2}
+          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        >
+          <Alert
+            variant="filled"
+            onClose={this.noMostrarAlertActualizacionEstatutoExitosa}
+            closeText={'Cerrar'}
+          >
+            <AlertTitle>¡El estatuto se actualizó exitosamente!</AlertTitle>
+            Un escribano volverá a evaluar el estatuto. Ante cualquier novedad te notificará mediante correo electrónico.</Alert>
         </Snackbar>
 
         {/* Aviso de registro de usuario exitoso*/}
@@ -321,6 +487,7 @@ export default class ApoderadoDashboard extends Component {
             <AlertTitle>¡Registro exitoso!</AlertTitle>
             Ya podés registrar tu Sociedad Anónima.</Alert>
         </Snackbar>
+
 
       </Container>
     )
