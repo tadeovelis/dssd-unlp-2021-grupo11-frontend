@@ -10,13 +10,15 @@ export function textoEstadoDeEvaluacion(tramite, rol) {
         return '¡El trámite ya fue aprobado por mesa de entradas! Ahora un escribano está evaluando el estatuto'
       }
       else if (tramite.estado_evaluacion.includes("echazado por empleado-mesa")) {
-        return 'El trámite fue rechazado por la mesa de entradas. Por favor, revisá tu email para conocer los detalles'
+        return 'El trámite fue rechazado por la mesa de entradas. Por favor, revisá tu email para conocer los detalles. '+
+                'Cuando ya sepas qué datos tenés que corregir, hacé click en "Corregir solicitud"'
       }
       else if (tramite.estado_evaluacion.includes("probado por escribano-area")) {
         return '¡FELICITACIONES! El trámite fue validado por el escribano y la sociedad ya fue registrada'
       }
       else if (tramite.estado_evaluacion.includes("echazado por escribano-area")) {
-        return '¡FELICITACIONES! El trámite fue validado por el escribano y la sociedad ya fue registrada'
+        return 'El estatuto fue rechazado por el escribano. Por favor, revisá tu email para conocer los detalles. '+
+                'Cuando ya sepas qué datos corregir, hacé click en "Actualizar estatuto"'
       }
       break;
 

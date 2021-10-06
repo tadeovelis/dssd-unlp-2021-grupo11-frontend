@@ -36,7 +36,8 @@ export default class ApoderadoCorregirSociedadAnonima extends Component {
 
             // Socios
             cantSocios: 1,
-            socio1: { apellido: '', nombre: '', porcentaje: 0, apoderado: 'false' },
+            socio1: { apellido: '', nombre: '', porcentaje: 0, apoderado: false },
+            sociosCargados: false,
 
             // Estatuto
             archivo_estatuto: null,
@@ -60,10 +61,44 @@ export default class ApoderadoCorregirSociedadAnonima extends Component {
     }
 
     componentDidMount() {
-        // Instanciar todos los campos con la información de la sociedad
+        // Actualizar todos los campos con la información de la sociedad
+        let s = this.props.location.state.sociedad;
         this.setState({
             ...this.state,
-        })
+            nombre: s.nombre,
+            fecha_creacion: s.fecha_creacion,
+            domicilio_legal: s.domicilio_legal,
+            domicilio_real: s.domicilio_real,
+            email_apoderado: s.email_apoderado,
+            cantSocios: s.socios.length
+        }, () => {
+            // Actualizar el estado de socios
+            this.actualizarSocios(s);
+        });
+
+    }
+
+    actualizarSocios(s) {
+        for (let i = 0; i < s.socios.length; i++) {
+            let soc = 'socio' + (i + 1);
+            let apoderado = (s.socios[i].id === s.apoderado_id) ? true : false;
+            this.setState({
+                [soc]: {
+                    apellido: s.socios[i].apellido,
+                    nombre: s.socios[i].nombre,
+                    porcentaje: s.socios[i].porcentaje,
+                    apoderado: apoderado,
+                }
+            }, () => {
+                if (i === s.socios.length - 1) {
+                    // Habilitar el armado de los forms de los socios
+                    this.setState({ sociosCargados: true }, () => {
+                        // Actualizar botón final
+                        this.validarSiEstanTodosLosDatosCompletados();
+                    })
+                }
+            })
+        }
     }
 
     // Maneja los cambios de los datos generales
@@ -82,10 +117,9 @@ export default class ApoderadoCorregirSociedadAnonima extends Component {
 
     // Maneja los cambios del checkbox de Es Apoderado
     handleChangeEsApoderado(e) {
-        let valor = e.target.checked ? "true" : "false";
         let socio = 'socio' + e.currentTarget.getAttribute('data-numdesocio');
         this.setState({
-            [socio]: { ...this.state[socio], [e.target.name]: valor }
+            [socio]: { ...this.state[socio], [e.target.name]: e.target.checked }
         }, () => {
             this.validarSiEstanTodosLosDatosCompletados()
         })
@@ -220,6 +254,7 @@ export default class ApoderadoCorregirSociedadAnonima extends Component {
                                 control={
                                     <Checkbox
                                         onChange={this.handleChangeEsApoderado}
+                                        checked={this.state[soc].apoderado}
                                         inputProps={{
                                             'data-numdesocio': (i + 1)
                                         }} />
@@ -241,10 +276,11 @@ export default class ApoderadoCorregirSociedadAnonima extends Component {
             let socios = [];
             for (let i = 0; i < this.state.cantSocios; i++) {
                 let soc = 'socio' + (i + 1);
+                let apoderado = this.state[soc].apoderado ? "true" : "false"
                 socios.push(
                     {
                         'apellido': this.state[soc].apellido, 'nombre': this.state[soc].nombre,
-                        'porcentaje': this.state[soc].porcentaje, 'apoderado': this.state[soc].apoderado
+                        'porcentaje': this.state[soc].porcentaje, 'apoderado': apoderado
                     }
                 )
             }
@@ -277,8 +313,9 @@ export default class ApoderadoCorregirSociedadAnonima extends Component {
     }
     validarSiEstanTodosLosDatosCompletados() {
         if (this.seCompletaronLosDatosGenerales() &&
-            this.seCompletaronLosSocios() &&
-            this.seSubioElEstatuto()) {
+            this.seCompletaronLosSocios()
+            //&&this.seSubioElEstatuto()
+        ) {
             this.setState({
                 todosLosDatosCompletados: true
             })
@@ -310,25 +347,23 @@ export default class ApoderadoCorregirSociedadAnonima extends Component {
         this.setState({
             activarCircularProgress: true
         })
-        let ruta = 'api/sociedadAnonima';
+        let ruta = 'api/sociedadAnonima/' + this.props.location.state.sociedad.id;
         let socios = this.armarJSONSocios();
-        let formData = new FormData();
-        formData.append('nombre', this.state.nombre);
-        formData.append('fecha_creacion', this.formatDate(this.state.fecha_creacion.toDateString()));
-        formData.append('domicilio_legal', this.state.domicilio_legal);
-        formData.append('domicilio_real', this.state.domicilio_real);
-        formData.append('email_apoderado', this.state.email_apoderado);
-        formData.append('socios', socios);
-        formData.append('archivo_estatuto', this.state.archivo_estatuto);
+       
 
         fetch(env("BACKEND_URL") + ruta, {
-            method: 'POST',
+            method: 'PATCH',
             credentials: 'include',
             headers: {
                 'Authorization': 'Bearer ' + this.props.location.state.data.auth.access_token
             },
-            body: formData
-        })
+            body: new URLSearchParams({
+                'fecha_creacion': this.formatDate(new Date(this.state.fecha_creacion).toDateString()),
+                'domicilio_legal': this.state.domicilio_legal,
+                'domicilio_real': this.state.domicilio_real,
+                'email_apoderado': this.state.email_apoderado,
+                'socios': socios
+            })})
             .then(response => response.json())
             .then(data => {
                 if (data.error) alert("Datos incorrectos")
@@ -341,7 +376,7 @@ export default class ApoderadoCorregirSociedadAnonima extends Component {
                     this.props.history.push({
                         pathname: '/apoderado/inicio',
                         state: {
-                            registroDeSAExitoso: true,
+                            correccionDeSAExitosa: true,
                             refreshTramites: true,
                             data: this.props.location.state.data
                         }
@@ -358,13 +393,14 @@ export default class ApoderadoCorregirSociedadAnonima extends Component {
                 <Box p={2}>
                     <Paper className="dashboard-paper">
                         <span className="apoderado-registrar-sa-titulo">
-                            Registro de Sociedad Anónima
+                            Corrección de solicitud de registro de Sociedad Anónima
                         </span>
-                        <p>Ingresá los siguientes datos. Todos los campos son obligatorios.</p>
+                        <p>Corregí sólo los datos que te especificaron en el correo electrónico.</p>
                         <Grid container spacing={3}>
                             <Grid item xs={4}>
                                 <FormControl fullWidth={true}>
                                     <TextField
+                                        disabled
                                         name="nombre"
                                         id="nombre"
                                         placeholder="Sancor S.A."
@@ -454,7 +490,7 @@ export default class ApoderadoCorregirSociedadAnonima extends Component {
                                 {/* Forms de los socios */}
                                 <Grid item xs={12}>
                                     <Box>
-                                        {this.generarFormsSocios()}
+                                        {this.state.sociosCargados && this.generarFormsSocios()}
                                     </Box>
                                 </Grid>
                             </Grid>
@@ -482,11 +518,12 @@ export default class ApoderadoCorregirSociedadAnonima extends Component {
                         {/* Componente para el archivo del estatuto */}
                         <Grid container spacing={2} alignItems='center'>
                             <Grid item xs={12}>
-                                <p>Hacé click en el botón para subir el Estatuto. Los formatos válidos son: PDF, docx, ODT.</p>
+                                <p>El estatuto se validará en la próxima instancia, ahora no es necesario que lo modifiques.</p>
                             </Grid>
                             <Grid item xs={2}>
                                 <label htmlFor="botonSubirEstatuto">
                                     <TextField
+                                        disabled
                                         id='botonSubirEstatuto'
                                         type="file"
                                         inputProps={{ accept: formatosValidosEstatuto }}
@@ -495,6 +532,7 @@ export default class ApoderadoCorregirSociedadAnonima extends Component {
                                         required
                                     />
                                     <Button
+                                        disabled
                                         variant="outlined"
                                         component="span"
                                         color="primary"
@@ -523,7 +561,7 @@ export default class ApoderadoCorregirSociedadAnonima extends Component {
                                 {this.state.todosLosDatosCompletados ?
                                     <p>Revisá bien todos los datos, y cuando estés listo hacé click en el botón.</p>
                                     :
-                                    <p>Para registrar la sociedad primero completá todos los datos necesarios.</p>
+                                    <p>Para corregir la solicitud primero completá todos los datos necesarios.</p>
                                 }
                             </Grid>
                             <Grid item xs={12}>
@@ -533,7 +571,7 @@ export default class ApoderadoCorregirSociedadAnonima extends Component {
                                     disabled={!this.state.todosLosDatosCompletados}
                                     onClick={this.handleSubmit}
                                 >
-                                    Registrar mi sociedad anónima
+                                    Corregir la solicitud con los nuevos cambios
                                 </Button>
                             </Grid>
                             <Grid item xs={3}>
@@ -542,7 +580,7 @@ export default class ApoderadoCorregirSociedadAnonima extends Component {
                         </Grid>
                     </Paper>
                 </Box>
-            </Container>
+            </Container >
         )
     }
 }
