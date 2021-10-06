@@ -106,6 +106,9 @@ export default class ApoderadoDashboard extends Component {
     else if (sociedad.estado_evaluacion.includes("echazado por empleado-mesa")) {
       return 'El trámite fue rechazado por la mesa de entradas. Por favor, revisá tu email para conocer los detalles'
     }
+    else if (sociedad.estado_evaluacion.includes("probado por escribano-area")) {
+      return '¡FELICITACIONES! El trámite fue evaluado por el escribano y la sociedad ya fue registrada'
+    }
     
     else return sociedad.estado_evaluacion
   }

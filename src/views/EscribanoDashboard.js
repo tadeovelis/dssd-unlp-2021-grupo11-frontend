@@ -90,8 +90,8 @@ export default class EscribanoDashboard extends Component {
         let textoBoton = '';
 
         if (accion === "true") {
-            texto = '¿Estás seguro que querés aprobar la solicitud?';
-            textoBoton = 'Aprobar';
+            texto = '¿Estás seguro que querés validar la solicitud?';
+            textoBoton = 'Validar';
         }
         else {
             texto = '¿Estás seguro que querés rechazar la solicitud?';
@@ -278,7 +278,7 @@ export default class EscribanoDashboard extends Component {
     // Setea todo para mostrar el alert de aprobación o rechazo de solicitud
     mostrarAlert(accion) {
         let texto = (accion === "true")
-            ? 'Aprobaste la solicitud correctamente' : 'Rechazaste la solicitud correctamente';
+            ? 'Validaste la solicitud correctamente' : 'Rechazaste la solicitud correctamente';
 
         this.setState({
             textoAlertAprobacionORechazoExitoso: texto
