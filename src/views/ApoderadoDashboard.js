@@ -140,6 +140,7 @@ export default class ApoderadoDashboard extends Component {
     if (this.state.sociedadesCargadas) {
       return this.state.sociedades.map((s) =>
         <Box
+          key={s.id}
           sx={{
             border: '0.1px solid #e8e8e8',
             px: 3,
@@ -269,10 +270,10 @@ export default class ApoderadoDashboard extends Component {
 
             {/* Listado de trámites en curso - Paper */}
             <Grid item xs={8}>
-              <Paper className="apoderado-paper">
+              <Paper className="dashboard-paper">
                 <Grid container spacing={2}>
                   <Grid item xs={12}>
-                    <h1 className="apoderado-titulo" variant="h1">Trámites en curso</h1>
+                    <h1 className="dashboard-titulo" variant="h1">Trámites en curso</h1>
                   </Grid>
                   <Grid item xs={12}>
                     {this.state.sociedadesCargadas && (this.state.sociedades.length !== 0) ?
