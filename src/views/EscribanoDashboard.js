@@ -11,6 +11,8 @@ import '../assets/css/dashboard.css'
 
 import env from "@beam-australia/react-env";
 
+import { textoEstadoDeEvaluacion } from '../helpers/helpers';
+
 import { Link } from "react-router-dom";
 
 
@@ -402,7 +404,7 @@ export default class EscribanoDashboard extends Component {
                             fontSize: 14,
                             mt: -1,
                         }}
-                    >{this.textoEstadoEvaluacion(s)}
+                    >{textoEstadoDeEvaluacion(s, "escribano")}
                     </Typography>
                 </Grid>
                 <Grid item xs={7}>
@@ -453,13 +455,6 @@ export default class EscribanoDashboard extends Component {
                 </Grid>
             </Grid>
         )
-    }
-
-    textoEstadoEvaluacion(sociedad) {
-        if (sociedad.estado_evaluacion.includes("probado por empleado-mesa")) {
-            return 'Solicitud lista para evaluar estatuto'
-        }
-        else return sociedad.estado_evaluacion
     }
 
     mostrarSocios(sociedad) {

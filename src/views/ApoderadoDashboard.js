@@ -8,6 +8,8 @@ import '../assets/css/dashboard.css'
 
 import env from "@beam-australia/react-env";
 
+import { textoEstadoDeEvaluacion } from '../helpers/helpers';
+
 
 const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
   height: 8,
@@ -32,7 +34,6 @@ export default class ApoderadoDashboard extends Component {
 
       sociedades: null,
       sociedadesCargadas: false,
-      textoEstadoEvaluacion: [],
     }
 
     this.getTramitesEnCurso = this.getTramitesEnCurso.bind(this);
@@ -96,24 +97,6 @@ export default class ApoderadoDashboard extends Component {
       .catch(error => console.error(error));
   }
 
-  textoEstadoEvaluacion(sociedad) {
-    if (sociedad.estado_evaluacion.includes("endiente mesa de entradas")) {
-      return 'El trámite está siendo evaluado por la mesa de entradas'
-    }
-    else if (sociedad.estado_evaluacion.includes("probado por empleado-mesa")) {
-      return '¡El trámite ya fue aprobado por mesa de entradas! Ahora un escribano está evaluando el estatuto'
-    }
-    else if (sociedad.estado_evaluacion.includes("echazado por empleado-mesa")) {
-      return 'El trámite fue rechazado por la mesa de entradas. Por favor, revisá tu email para conocer los detalles'
-    }
-    else if (sociedad.estado_evaluacion.includes("probado por escribano-area")) {
-      return '¡FELICITACIONES! El trámite fue evaluado por el escribano y la sociedad ya fue registrada'
-    }
-    
-    else return sociedad.estado_evaluacion
-  }
-
-
   formatDate(date) {
     var d = new Date(date),
       month = '' + (d.getMonth() + 1),
@@ -168,8 +151,11 @@ export default class ApoderadoDashboard extends Component {
                   fontSize: 14,
                   mt: -1,
                 }}
-              >{this.textoEstadoEvaluacion(s)}
+              >{textoEstadoDeEvaluacion(s, "apoderado")}
               </Typography>
+            </Grid>
+            <Grid item xs={12}>
+
             </Grid>
             <Grid item xs={7}>
               <Typography sx={{ fontSize: 18 }}>
