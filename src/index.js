@@ -35,7 +35,16 @@ const theme = createTheme({
       main: "#4ebc58",
       contrastText: '#ffffff'
     }
+  },
+  components: {
+    MuiTextField: {
+      defaultProps: {
+          variant: 'standard'
+      }
+    }
+
   }
+
 });
 
 ReactDOM.render(

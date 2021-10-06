@@ -32,7 +32,7 @@ export default class ApoderadoDashboard extends Component {
 
       sociedades: null,
       sociedadesCargadas: false,
-      textoEstadoEvaluacion: []
+      textoEstadoEvaluacion: [],
     }
 
     this.getTramitesEnCurso = this.getTramitesEnCurso.bind(this);
@@ -74,6 +74,7 @@ export default class ApoderadoDashboard extends Component {
       alertPrimerInicio: false
     })
   }
+
 
   getTramitesEnCurso() {
     let ruta = 'api/sociedadesAnonimas';
@@ -147,7 +148,7 @@ export default class ApoderadoDashboard extends Component {
             py: 2,
             mb: 2
           }}>
-          <Grid key={s.id} container spacing={1}>
+          <Grid container spacing={1}>
             <Grid item xs={12}>
               <Typography variant="h6">{s.nombre}</Typography>
             </Grid>

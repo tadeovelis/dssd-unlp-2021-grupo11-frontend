@@ -12,6 +12,7 @@ import LocalizationProvider from '@mui/lab/LocalizationProvider';
 import DesktopDatePicker from '@mui/lab/DesktopDatePicker';
 
 import 'assets/css/apoderado-registro-sa.css';
+import 'assets/css/dashboard.css';
 
 import env from "@beam-australia/react-env";
 
@@ -32,7 +33,6 @@ export default class ApoderadoDashboard extends Component {
             domicilio_legal: '',
             domicilio_real: '',
             email_apoderado: '',
-            socios: {},
 
             // Socios
             cantSocios: 1,
@@ -145,12 +145,12 @@ export default class ApoderadoDashboard extends Component {
         for (let i = 0; i < this.state.cantSocios; i++) {
             soc = 'socio' + (i + 1)
             forms.push(
-                <Grid container spacing={2} justifyContent="flex-start" alignItems="center">
-                    <Grid item xs={1.5} sx={{ p: 4 }}>
+                <Grid key={this.state[soc].id} container spacing={3} justifyContent="flex-start" alignItems="center">
+                    <Grid item>
                         <Button
                             data-numdesocio={i + 1}
                             variant="contained"
-                            style={{ 'background-color': '#fa0000', 'color': 'white' }}
+                            style={{ backgroundColor: '#fa0000', 'color': 'white' }}
                             onClick={this.removerSocio}
                         >Remover
                         </Button>
@@ -349,12 +349,12 @@ export default class ApoderadoDashboard extends Component {
         return (
             <Container>
                 <Box p={2}>
-                    <Paper className="apoderado-paper">
+                    <Paper className="dashboard-paper">
                         <span className="apoderado-registrar-sa-titulo">
                             Registro de Sociedad Anónima
                         </span>
                         <p>Ingresá los siguientes datos. Todos los campos son obligatorios.</p>
-                        <Grid container spacing={2}>
+                        <Grid container spacing={3}>
                             <Grid item xs={4}>
                                 <FormControl fullWidth={true}>
                                     <TextField
@@ -370,20 +370,22 @@ export default class ApoderadoDashboard extends Component {
                                 </FormControl>
                             </Grid>
                             <Grid item xs={4}>
-                                <LocalizationProvider locale={es} dateAdapter={AdapterDateFns}>
-                                    <DesktopDatePicker
-                                        id="fecha_creacion"
-                                        name="fecha_creacion"
-                                        required
-                                        label="Fecha de creación"
-                                        inputFormat="dd/MM/yyyy"
-                                        value={this.state.fecha_creacion}
-                                        onChange={this.cambiarFecha}
-                                        renderInput={params =>
-                                            <TextField {...params} helperText="Ej: 24/09/2015" />
-                                        }
-                                    />
-                                </LocalizationProvider>
+                                <FormControl fullWidth={true}>
+                                    <LocalizationProvider locale={es} dateAdapter={AdapterDateFns}>
+                                        <DesktopDatePicker
+                                            id="fecha_creacion"
+                                            name="fecha_creacion"
+                                            required
+                                            label="Fecha de creación"
+                                            inputFormat="dd/MM/yyyy"
+                                            value={this.state.fecha_creacion}
+                                            onChange={this.cambiarFecha}
+                                            renderInput={params =>
+                                                <TextField {...params} helperText="Ej: 24/09/2015" />
+                                            }
+                                        />
+                                    </LocalizationProvider>
+                                </FormControl>
                             </Grid>
                             <Grid item xs={4}>
                                 <FormControl fullWidth={true}>
@@ -461,14 +463,6 @@ export default class ApoderadoDashboard extends Component {
                                     >Agregar otro socio
                                     </Button>
                                 </Grid>
-                                <Grid item xs={3}>
-                                    <Button
-                                        variant="outlined"
-                                        color="primary"
-                                        onClick={this.armarJSONSocios}
-                                    >Mostrar JSON de socios
-                                    </Button>
-                                </Grid>
                             </Grid>
                         </div>
 
@@ -525,7 +519,7 @@ export default class ApoderadoDashboard extends Component {
                                     <p>Para registrar la sociedad primero completá todos los datos necesarios.</p>
                                 }
                             </Grid>
-                            <Grid item xs={3}>
+                            <Grid item xs={12}>
                                 <Button
                                     variant="contained"
                                     color="primary"
