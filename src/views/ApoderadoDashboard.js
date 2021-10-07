@@ -146,6 +146,9 @@ export default class ApoderadoDashboard extends Component {
 
   getTramitesEnCurso() {
     let ruta = 'api/sociedadesAnonimas';
+    console.log(this.props.location.state.data.auth.access_token);
+    console.log(this.props.location.state.data.auth['X-Bonita-API-Token']);
+    console.log(this.props.location.state.data.auth.JSESSIONID);
 
     fetch(env("BACKEND_URL") + ruta, {
       method: 'GET',

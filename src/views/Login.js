@@ -64,6 +64,10 @@ export default class Login extends Component {
     loginExitoso(data) {
         //let ruta = rutaDelDashboardParaElRol(data.user.roles[0].name);
         // Agarra el nombre del rol y usa eso para la ruta
+
+        document.cookie = "X-Bonita-API-Token="+data.auth['X-Bonita-API-Token'];
+        document.cookie = "JSESSIONID="+data.auth.JSESSIONID;
+
         let ruta = '/' + data.user.roles[0] + '/inicio';
         this.props.history.push({
             pathname: ruta,
