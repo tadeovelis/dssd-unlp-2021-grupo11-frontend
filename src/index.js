@@ -34,6 +34,10 @@ const theme = createTheme({
     primary: {
       main: "#4ebc58",
       contrastText: '#ffffff'
+    },
+    secondary: {
+      //main: "#6783FF"
+      main: '#4378d4'
     }
   },
   components: {

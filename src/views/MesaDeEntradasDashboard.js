@@ -11,20 +11,10 @@ import '../assets/css/dashboard.css'
 
 import env from "@beam-australia/react-env";
 
-import { textoEstadoDeEvaluacion } from '../helpers/helpers';
+import { textoEstadoDeEvaluacion, valorYColorLineaProgreso } from '../helpers/helpers';
 
+import LineaProgresoTramite from "./LineaProgresoTramite";
 
-const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
-    height: 8,
-    borderRadius: 5,
-    [`&.${linearProgressClasses.colorPrimary}`]: {
-        backgroundColor: theme.palette.grey[theme.palette.mode === 'light' ? 200 : 800],
-    },
-    [`& .${linearProgressClasses.bar}`]: {
-        borderRadius: 5,
-        backgroundColor: theme.palette.mode === 'light' ? '#6783FF' : '#308fe8',
-    },
-}));
 
 export default class MesaDeEntradasDashboard extends Component {
     constructor(props) {
@@ -390,8 +380,11 @@ export default class MesaDeEntradasDashboard extends Component {
                     <Typography variant="h6">{s.nombre}</Typography>
                 </Grid>
                 <Box sx={{ width: '100%', my: 1 }}>
-                    <BorderLinearProgress
-                        variant="buffer" value={33} valueBuffer={0} />
+                    <LineaProgresoTramite
+                        height={10}
+                        value={valorYColorLineaProgreso(s.estado_evaluacion).valor}
+                        color={valorYColorLineaProgreso(s.estado_evaluacion).color.string}
+                    />
                 </Box>
                 <Grid item xs={12}>
                     <Typography
@@ -543,7 +536,7 @@ export default class MesaDeEntradasDashboard extends Component {
                     <DialogTitle>Confirmar operación</DialogTitle>
                     <DialogContent>
                         <DialogContentText>
-                            {this.state.textoDialogoConfirmacion+' '}
+                            {this.state.textoDialogoConfirmacion + ' '}
                             Es la solicitud nro. <b>{this.state.solicitudAConfirmar.id}</b>, para registrar
                             la Sociedad Anónima <b>{this.state.sociedadAConfirmar.nombre}</b>.
                             Esta operación es irreversible.

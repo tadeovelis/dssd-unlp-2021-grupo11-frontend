@@ -143,7 +143,7 @@ export default class ApoderadoDashboard extends Component {
         let forms = [];
         let soc = '';
         for (let i = 0; i < this.state.cantSocios; i++) {
-            soc = 'socio' + (i + 1)
+            soc = 'socio' + (i + 1);
             forms.push(
                 <Grid key={this.state[soc].id} container spacing={3} justifyContent="flex-start" alignItems="center">
                     <Grid item>

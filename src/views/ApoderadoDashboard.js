@@ -1,32 +1,26 @@
 import { React, Component } from "react";
 
-import { Container, Grid, Paper, Divider, Typography, Box, Button, Snackbar, Alert, AlertTitle, TextField } from '@mui/material';
-import LinearProgress, { linearProgressClasses } from '@mui/material/LinearProgress';
-import { styled } from '@mui/material/styles';
+import { Container, Grid, Paper, Divider, Typography, CircularProgress, Box, Button, Snackbar, Alert, AlertTitle, TextField, ListItemIcon, ListItemText, List, ListItem } from '@mui/material';
 import DescriptionIcon from '@mui/icons-material/Description';
+import GroupIcon from '@mui/icons-material/Group';
+import ApartmentIcon from '@mui/icons-material/Apartment';
+import EventIcon from '@mui/icons-material/Event';
+import RoomIcon from '@mui/icons-material/Room';
+import EmailIcon from '@mui/icons-material/Email';
 
 import '../assets/css/dashboard.css'
 
 import env from "@beam-australia/react-env";
 
-import { textoEstadoDeEvaluacion } from '../helpers/helpers';
+import { textoEstadoDeEvaluacion, valorYColorLineaProgreso } from '../helpers/helpers';
+
+import LineaProgresoTramite from "./LineaProgresoTramite";
 
 
 const formatosValidosEstatuto = 'application/pdf,' +
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document,' +
   'application/vnd.oasis.opendocument.text';
 
-const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
-  height: 8,
-  borderRadius: 5,
-  [`&.${linearProgressClasses.colorPrimary}`]: {
-    backgroundColor: theme.palette.grey[theme.palette.mode === 'light' ? 200 : 800],
-  },
-  [`& .${linearProgressClasses.bar}`]: {
-    borderRadius: 5,
-    backgroundColor: theme.palette.mode === 'light' ? '#6783FF' : '#308fe8',
-  },
-}));
 
 export default class ApoderadoDashboard extends Component {
   constructor(props) {
@@ -42,7 +36,6 @@ export default class ApoderadoDashboard extends Component {
 
       mostrarAlertCorreccionSAExitosa: false,
 
-      archivo_estatuto: null,
       mostrarAlertActualizacionEstatutoExitosa: false,
     }
 
@@ -51,8 +44,6 @@ export default class ApoderadoDashboard extends Component {
     this.noMostrarAlertCorreccionSAExitosa = this.noMostrarAlertCorreccionSAExitosa.bind(this);
     this.noMostrarAlertActualizacionEstatutoExitosa = this.noMostrarAlertActualizacionEstatutoExitosa.bind(this);
     this.noMostrarAlertPrimerInicio = this.noMostrarAlertPrimerInicio.bind(this);
-    this.handleChangeEstatuto = this.handleChangeEstatuto.bind(this);
-    this.actualizarEstatuto = this.actualizarEstatuto.bind(this);
 
   }
 
@@ -108,46 +99,50 @@ export default class ApoderadoDashboard extends Component {
   }
 
   // Maneja la subida del archivo del estatuto
-  handleChangeEstatuto(e) {
+  handleChangeEstatuto(s, e) {
+    console.log("Handle: " + s.id);
+    let estatuto = 'archivo_estatuto' + s.id;
     if (e.target.files[0]) {
       this.setState({
-        archivo_estatuto: e.target.files[0]
+        [estatuto]: e.target.files[0]
       })
     }
     else this.setState({
-      archivo_estatuto: this.state.archivo_estatuto
+      [estatuto]: this.state[estatuto]
     })
   }
 
   actualizarEstatuto(sociedad) {
-    alert("Todavía no implementado");
-    return false
-    console.log(sociedad.id);
-    let ruta = 'api/estatuto';
+    let ruta = 'api/sociedadAnonima/' + sociedad.id + '/estatuto';
+    let estatuto = 'archivo_estatuto' + sociedad.id;
+    let cargandoSubidaEstatuto = 'cargandoSubidaEstatuto' + sociedad.id;
 
-    let formData = new FormData();
-    formData.append('archivo_estatuto', this.state.archivo_estatuto);
-    formData.append('idSociedad', sociedad.id);
+    this.setState({
+      [cargandoSubidaEstatuto]: true
+    }, () => {
+      let formData = new FormData();
+      formData.append('archivo_estatuto', this.state[estatuto]);
 
-    fetch(env("BACKEND_URL") + ruta, {
-      method: 'PUT',
-      credentials: 'include',
-      headers: {
-        'Authorization': 'Bearer ' + this.props.location.state.data.auth.access_token
-      },
-      body: formData
-    })
-      .then(response => response.json())
-      .then(data => {
-        console.log(data);
-        this.setState({
-          archivo_estatuto: null,
-          mostrarAlertActualizacionEstatutoExitosa: true,
-        }, () => this.getTramitesEnCurso())
+      fetch(env("BACKEND_URL") + ruta, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Authorization': 'Bearer ' + this.props.location.state.data.auth.access_token
+        },
+        body: formData
       })
-      .catch(error => console.error(error));
+        .then(response => response.json())
+        .then(data => {
+          console.log(data);
+          this.setState({
+            [estatuto]: null,
+            mostrarAlertActualizacionEstatutoExitosa: true,
+            [cargandoSubidaEstatuto]: false
+          }, () => this.getTramitesEnCurso())
+        })
+        .catch(error => console.error(error));
+    })
   }
-
 
   getTramitesEnCurso() {
     let ruta = 'api/sociedadesAnonimas';
@@ -207,130 +202,139 @@ export default class ApoderadoDashboard extends Component {
 
   mostrarSociedades() {
     if (this.state.sociedadesCargadas) {
-      return this.state.sociedades.map((s) =>
-        <Box
-          key={s.id}
-          sx={{
-            border: '0.1px solid #e8e8e8',
-            px: 3,
-            py: 2,
-            mb: 2
-          }}>
-          <Grid container spacing={1}>
-            <Grid item xs={12}>
-              <Typography variant="h6">{s.nombre}</Typography>
-            </Grid>
-            <Box sx={{ width: '100%', my: 1 }}>
-              <BorderLinearProgress
-                variant="buffer" value={33} valueBuffer={0} />
-            </Box>
-            <Grid item xs={12}>
-              <Typography
-                variant="body1"
-                sx={{
-                  color: '#6783FF',
-                  fontWeight: 800,
-                  fontSize: 14,
-                  mt: -1,
-                }}
-              >{textoEstadoDeEvaluacion(s, "apoderado")}
-              </Typography>
-            </Grid>
-            {/* Si tiene que corregir la solicitud... */}
-            <Grid item xs={12}>
-              {s.estado_evaluacion.includes("Rechazado por empleado-mesa") &&
-                <Grid item xs={12}>
-                  <Button
-                    size="small"
-                    variant="outlined"
-                    color="warning"
-                    sx={{ my: 1 }}
-                    onClick={this.redirectACorregirSolicitud.bind(this, s)}
-                  >
-                    Corregir solicitud
-                  </Button>
-                </Grid>
-              }
-            </Grid>
-            {/* Si tiene que actualizar el estatuto... */}
-            <Grid item xs={12}>
-              {s.estado_evaluacion.includes("Rechazado por escribano") &&
-                <Grid container spacing={1}>
-                  <Grid item xs={5}>
-                    <label htmlFor="botonSubirEstatuto">
-                      <TextField
-                        id='botonSubirEstatuto'
-                        type="file"
-                        inputProps={{ accept: formatosValidosEstatuto }}
-                        style={{ display: 'none' }}
-                        onChange={this.handleChangeEstatuto}
-                        required
-                      />
-                      <Button
-                        variant="outlined"
-                        component="span"
-                        color="warning"
-                        startIcon={<DescriptionIcon />}
-                      >
-                        Actualizar estatuto
-                      </Button>
-                    </label>
-                  </Grid>
-                  <Grid item xs={7}>
-                    {this.state.archivo_estatuto !== null &&
-                      <span>Nombre: {this.state.archivo_estatuto.name}</span>
-                    }
-                  </Grid>
-                  <Grid item xs={12} sx={{ mb: 2, fontSize: 15 }}>
-                    <span>Recordá que los formatos válidos son: PDF, docx, ODT.</span>
-                  </Grid>
-                  {this.state.archivo_estatuto !== null &&
-                    <Grid item xs={12} sx={{ mb: 2, fontSize: 15 }}>
-                      <Button
-                        variant="contained"
-                        color="warning"
-                        onClick={this.actualizarEstatuto.bind(this, s)}
-                      >
-                        Enviar estatuto actualizado
-                      </Button>
-                    </Grid>
-                  }
-                </Grid>
-              }
-            </Grid>
-            <Grid item xs={7}>
-              <Typography sx={{ fontSize: 18 }}>
-                Datos generales
-              </Typography>
+      return this.state.sociedades.map((s) => {
+        let estatuto = 'archivo_estatuto' + s.id;
+        let cargandoSubidaEstatuto = 'cargandoSubidaEstatuto' + s.id;
+        return (
+          <Box
+            key={s.id}
+            sx={{
+              border: '0.1px solid #e8e8e8',
+              px: 3,
+              py: 2,
+              mb: 2
+            }}>
+            <Grid container spacing={1}>
               <Grid item xs={12}>
-                <Divider sx={{ mb: 1, width: '95%' }} />
+                <Typography variant="h6">{s.nombre}</Typography>
               </Grid>
+              <Box sx={{ width: '100%', my: 1 }}>
+                <LineaProgresoTramite
+                  height={10}
+                  value={valorYColorLineaProgreso(s.estado_evaluacion).valor}
+                  color={valorYColorLineaProgreso(s.estado_evaluacion).color.string}
+                />
+              </Box>
               <Grid item xs={12}>
-                <Typography variant="body1">Email del apoderado: {s.email_apoderado}</Typography>
-              </Grid>
-              <Grid item xs={12}>
-                <Typography variant="body1">Domicilio legal: {s.domicilio_legal}</Typography>
-              </Grid>
-              <Grid item xs={12}>
-                <Typography variant="body1">Domicilio real: {s.domicilio_real}</Typography>
-              </Grid>
-              <Grid item xs={12}>
-                <Typography variant="body1">Fecha de creación: {this.formatDate(s.fecha_creacion)}</Typography>
-              </Grid>
-            </Grid>
-            <Grid item xs={5}>
-              <Grid item xs={12}>
-                <Typography sx={{ fontSize: 18 }}>
-                  Socios
+                <Typography
+                  variant="body1"
+                  sx={{
+                    color: valorYColorLineaProgreso(s.estado_evaluacion).color.hexa,
+                    fontWeight: 800,
+                    fontSize: 14,
+                    mt: -1,
+                  }}
+                >{textoEstadoDeEvaluacion(s, "apoderado")}
                 </Typography>
               </Grid>
+              {/* Si tiene que corregir la solicitud... */}
               <Grid item xs={12}>
-                <Divider sx={{ mb: 1, width: '85%' }} />
+                {s.estado_evaluacion.includes("Rechazado por empleado-mesa") &&
+                  <Grid item xs={12}>
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      color="warning"
+                      sx={{ my: 1 }}
+                      onClick={this.redirectACorregirSolicitud.bind(this, s)}
+                    >
+                      Corregir solicitud
+                    </Button>
+                  </Grid>
+                }
               </Grid>
-              {this.mostrarSocios(s)}
+              {/* Si tiene que actualizar el estatuto... */}
+              <Grid item xs={12}>
+                {s.estado_evaluacion.includes("Rechazado por escribano") &&
+                  <Grid container spacing={1}>
+                    <Grid item xs={5}>
+                      <label htmlFor={"botonSubirEstatuto" + s.id}>
+                        <TextField
+                          id={'botonSubirEstatuto' + s.id}
+                          type="file"
+                          inputProps={{ accept: formatosValidosEstatuto }}
+                          style={{ display: 'none' }}
+                          onChange={this.handleChangeEstatuto.bind(this, s)}
+                          required
+                        />
+                        <Button
+                          variant="outlined"
+                          component="span"
+                          color="warning"
+                          startIcon={<DescriptionIcon />}
+                        >
+                          Actualizar estatuto
+                        </Button>
+                      </label>
+                    </Grid>
+                    <Grid item xs={7}>
+                      {this.state[estatuto] &&
+                        <span>Nombre: {this.state[estatuto].name}</span>
+                      }
+                    </Grid>
+                    <Grid item xs={12} sx={{ mb: 2, fontSize: 15 }}>
+                      <span>Recordá que los formatos válidos son: PDF, docx, ODT.</span>
+                    </Grid>
+                    {this.state[estatuto] &&
+                      <Grid item xs={12} sx={{ mb: 2, fontSize: 15 }}>
+                        <Button
+                          variant="contained"
+                          color="warning"
+                          onClick={this.actualizarEstatuto.bind(this, s)}
+                        >
+                          Enviar estatuto actualizado
+                        </Button>
+                        {this.state[cargandoSubidaEstatuto] && <CircularProgress />}
+                      </Grid>
+                    }
+                  </Grid>
+                }
+              </Grid>
+              <Grid item xs={7}>
+                <Typography sx={{ fontSize: 18 }}>
+                  Datos generales
+                </Typography>
+                <Grid item xs={12}>
+                  <Divider sx={{ mb: 1, width: '95%' }} />
+                </Grid>
+                <Grid item xs={12}>
+                  <Typography variant="body1">Email del apoderado: {s.email_apoderado}</Typography>
+                </Grid>
+                <Grid item xs={12}>
+                  <Typography variant="body1">Domicilio legal: {s.domicilio_legal}</Typography>
+                </Grid>
+                <Grid item xs={12}>
+                  <Typography variant="body1">Domicilio real: {s.domicilio_real}</Typography>
+                </Grid>
+                <Grid item xs={12}>
+                  <Typography variant="body1">Fecha de creación: {this.formatDate(s.fecha_creacion)}</Typography>
+                </Grid>
+              </Grid>
+              <Grid item xs={5}>
+                <Grid item xs={12}>
+                  <Typography sx={{ fontSize: 18 }}>
+                    Socios
+                  </Typography>
+                </Grid>
+                <Grid item xs={12}>
+                  <Divider sx={{ mb: 1, width: '85%' }} />
+                </Grid>
+                {this.mostrarSocios(s)}
+              </Grid>
             </Grid>
-          </Grid>
-        </Box>
+          </Box>
+        )
+      }
       )
     }
   }
@@ -394,6 +398,64 @@ export default class ApoderadoDashboard extends Component {
                   </Grid>
                   <Grid item xs={12}>
                     <Typography>Recordá que necesitás tener la siguiente información:</Typography>
+                    <List dense={true}>
+                      <ListItem sx={{ px: 0 }}>
+                        <ListItemIcon sx={{ minWidth: '15%' }}>
+                          <ApartmentIcon />
+                        </ListItemIcon>
+                        <ListItemText
+                          primary="Nombre de la S.A."
+                        />
+                      </ListItem>
+                      <ListItem sx={{ px: 0 }}>
+                        <ListItemIcon sx={{ minWidth: '15%' }}>
+                          <EventIcon />
+                        </ListItemIcon>
+                        <ListItemText
+                          primary="Fecha de creación"
+                        />
+                      </ListItem>
+                      <ListItem sx={{ px: 0 }}>
+                        <ListItemIcon sx={{ minWidth: '15%' }}>
+                          <RoomIcon />
+                        </ListItemIcon>
+                        <ListItemText
+                          primary="Domicilio legal"
+                        />
+                      </ListItem>
+                      <ListItem sx={{ px: 0 }}>
+                        <ListItemIcon sx={{ minWidth: '15%' }}>
+                          <RoomIcon />
+                        </ListItemIcon>
+                        <ListItemText
+                          primary="Domicilio real"
+                        />
+                      </ListItem>
+                      <ListItem sx={{ px: 0 }}>
+                        <ListItemIcon sx={{ minWidth: '15%' }}>
+                          <EmailIcon />
+                        </ListItemIcon>
+                        <ListItemText
+                          primary="Email del apoderado"
+                        />
+                      </ListItem>
+                      <ListItem sx={{ px: 0 }}>
+                        <ListItemIcon sx={{ minWidth: '15%' }}>
+                          <GroupIcon />
+                        </ListItemIcon>
+                        <ListItemText
+                          primary="Información de los socios"
+                        />
+                      </ListItem>
+                      <ListItem sx={{ px: 0 }}>
+                        <ListItemIcon sx={{ minWidth: '15%' }}>
+                          <DescriptionIcon />
+                        </ListItemIcon>
+                        <ListItemText
+                          primary="Estatuto en formato docx, PDF u ODT"
+                        />
+                      </ListItem>
+                    </List>
                   </Grid>
                 </Grid>
               </Paper>
