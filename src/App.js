@@ -7,6 +7,8 @@ import Sidebar from './shared/Sidebar';
 import Footer from './shared/Footer';
 */
 
+import { Button } from '@mui/material';
+
 class App extends Component {
     constructor(props) {
         super(props)

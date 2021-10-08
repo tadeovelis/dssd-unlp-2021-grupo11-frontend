@@ -24,6 +24,7 @@ import {
     gql
 } from "@apollo/client";
 import { FormsPaises } from "./FormsPaises.js";
+import Logout from "./Logout.js";
 
 
 const formatosValidosEstatuto = 'application/pdf,' +
@@ -473,6 +474,7 @@ export default class ApoderadoDashboard extends Component {
         return (
             <Container>
                 <Box p={2}>
+                    <Logout />
                     <Paper className="dashboard-paper">
                         <span className="apoderado-registrar-sa-titulo">
                             Registro de Sociedad Anónima
