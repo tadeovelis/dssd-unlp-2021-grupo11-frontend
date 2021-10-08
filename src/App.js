@@ -8,6 +8,7 @@ import Footer from './shared/Footer';
 */
 
 import { Button } from '@mui/material';
+import Header from 'views/Header';
 
 class App extends Component {
     constructor(props) {

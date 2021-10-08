@@ -1,6 +1,8 @@
 import React, { Component, Suspense, lazy } from "react";
 import { Switch, Route, Redirect } from "react-router-dom";
 
+import DashboardContainer from "views/DashboardContainer";
+
 
 // Sección Opciones predefinidas
 const Login = lazy(() => import("views/Login.js"));
@@ -14,6 +16,9 @@ const MesaDeEntradasDashboard = lazy(() => import("views/MesaDeEntradasDashboard
 
 const EscribanoDashboard = lazy(() => import("views/EscribanoDashboard.js"));
 
+const Header = lazy(() => import("views/Header.js"));
+
+
 class AppRoutes extends Component {
     constructor(props) {
         super(props);
@@ -24,25 +29,51 @@ class AppRoutes extends Component {
             <Suspense fallback={<div></div>}>
                 <Switch>
                     {/* Login y registro */}
-                    <Route path="/login" component={Login} />
-                    <Route path="/registro" component={Registro} />
+                    <Route exact path="/login" component={Login} />
+                    <Route exact path="/registro" component={Registro} />
 
                     {/* Apoderado */}
-                    <Route path="/apoderado/inicio" component={ApoderadoDashboard} />
-                    <Route path="/apoderado/registrar-sociedad-anonima" component={ApoderadoRegistrarSociedadAnonima} />
-                    <Route path="/apoderado/corregir-sociedad-anonima" component={ApoderadoCorregirSociedadAnonima} />
+                    <Route
+                        exact path="/apoderado/inicio"
+                        render={(props) => (
+                            <DashboardContainer {...props} componente={<ApoderadoDashboard {...props}/>}/>
+                            )
+                        }
+                    />
+                    <Route
+                        exact path="/apoderado/registrar-sociedad-anonima"
+                        render={(props) => (
+                            <DashboardContainer {...props} componente={<ApoderadoRegistrarSociedadAnonima {...props}/>}/>
+                            )
+                        }
+                    />
+                    <Route
+                        exact path="/apoderado/corregir-sociedad-anonima"
+                        render={(props) => (
+                            <DashboardContainer {...props} componente={<ApoderadoCorregirSociedadAnonima {...props}/>}/>
+                            )
+                        }
+                    />
 
                     {/* Mesa de Entradas */}
-                    <Route path="/empleado-mesa-de-entradas/inicio" component={MesaDeEntradasDashboard} />
+                    <Route
+                        exact path="/empleado-mesa-de-entradas/inicio"
+                        render={(props) => (
+                            <DashboardContainer {...props} componente={<MesaDeEntradasDashboard {...props}/>}/>
+                            )
+                        }
+                    />
 
                     {/* Escribano */}
-                    <Route path="/escribano-area-legales/inicio" component={EscribanoDashboard} />
+                    <Route
+                        exact path="/escribano-area-legales/inicio"
+                        render={(props) => (
+                            <DashboardContainer {...props} componente={<EscribanoDashboard {...props}/>}/>
+                            )
+                        }
+                    />
 
                     <Redirect to="/login" />
-
-                    {/* Sección Home
-                    <Redirect exact to="/" />
-                    */}
                 </Switch>
             </Suspense>
         );

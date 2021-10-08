@@ -52,6 +52,10 @@ const theme = createTheme({
     secondary: {
       //main: "#6783FF"
       main: '#4378d4'
+    },
+    white: {
+      main: '#ffffff',
+      contrastText: '#4ebc58'
     }
   },
   components: {

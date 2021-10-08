@@ -355,14 +355,6 @@ export default class ApoderadoDashboard extends Component {
           <Grid container spacing={2}>
 
             <Grid item xs={12}>
-              <Box p={2}>
-                <span><b>Mis datos</b></span><br />
-                <span>Nombre de usuario: {user.name}</span><br />
-                <span>Email: {user.email}</span>
-              </Box>
-            </Grid>
-
-            <Grid item xs={12}>
               <Paper className="dashboard-paper">
                 {this.state.primerInicio ? (<div>
                   <Typography variant="h6">¡Bienvenido {user.name}!</Typography>
