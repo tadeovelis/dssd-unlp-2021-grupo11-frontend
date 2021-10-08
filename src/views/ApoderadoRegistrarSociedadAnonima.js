@@ -16,10 +16,21 @@ import 'assets/css/dashboard.css';
 
 import env from "@beam-australia/react-env";
 
+import { Paises } from './graphQL/Paises.js';
+
+// Apollo client - GraphQL
+import {
+    useQuery,
+    gql
+} from "@apollo/client";
+import { FormsPaises } from "./FormsPaises.js";
+
 
 const formatosValidosEstatuto = 'application/pdf,' +
     'application/vnd.openxmlformats-officedocument.wordprocessingml.document,' +
     'application/vnd.oasis.opendocument.text';
+
+
 
 export default class ApoderadoDashboard extends Component {
     constructor(props) {
@@ -44,7 +55,14 @@ export default class ApoderadoDashboard extends Component {
             todosLosDatosCompletados: false,
             sociosCompletados: false,
 
-            activarCircularProgress: false
+            activarCircularProgress: false,
+
+            pais1: '',
+            inputPais1: '',
+            cantPaises: 1,
+            estados1: [],
+            inputEstados1: '',
+
         }
 
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -57,6 +75,14 @@ export default class ApoderadoDashboard extends Component {
         this.generarFormsSocios = this.generarFormsSocios.bind(this);
         this.armarJSONSocios = this.armarJSONSocios.bind(this);
         this.handleChangeEstatuto = this.handleChangeEstatuto.bind(this);
+
+        this.handleChangePais = this.handleChangePais.bind(this);
+        this.handleChangeInputPais = this.handleChangeInputPais.bind(this);
+        this.removerPais = this.removerPais.bind(this);
+        this.habilitarFormPais = this.habilitarFormPais.bind(this);
+
+        this.handleChangeEstados = this.handleChangeEstados.bind(this);
+        this.handleChangeInputEstados = this.handleChangeInputEstados.bind(this);
     }
 
     // Maneja los cambios de los datos generales
@@ -115,6 +141,104 @@ export default class ApoderadoDashboard extends Component {
         });
     }
 
+    // Métodos que le paso como props a FormsPaises
+    handleChangePais(e, pais, numPais) {
+        let p = 'pais' + numPais;
+        this.setState({
+            [p]: pais
+        });
+    }
+    handleChangeInputPais(e, inputPais, numPais) {
+        let iP = 'inputPais' + numPais;
+        this.setState({
+            [iP]: inputPais
+        })
+    }
+
+    handleChangeEstados(e, estados, numPais) {
+        let es = 'estados' + numPais;
+        this.setState({
+            [es]: estados
+        })
+    }
+    handleChangeInputEstados(e, inputEstados, numPais) {
+        let iEs = 'inputEstados' + numPais;
+        this.setState({
+            [iEs]: inputEstados
+        })
+    }
+
+    removerPais(e, numPais) {
+        let pais = '';
+        let inputPais = '';
+        let nextPais = '';
+        let nextInputPais = '';
+        let estados = '';
+        let inputEstados = '';
+        let nextEstados = '';
+        let nextInputEstados = '';
+        for (let i = numPais; i < this.state.cantPaises; i++) {
+            pais = 'pais' + i;
+            inputPais = 'inputPais' + i;
+            nextPais = 'pais' + (i + 1);
+            nextInputPais = 'inputPais' + (i + 1);
+            estados = 'estados' + i;
+            inputEstados = 'inputEstados' + i;
+            nextEstados = 'estados' + (i + 1);
+            nextInputEstados = 'inputEstados' + (i + 1);
+            let nextPaisState = this.state[nextPais];
+            let nextInputPaisState = this.state[nextInputPais];
+            let nextEstadosState = this.state[nextEstados];
+            let nextInputEstadosState = this.state[nextInputEstados];
+            this.setState({
+                [pais]: nextPaisState,
+                [inputPais]: nextInputPaisState,
+                [estados]: nextEstadosState,
+                [inputEstados]: nextInputEstadosState,
+            });
+        };
+        this.setState({
+            cantPaises: this.state.cantPaises - 1
+        })
+    }
+    // Prepara un nuevo país vacío para que la función que arma los forms prepare otro
+    habilitarFormPais() {
+        let pais = 'pais' + (this.state.cantPaises + 1);
+        let inputPais = 'inputPais' + (this.state.cantPaises + 1);
+        let estados = 'estados' + (this.state.cantPaises + 1);
+        let inputEstados = 'inputEstados' + (this.state.cantPaises + 1);
+        this.setState({
+            [pais]: '',
+            [inputPais]: '',
+            [estados]: [],
+            [inputEstados]: '',
+        }, () => {
+            this.setState({ cantPaises: this.state.cantPaises + 1 })
+        });
+    }
+
+    armarJSONPaisesYEstados() {
+        if (this.state.cantPaises > 0) {
+            let paises = [];
+            for (let i = 0; i < this.state.cantPaises; i++) {
+                let pais = 'pais' + (i + 1);
+                let estados = 'estados' + (i + 1);
+                console.log(this.state[estados]);
+                paises.push(
+                    {
+                        'code': this.state[pais].code,
+                        'name': this.state[pais].name,
+                        'continent': this.state[pais].continent.name,
+                        'estados': this.state[estados]
+                    }
+                )
+            }
+            let jsonPaises = JSON.stringify(paises);
+            console.log(jsonPaises);
+        }
+    }
+
+
     removerSocio(e) {
         if (this.state.cantSocios > 1) {
             let num = e.currentTarget.getAttribute('data-numdesocio');
@@ -145,7 +269,7 @@ export default class ApoderadoDashboard extends Component {
         for (let i = 0; i < this.state.cantSocios; i++) {
             soc = 'socio' + (i + 1);
             forms.push(
-                <Grid key={this.state[soc].id} container spacing={3} justifyContent="flex-start" alignItems="center">
+                <Grid key={i} container spacing={3} justifyContent="flex-start" alignItems="center">
                     <Grid item>
                         <Button
                             data-numdesocio={i + 1}
@@ -472,6 +596,59 @@ export default class ApoderadoDashboard extends Component {
                             }}
                         />
 
+                        {/* Países a los que exporta */}
+                        <Grid container spacing={2}>
+                            <Grid item xs={12}>
+                                <p>Seleccioná el o los países a los que exporta la sociedad. Luego, para cada país, los estados.</p>
+                            </Grid>
+                            {this.state.cantPaises > 0 ?
+                                <Grid item xs={12}>
+                                    <FormsPaises
+                                        cantPaises={this.state.cantPaises}
+                                        handleChangePais={this.handleChangePais}
+                                        handleChangeInputPais={this.handleChangeInputPais}
+                                        state={this.state}
+                                        removerPais={this.removerPais}
+
+                                        handleChangeEstados={this.handleChangeEstados}
+                                        handleChangeInputEstados={this.handleChangeInputEstados}
+                                    />
+                                </Grid>
+                                :
+                                <Grid item xs={12}>
+                                    <span>Se asignará Argentina como país por defecto.</span>
+                                </Grid>
+                            }
+                        </Grid>
+                        <br />
+                        <br />
+                        <Grid container spacing={2}>
+                            {/* Botón para agregar otro país */}
+                            <Grid item xs={3}>
+                                <Button
+                                    variant="outlined"
+                                    color="primary"
+                                    onClick={this.habilitarFormPais}
+                                >Agregar otro país
+                                </Button>
+                            </Grid>
+                            <Grid item xs={5}>
+                                <Button onClick={() => this.armarJSONPaisesYEstados()} variant="outlined">
+                                    Mostrar JSON paises en consola
+                                </Button>
+                            </Grid>
+                        </Grid>
+
+                        {this.state.estados1 &&
+                            <span>{this.state.estados1.name}</span>
+                        }
+
+                        <Divider
+                            style={{
+                                margin: '30px 0px 10px 0px'
+                            }}
+                        />
+
                         {/* Componente para el archivo del estatuto */}
                         <Grid container spacing={2} alignItems='center'>
                             <Grid item xs={12}>
@@ -533,6 +710,7 @@ export default class ApoderadoDashboard extends Component {
                                 {this.state.activarCircularProgress && <CircularProgress />}
                             </Grid>
                         </Grid>
+
                     </Paper>
                 </Box>
             </Container>
