@@ -28,6 +28,20 @@ import "assets/css/material-dashboard-react.css?v=1.10.0";
 
 import App from "App";
 
+// Apollo client - GraphQL
+import {
+  ApolloClient,
+  InMemoryCache,
+  ApolloProvider,
+  useQuery,
+  gql
+} from "@apollo/client";
+
+const client = new ApolloClient({
+  uri: 'https://countries.trevorblades.com',
+  cache: new InMemoryCache()
+});
+
 // Or Create your Own theme:
 const theme = createTheme({
   palette: {
@@ -43,7 +57,7 @@ const theme = createTheme({
   components: {
     MuiTextField: {
       defaultProps: {
-          variant: 'standard'
+        variant: 'standard'
       }
     }
 
@@ -54,7 +68,9 @@ const theme = createTheme({
 ReactDOM.render(
   <ThemeProvider theme={theme}>
     <BrowserRouter>
-      <App />
+      <ApolloProvider client={client}>
+        <App />
+      </ApolloProvider>
     </BrowserRouter>
   </ThemeProvider>,
   document.getElementById("root")
