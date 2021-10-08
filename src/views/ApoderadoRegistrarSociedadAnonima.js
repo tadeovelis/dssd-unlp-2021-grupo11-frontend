@@ -16,7 +16,6 @@ import 'assets/css/dashboard.css';
 
 import env from "@beam-australia/react-env";
 
-import { Paises } from './graphQL/Paises.js';
 
 // Apollo client - GraphQL
 import {
@@ -24,12 +23,12 @@ import {
     gql
 } from "@apollo/client";
 import { FormsPaises } from "./FormsPaises.js";
+import Logout from "./Logout.js";
 
 
 const formatosValidosEstatuto = 'application/pdf,' +
     'application/vnd.openxmlformats-officedocument.wordprocessingml.document,' +
     'application/vnd.oasis.opendocument.text';
-
 
 
 export default class ApoderadoDashboard extends Component {
@@ -83,6 +82,10 @@ export default class ApoderadoDashboard extends Component {
 
         this.handleChangeEstados = this.handleChangeEstados.bind(this);
         this.handleChangeInputEstados = this.handleChangeInputEstados.bind(this);
+        this.armarJSONPaisesYEstados = this.armarJSONPaisesYEstados.bind(this);
+    }
+
+    componentDidMount() {
     }
 
     // Maneja los cambios de los datos generales
@@ -218,8 +221,8 @@ export default class ApoderadoDashboard extends Component {
     }
 
     armarJSONPaisesYEstados() {
+        let paises = [];
         if (this.state.cantPaises > 0) {
-            let paises = [];
             for (let i = 0; i < this.state.cantPaises; i++) {
                 let pais = 'pais' + (i + 1);
                 let estados = 'estados' + (i + 1);
@@ -233,9 +236,13 @@ export default class ApoderadoDashboard extends Component {
                     }
                 )
             }
-            let jsonPaises = JSON.stringify(paises);
-            console.log(jsonPaises);
         }
+        else {
+
+        }
+        let jsonPaises = JSON.stringify(paises);
+        console.log(jsonPaises);
+        return jsonPaises;
     }
 
 
@@ -429,6 +436,7 @@ export default class ApoderadoDashboard extends Component {
         })
         let ruta = 'api/sociedadAnonima';
         let socios = this.armarJSONSocios();
+        //let paises_estados = this.armarJSONPaisesYEstados();
         let formData = new FormData();
         formData.append('nombre', this.state.nombre);
         formData.append('fecha_creacion', this.formatDate(this.state.fecha_creacion.toDateString()));
@@ -437,6 +445,7 @@ export default class ApoderadoDashboard extends Component {
         formData.append('email_apoderado', this.state.email_apoderado);
         formData.append('socios', socios);
         formData.append('archivo_estatuto', this.state.archivo_estatuto);
+        //formData.append('paises_estados', paises_estados);
 
         fetch(env("BACKEND_URL") + ruta, {
             method: 'POST',
@@ -469,7 +478,9 @@ export default class ApoderadoDashboard extends Component {
         e.preventDefault();
     }
 
+
     render() {
+
         return (
             <Container>
                 <Box p={2}>

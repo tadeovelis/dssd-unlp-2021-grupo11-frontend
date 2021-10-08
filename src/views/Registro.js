@@ -87,6 +87,9 @@ export default class Registro extends Component {
         })
             .then(response => response.json())
             .then(data => {
+                document.cookie = "X-Bonita-API-Token=" + data.auth['X-Bonita-API-Token'];
+                document.cookie = "JSESSIONID=" + data.auth.JSESSIONID;
+                
                 let ruta = '/' + data.user.roles[0] + '/inicio';
                 this.props.history.push({
                     pathname: ruta,
