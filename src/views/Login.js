@@ -94,7 +94,7 @@ export default class Login extends Component {
                                                 <TextField
                                                     name="email"
                                                     id="email"
-                                                    placeholder="Ej: jorge@gmail.com"
+                                                    placeholder="Ej: juan@gmail.com"
                                                     label="Email"
                                                     required={true}
                                                     InputProps={{

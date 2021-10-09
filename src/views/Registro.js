@@ -137,7 +137,7 @@ export default class Registro extends Component {
                                                 <TextField
                                                     name="name"
                                                     id="name"
-                                                    placeholder="Ej: Jorge Pérez"
+                                                    placeholder="Ej: Juan Gonzalez"
                                                     label="Nombre completo"
                                                     required={true}
                                                     InputProps={{
@@ -158,7 +158,7 @@ export default class Registro extends Component {
                                                     name="email"
                                                     id="email"
                                                     type="email"
-                                                    placeholder="Ej: jorge@gmail.com"
+                                                    placeholder="Ej: juan@gmail.com"
                                                     label="Email"
                                                     required={true}
                                                     InputProps={{

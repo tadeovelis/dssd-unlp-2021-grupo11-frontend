@@ -463,7 +463,7 @@ export default class ApoderadoCorregirSociedadAnonima extends Component {
                                     <TextField
                                         name="email_apoderado"
                                         id="email_apoderado"
-                                        placeholder="jorge@gmail.com"
+                                        placeholder="juan@gmail.com"
                                         label="Email del apoderado"
                                         required={true}
                                         value={this.state.email_apoderado}
