@@ -7,6 +7,7 @@ import ApartmentIcon from '@mui/icons-material/Apartment';
 import EventIcon from '@mui/icons-material/Event';
 import RoomIcon from '@mui/icons-material/Room';
 import EmailIcon from '@mui/icons-material/Email';
+import Chip from '@mui/material/Chip';
 
 import '../assets/css/dashboard.css'
 
@@ -197,7 +198,7 @@ export default class ApoderadoDashboard extends Component {
         <Typography
           variant="body1"
         >
-          <b>{s.nombre} {s.apellido}</b>, con un {s.porcentaje}%.
+          <b>{s.nombre} {s.apellido}</b>, con un {s.porcentaje}% {s.id == sociedad.apoderado_id ? <Chip label="Apoderado" color="primary" variant="outlined" /> : '.'}
         </Typography>
       </Grid>
     )
