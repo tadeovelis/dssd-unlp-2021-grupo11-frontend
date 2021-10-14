@@ -24,7 +24,7 @@ import {
 } from "@apollo/client";
 import { FormsPaises } from "./FormsPaises.js";
 import Logout from "./Logout.js";
-import { getCookie } from "helpers/helpers.js";
+import { getCookie, formatDate } from "helpers/helpers.js";
 
 
 const formatosValidosEstatuto = 'application/pdf,' +
@@ -52,17 +52,20 @@ export default class ApoderadoDashboard extends Component {
             // Estatuto
             archivo_estatuto: null,
 
+            // Validaciones
             todosLosDatosCompletados: false,
             sociosCompletados: false,
 
+            // Iconito de carga
             activarCircularProgress: false,
 
+            // Países y estados
+            argentina: '',
             pais1: '',
             inputPais1: '',
             cantPaises: 1,
             estados1: [],
             inputEstados1: '',
-
         }
 
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -75,6 +78,7 @@ export default class ApoderadoDashboard extends Component {
         this.generarFormsSocios = this.generarFormsSocios.bind(this);
         this.armarJSONSocios = this.armarJSONSocios.bind(this);
         this.handleChangeEstatuto = this.handleChangeEstatuto.bind(this);
+        this.setearArgentinaPorDefecto = this.setearArgentinaPorDefecto.bind(this);
 
         this.handleChangePais = this.handleChangePais.bind(this);
         this.handleChangeInputPais = this.handleChangeInputPais.bind(this);
@@ -84,10 +88,14 @@ export default class ApoderadoDashboard extends Component {
         this.handleChangeEstados = this.handleChangeEstados.bind(this);
         this.handleChangeInputEstados = this.handleChangeInputEstados.bind(this);
         this.armarJSONPaisesYEstados = this.armarJSONPaisesYEstados.bind(this);
+        this.armarJSONArgentina = this.armarJSONArgentina.bind(this);
     }
 
-    componentDidMount() {
-        console.log(getCookie("access_token"));
+    // Método que invoca el componente hijo FormPaises cuando se ejecuta por primera vez
+    setearArgentinaPorDefecto(dataArgentina) {
+        this.setState({
+            argentina: dataArgentina.country
+        })
     }
 
     // Maneja los cambios de los datos generales
@@ -115,14 +123,6 @@ export default class ApoderadoDashboard extends Component {
         })
     }
 
-    // Maneja los cambios de los forms de los socios
-    handleChangeSocio(e) {
-        let socio = 'socio' + e.currentTarget.getAttribute('data-numdesocio');
-        this.setState({
-            [socio]: { ...this.state[socio], [e.target.name]: e.target.value }
-        }, () => this.validarSiEstanTodosLosDatosCompletados())
-    }
-
     // Maneja la subida del archivo del estatuto
     handleChangeEstatuto(e) {
         if (e.target.files[0]) {
@@ -136,15 +136,11 @@ export default class ApoderadoDashboard extends Component {
     }
 
 
-    // Prepara un nuevo socio vacío para que la función que arma los forms prepare otro
-    habilitarFormSocio() {
-        let socio = 'socio' + (this.state.cantSocios + 1);
-        this.setState({
-            [socio]: { apellido: '', nombre: '', porcentaje: 0, apoderado: 'false' }
-        }, () => {
-            this.setState({ cantSocios: this.state.cantSocios + 1 })
-        });
-    }
+
+
+    /*  --------------------------------------------------
+        Métodos para manejar los forms de países y estados
+    */
 
     // Métodos que le paso como props a FormsPaises
     handleChangePais(e, pais, numPais) {
@@ -174,34 +170,44 @@ export default class ApoderadoDashboard extends Component {
     }
 
     removerPais(e, numPais) {
-        let pais = '';
-        let inputPais = '';
-        let nextPais = '';
-        let nextInputPais = '';
-        let estados = '';
-        let inputEstados = '';
-        let nextEstados = '';
-        let nextInputEstados = '';
-        for (let i = numPais; i < this.state.cantPaises; i++) {
-            pais = 'pais' + i;
-            inputPais = 'inputPais' + i;
-            nextPais = 'pais' + (i + 1);
-            nextInputPais = 'inputPais' + (i + 1);
-            estados = 'estados' + i;
-            inputEstados = 'inputEstados' + i;
-            nextEstados = 'estados' + (i + 1);
-            nextInputEstados = 'inputEstados' + (i + 1);
-            let nextPaisState = this.state[nextPais];
-            let nextInputPaisState = this.state[nextInputPais];
-            let nextEstadosState = this.state[nextEstados];
-            let nextInputEstadosState = this.state[nextInputEstados];
+        if (this.state.cantPaises === 1) {
             this.setState({
-                [pais]: nextPaisState,
-                [inputPais]: nextInputPaisState,
-                [estados]: nextEstadosState,
-                [inputEstados]: nextInputEstadosState,
+                pais1: '',
+                inputPais1: '',
+                estados1: [],
+                inputEstados1: '',
             });
-        };
+        }
+        else {
+            let pais = '';
+            let inputPais = '';
+            let nextPais = '';
+            let nextInputPais = '';
+            let estados = '';
+            let inputEstados = '';
+            let nextEstados = '';
+            let nextInputEstados = '';
+            for (let i = numPais; i < this.state.cantPaises; i++) {
+                pais = 'pais' + i;
+                inputPais = 'inputPais' + i;
+                nextPais = 'pais' + (i + 1);
+                nextInputPais = 'inputPais' + (i + 1);
+                estados = 'estados' + i;
+                inputEstados = 'inputEstados' + i;
+                nextEstados = 'estados' + (i + 1);
+                nextInputEstados = 'inputEstados' + (i + 1);
+                let nextPaisState = this.state[nextPais];
+                let nextInputPaisState = this.state[nextInputPais];
+                let nextEstadosState = this.state[nextEstados];
+                let nextInputEstadosState = this.state[nextInputEstados];
+                this.setState({
+                    [pais]: nextPaisState,
+                    [inputPais]: nextInputPaisState,
+                    [estados]: nextEstadosState,
+                    [inputEstados]: nextInputEstadosState,
+                });
+            };
+        }
         this.setState({
             cantPaises: this.state.cantPaises - 1
         })
@@ -228,15 +234,16 @@ export default class ApoderadoDashboard extends Component {
             for (let i = 0; i < this.state.cantPaises; i++) {
                 let pais = 'pais' + (i + 1);
                 let estados = 'estados' + (i + 1);
-                console.log(this.state[estados]);
-                paises.push(
-                    {
-                        'code': this.state[pais].code,
-                        'name': this.state[pais].name,
-                        'continent': this.state[pais].continent.name,
-                        'estados': this.state[estados]
-                    }
-                )
+                if (this.state[pais]) {
+                    paises.push(
+                        {
+                            'code': this.state[pais].code,
+                            'name': this.state[pais].name,
+                            'continent': this.state[pais].continent.name,
+                            'estados': this.state[estados]
+                        }
+                    )
+                }
             }
         }
         else {
@@ -247,6 +254,40 @@ export default class ApoderadoDashboard extends Component {
         return jsonPaises;
     }
 
+    armarJSONArgentina() {
+        if (this.state.argentina) {
+            return (JSON.stringify({
+                'code': this.state.argentina.code,
+                'name': this.state.argentina.name,
+                'continent': this.state.argentina.continent.name,
+                'estados': this.state.argentina.states
+            }))
+        }
+        return false
+    }
+
+
+    /*
+        Métodos para manejar los forms de los sociso
+    */
+
+    // Maneja los cambios de los forms de los socios
+    handleChangeSocio(e) {
+        let socio = 'socio' + e.currentTarget.getAttribute('data-numdesocio');
+        this.setState({
+            [socio]: { ...this.state[socio], [e.target.name]: e.target.value }
+        }, () => this.validarSiEstanTodosLosDatosCompletados())
+    }
+
+    // Prepara un nuevo socio vacío para que la función que arma los forms prepare otro
+    habilitarFormSocio() {
+        let socio = 'socio' + (this.state.cantSocios + 1);
+        this.setState({
+            [socio]: { apellido: '', nombre: '', porcentaje: 0, apoderado: 'false' }
+        }, () => {
+            this.setState({ cantSocios: this.state.cantSocios + 1 })
+        });
+    }
 
     removerSocio(e) {
         if (this.state.cantSocios > 1) {
@@ -380,8 +421,18 @@ export default class ApoderadoDashboard extends Component {
         }
     }
 
+
+    /*
+        Métodos de validación de datos ingresados en los forms
+    */
+
     // Devuelve bool si están o no completos los datos de los socios
     seCompletaronLosSocios() {
+        console.log("A");
+        if (!this.noHayDosApoderados()) {
+            alert("La sociedad no puede registrar dos o más apoderados. Por favor, seleccioná uno solo con el check verde.");
+            return false;
+        };
         for (let i = 0; i < this.state.cantSocios; i++) {
             let soc = 'socio' + (i + 1);
             if (this.state[soc].apellido === '' || this.state[soc].nombre === '') {
@@ -393,6 +444,17 @@ export default class ApoderadoDashboard extends Component {
     seSubioElEstatuto() {
         return this.state.archivo_estatuto !== null;
     }
+    noHayDosApoderados() {
+        let cantApoderados = 0;
+        for (let i = 0; i < this.state.cantSocios; i++) {
+            let soc = 'socio' + (i + 1);
+            if (this.state[soc].apoderado === "true") {
+                cantApoderados++;
+                if (cantApoderados === 2) return false
+            }
+        }
+        return true
+    }
     seCompletaronLosDatosGenerales() {
         if (this.state.nombre === '' || this.state.fecha_creacion === null ||
             this.state.domicilio_legal === '' || this.state.domicilio_real === '' ||
@@ -402,8 +464,8 @@ export default class ApoderadoDashboard extends Component {
         else return true
     }
     validarSiEstanTodosLosDatosCompletados() {
-        if (this.seCompletaronLosDatosGenerales() &&
-            this.seCompletaronLosSocios() &&
+        if (this.seCompletaronLosSocios() &&
+            this.seCompletaronLosDatosGenerales() &&
             this.seSubioElEstatuto()) {
             this.setState({
                 todosLosDatosCompletados: true
@@ -417,39 +479,30 @@ export default class ApoderadoDashboard extends Component {
     }
 
 
-    formatDate(date) {
-        var d = new Date(date),
-            month = '' + (d.getMonth() + 1),
-            day = '' + d.getDate(),
-            year = d.getFullYear();
-
-        if (month.length < 2)
-            month = '0' + month;
-        if (day.length < 2)
-            day = '0' + day;
-
-        return [year, month, day].join('-');
-    }
-
-    // El submit
+    // El gran submit
     handleSubmit(e) {
         this.setState({
             activarCircularProgress: true
         })
         let ruta = 'api/sociedadAnonima';
         let socios = this.armarJSONSocios();
-        //let paises_estados = this.armarJSONPaisesYEstados();
+        let paises_estados = {};
+        if (!this.state.pais1 || this.state.pais1.name === "") {
+            // O sea no se eligió ninguno, así que asigno a Argentina
+            paises_estados = this.armarJSONArgentina();
+            console.log('Argentina por defecto:');
+            console.log(paises_estados);
+        }
+        else paises_estados = this.armarJSONPaisesYEstados();
         let formData = new FormData();
         formData.append('nombre', this.state.nombre);
-        formData.append('fecha_creacion', this.formatDate(this.state.fecha_creacion.toDateString()));
+        formData.append('fecha_creacion', formatDate(this.state.fecha_creacion.toDateString()));
         formData.append('domicilio_legal', this.state.domicilio_legal);
         formData.append('domicilio_real', this.state.domicilio_real);
         formData.append('email_apoderado', this.state.email_apoderado);
         formData.append('socios', socios);
         formData.append('archivo_estatuto', this.state.archivo_estatuto);
-        //formData.append('paises_estados', paises_estados);
-
-
+        formData.append('paises_estados', paises_estados);
 
         fetch(env("BACKEND_URL") + ruta, {
             method: 'POST',
@@ -485,7 +538,6 @@ export default class ApoderadoDashboard extends Component {
 
 
     render() {
-
         return (
             <Container>
                 <Box p={2}>
@@ -620,6 +672,7 @@ export default class ApoderadoDashboard extends Component {
                             {this.state.cantPaises > 0 ?
                                 <Grid item xs={12}>
                                     <FormsPaises
+                                        setearArgentinaPorDefecto={this.setearArgentinaPorDefecto}
                                         cantPaises={this.state.cantPaises}
                                         handleChangePais={this.handleChangePais}
                                         handleChangeInputPais={this.handleChangeInputPais}

@@ -12,8 +12,6 @@ import VpnKeyIcon from '@mui/icons-material/VpnKey';
 
 import "assets/css/login.css";
 
-import Registro from './Registro.js';
-
 import env from "@beam-australia/react-env";
 import { setearCookies } from "helpers/helpers.js";
 
