@@ -9,7 +9,18 @@
 }
 
 .login-card {
-    margin: 10% auto;
+    margin: 30% auto 0%;
     max-width: 40%;
-    padding: 3%
+    padding: 3%;
+    z-index: 2
+}
+
+.background {
+    /*background-image: url("../img/red-background.jpg");
+    background-position: center;
+    background-attachment: fixed;
+    background-size: cover;
+    */
+    height: 100vh;
+    padding: 30px;
 }

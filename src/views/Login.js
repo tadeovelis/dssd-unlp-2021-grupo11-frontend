@@ -97,7 +97,7 @@ export default class Login extends Component {
 
     render() {
         return (
-            <div>
+            <div className="background">
                 <Container>
                     <Card className="login-card">
                         <CardBody>
