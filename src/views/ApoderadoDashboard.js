@@ -12,7 +12,7 @@ import '../assets/css/dashboard.css'
 
 import env from "@beam-australia/react-env";
 
-import { textoEstadoDeEvaluacion, valorYColorLineaProgreso } from '../helpers/helpers';
+import { getCookie, textoEstadoDeEvaluacion, valorYColorLineaProgreso } from '../helpers/helpers';
 
 import LineaProgresoTramite from "./LineaProgresoTramite";
 
@@ -127,7 +127,7 @@ export default class ApoderadoDashboard extends Component {
         method: 'POST',
         credentials: 'include',
         headers: {
-          'Authorization': 'Bearer ' + this.props.location.state.data.auth.access_token
+          'Authorization': 'Bearer ' + getCookie("access_token")
         },
         body: formData
       })
@@ -146,15 +146,12 @@ export default class ApoderadoDashboard extends Component {
 
   getTramitesEnCurso() {
     let ruta = 'api/sociedadesAnonimas';
-    console.log(this.props.location.state.data.auth.access_token);
-    console.log(this.props.location.state.data.auth['X-Bonita-API-Token']);
-    console.log(this.props.location.state.data.auth.JSESSIONID);
 
     fetch(env("BACKEND_URL") + ruta, {
       method: 'GET',
       credentials: 'include',
       headers: {
-        'Authorization': 'Bearer ' + this.props.location.state.data.auth.access_token
+        'Authorization': 'Bearer ' + getCookie("access_token")
       }
     })
       .then(response => response.json())

@@ -24,6 +24,7 @@ import {
 } from "@apollo/client";
 import { FormsPaises } from "./FormsPaises.js";
 import Logout from "./Logout.js";
+import { getCookie } from "helpers/helpers.js";
 
 
 const formatosValidosEstatuto = 'application/pdf,' +
@@ -86,6 +87,7 @@ export default class ApoderadoDashboard extends Component {
     }
 
     componentDidMount() {
+        console.log(getCookie("access_token"));
     }
 
     // Maneja los cambios de los datos generales
@@ -447,11 +449,13 @@ export default class ApoderadoDashboard extends Component {
         formData.append('archivo_estatuto', this.state.archivo_estatuto);
         //formData.append('paises_estados', paises_estados);
 
+
+
         fetch(env("BACKEND_URL") + ruta, {
             method: 'POST',
             credentials: 'include',
             headers: {
-                'Authorization': 'Bearer ' + this.props.location.state.data.auth.access_token
+                'Authorization': 'Bearer ' + getCookie("access_token")
             },
             body: formData
         })
@@ -459,6 +463,7 @@ export default class ApoderadoDashboard extends Component {
             .then(data => {
                 if (data.error) alert("Datos incorrectos")
                 else {
+                    console.log(data);
                     this.setState({
                         activarCircularProgress: false
                     })

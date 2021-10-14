@@ -99,3 +99,15 @@ export function valorYColorLineaProgreso(estado) {
       };
   }
 }
+
+export function getCookie(name) {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop().split(';').shift();
+}
+
+export function setearCookies(auth) {
+  document.cookie = "X-Bonita-API-Token=" + auth['X-Bonita-API-Token'];
+  document.cookie = "JSESSIONID=" + auth.JSESSIONID;
+  document.cookie = "access_token=" + auth.access_token;
+}

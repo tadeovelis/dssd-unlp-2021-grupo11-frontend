@@ -13,6 +13,7 @@ import PersonIcon from '@mui/icons-material/Person';
 import "assets/css/login.css";
 
 import env from "@beam-australia/react-env";
+import { setearCookies } from "helpers/helpers";
 
 
 export default class Registro extends Component {
@@ -87,8 +88,9 @@ export default class Registro extends Component {
         })
             .then(response => response.json())
             .then(data => {
-                document.cookie = "X-Bonita-API-Token=" + data.auth['X-Bonita-API-Token'];
-                document.cookie = "JSESSIONID=" + data.auth.JSESSIONID;
+
+                // Seteo las cookies
+                setearCookies(data.auth);
                 
                 let ruta = '/' + data.user.roles[0] + '/inicio';
                 this.props.history.push({

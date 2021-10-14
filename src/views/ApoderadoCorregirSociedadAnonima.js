@@ -15,6 +15,7 @@ import 'assets/css/apoderado-registro-sa.css';
 import 'assets/css/dashboard.css';
 
 import env from "@beam-australia/react-env";
+import { getCookie } from "helpers/helpers";
 
 
 const formatosValidosEstatuto = 'application/pdf,' +
@@ -355,7 +356,7 @@ export default class ApoderadoCorregirSociedadAnonima extends Component {
             method: 'PATCH',
             credentials: 'include',
             headers: {
-                'Authorization': 'Bearer ' + this.props.location.state.data.auth.access_token
+                'Authorization': 'Bearer ' + getCookie("access_token")
             },
             body: new URLSearchParams({
                 'fecha_creacion': this.formatDate(new Date(this.state.fecha_creacion).toDateString()),

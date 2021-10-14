@@ -11,7 +11,7 @@ import '../assets/css/dashboard.css'
 
 import env from "@beam-australia/react-env";
 
-import { textoEstadoDeEvaluacion, valorYColorLineaProgreso } from '../helpers/helpers';
+import { getCookie, textoEstadoDeEvaluacion, valorYColorLineaProgreso } from '../helpers/helpers';
 
 import LineaProgresoTramite from "./LineaProgresoTramite";
 
@@ -117,7 +117,7 @@ export default class MesaDeEntradasDashboard extends Component {
             method: 'GET',
             credentials: 'include',
             headers: {
-                'Authorization': 'Bearer ' + this.props.location.state.data.auth.access_token
+                'Authorization': 'Bearer ' + getCookie("access_token")
             }
         })
             .then(response => response.json())
@@ -140,7 +140,7 @@ export default class MesaDeEntradasDashboard extends Component {
             method: 'GET',
             credentials: 'include',
             headers: {
-                'Authorization': 'Bearer ' + this.props.location.state.data.auth.access_token
+                'Authorization': 'Bearer ' + getCookie("access_token")
             }
         })
             .then(response => response.json())
@@ -166,7 +166,7 @@ export default class MesaDeEntradasDashboard extends Component {
                 method: 'GET',
                 credentials: 'include',
                 headers: {
-                    'Authorization': 'Bearer ' + this.props.location.state.data.auth.access_token
+                    'Authorization': 'Bearer ' + getCookie("access_token")
                 }
             })
                 .then(response => response.json())
@@ -200,7 +200,7 @@ export default class MesaDeEntradasDashboard extends Component {
                 method: 'POST',
                 credentials: 'include',
                 headers: {
-                    'Authorization': 'Bearer ' + this.props.location.state.data.auth.access_token
+                    'Authorization': 'Bearer ' + getCookie("access_token")
                 }
             })
                 .then(response => response.json())
@@ -228,7 +228,7 @@ export default class MesaDeEntradasDashboard extends Component {
                 method: 'POST',
                 credentials: 'include',
                 headers: {
-                    'Authorization': 'Bearer ' + this.props.location.state.data.auth.access_token
+                    'Authorization': 'Bearer ' + getCookie("access_token")
                 }
             })
                 .then(response => response.json())
@@ -251,7 +251,7 @@ export default class MesaDeEntradasDashboard extends Component {
             method: 'POST',
             credentials: 'include',
             headers: {
-                'Authorization': 'Bearer ' + this.props.location.state.data.auth.access_token
+                'Authorization': 'Bearer ' + getCookie("access_token")
             },
             body: formData
         })

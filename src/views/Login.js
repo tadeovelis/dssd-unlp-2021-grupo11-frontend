@@ -3,7 +3,7 @@ import { React, Component } from "react";
 import Card from "components/Card/Card.js";
 import CardBody from "components/Card/CardBody.js";
 
-import { Container, TextField, Divider, FormControl, InputLabel, InputAdornment, Grid, Typography } from "@mui/material";
+import { Container, TextField, Snackbar, Alert, AlertTitle, Divider, FormControl, InputLabel, InputAdornment, Grid, Typography } from "@mui/material";
 import { Box, Button } from "@mui/material";
 import { Link } from "react-router-dom";
 
@@ -15,6 +15,7 @@ import "assets/css/login.css";
 import Registro from './Registro.js';
 
 import env from "@beam-australia/react-env";
+import { setearCookies } from "helpers/helpers.js";
 
 export default class Login extends Component {
     constructor(props) {
@@ -22,12 +23,31 @@ export default class Login extends Component {
 
         this.state = {
             email: '',
-            password: ''
+            password: '',
+
+            mostrarAlertLogoutExitoso: false
         }
 
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleChange = this.handleChange.bind(this);
         this.loginExitoso = this.loginExitoso.bind(this);
+        this.noMostrarAlertLogoutExitoso = this.noMostrarAlertLogoutExitoso.bind(this);
+    }
+
+    componentDidMount(prevProps) {
+        if (this.props !== prevProps) {
+            if (this.props.location.state && this.props.location.state.logoutExitoso) {
+                this.setState({
+                    mostrarAlertLogoutExitoso: true
+                })
+            }
+        }
+    }
+
+    noMostrarAlertLogoutExitoso() {
+        this.setState({
+            mostrarAlertLogoutExitoso: false
+        })
     }
 
     handleSubmit(e) {
@@ -41,7 +61,8 @@ export default class Login extends Component {
             body: new URLSearchParams({
                 'email': this.state.email,
                 'password': this.state.password
-            })})
+            })
+        })
             .then(response => response.json())
             .then(data => {
                 if (data.error) alert("Datos incorrectos")
@@ -62,16 +83,15 @@ export default class Login extends Component {
     }
 
     loginExitoso(data) {
-        //let ruta = rutaDelDashboardParaElRol(data.user.roles[0].name);
+
+        // Seteo las cookies
+        setearCookies(data.auth);
+
         // Agarra el nombre del rol y usa eso para la ruta
-
-        document.cookie = "X-Bonita-API-Token="+data.auth['X-Bonita-API-Token'];
-        document.cookie = "JSESSIONID="+data.auth.JSESSIONID;
-
         let ruta = '/' + data.user.roles[0] + '/inicio';
         this.props.history.push({
             pathname: ruta,
-            state: { data: data } 
+            state: { data: data }
         });
     }
 
@@ -143,19 +163,38 @@ export default class Login extends Component {
                                         <Grid item xs={12}>
                                             <Divider sx={{
                                                 mt: 2
-                                            }}/>
+                                            }} />
                                         </Grid>
                                         <Grid item xs={12}>
                                             <p>Si todavía no tenés una cuenta, registrate haciendo click <Link to="/registro">
-                                                 aquí.
+                                                aquí.
                                             </Link></p>
-                                            
+
                                         </Grid>
                                     </Grid>
                                 </Box>
                             </form>
                         </CardBody>
-                    </Card></Container>
+                    </Card>
+
+                    {/* Alert de logout exitoso */}
+                    <Snackbar
+                        open={this.state.mostrarAlertLogoutExitoso}
+                        onClose={this.noMostrarAlertLogoutExitoso}
+                        sx={{ width: '80%' }}
+                        spacing={2}
+                        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+                    >
+                        <Alert
+                            variant="filled"
+                            onClose={this.noMostrarAlertLogoutExitoso}
+                            closeText={'Cerrar'}
+                        >
+                            <AlertTitle>Te deslogueaste correctamente</AlertTitle>
+                        </Alert>
+                    </Snackbar>
+
+                </Container>
             </div>
         );
     }
