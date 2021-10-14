@@ -434,14 +434,13 @@ export default class MesaDeEntradasDashboard extends Component {
     }
 
     mostrarSocios(sociedad) {
-        let apoderado = sociedad.apoderado_id;
         return sociedad.socios.map((s) =>
             <Grid key={s.id} item xs={12}>
                 <Typography
                     variant="body1"
                 >
                     <b>{s.nombre} {s.apellido}
-                        {s.id === apoderado && ' (apoderado)'}</b>, con un {s.porcentaje}%.
+                    </b>, con un {s.porcentaje}% {s.id === sociedad.apoderado_id ? <Chip label="Apoderado" color="primary" variant="outlined" /> : '.'}
                 </Typography>
             </Grid>
         )

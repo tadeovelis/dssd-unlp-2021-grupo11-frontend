@@ -3,6 +3,7 @@ import { React, Component } from "react";
 import { Container, Accordion, AccordionSummary, CircularProgress, AccordionDetails, Grid, Paper, Divider, Typography, Box, Button, Snackbar, Alert, AlertTitle, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from '@mui/material';
 import LinearProgress, { linearProgressClasses } from '@mui/material/LinearProgress';
 import { styled } from '@mui/material/styles';
+import Chip from '@mui/material/Chip';
 
 import LabelIcon from '@mui/icons-material/Label';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -16,6 +17,7 @@ import { getCookie, textoEstadoDeEvaluacion, valorYColorLineaProgreso } from '..
 import { Link } from "react-router-dom";
 
 import LineaProgresoTramite from "./LineaProgresoTramite";
+
 
 
 export default class EscribanoDashboard extends Component {
@@ -451,14 +453,13 @@ export default class EscribanoDashboard extends Component {
     }
 
     mostrarSocios(sociedad) {
-        let apoderado = sociedad.apoderado_id;
         return sociedad.socios.map((s) =>
             <Grid key={s.id} item xs={12}>
                 <Typography
                     variant="body1"
                 >
                     <b>{s.nombre} {s.apellido}
-                        {s.id === apoderado && ' (apoderado)'}</b>, con un {s.porcentaje}%.
+                    </b>, con un {s.porcentaje}% {s.id === sociedad.apoderado_id ? <Chip label="Apoderado" color="primary" variant="outlined" /> : '.'}
                 </Typography>
             </Grid>
         )
