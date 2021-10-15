@@ -250,7 +250,6 @@ export default class ApoderadoDashboard extends Component {
 
         }
         let jsonPaises = JSON.stringify(paises);
-        console.log(jsonPaises);
         return jsonPaises;
     }
 
@@ -416,7 +415,6 @@ export default class ApoderadoDashboard extends Component {
                 )
             }
             let jsonSocios = JSON.stringify(socios);
-            console.log(jsonSocios);
             return jsonSocios
         }
     }
@@ -428,9 +426,7 @@ export default class ApoderadoDashboard extends Component {
 
     // Devuelve bool si están o no completos los datos de los socios
     seCompletaronLosSocios() {
-        console.log("A");
         if (!this.noHayDosApoderados()) {
-            alert("La sociedad no puede registrar dos o más apoderados. Por favor, seleccioná uno solo con el check verde.");
             return false;
         };
         for (let i = 0; i < this.state.cantSocios; i++) {
@@ -450,7 +446,10 @@ export default class ApoderadoDashboard extends Component {
             let soc = 'socio' + (i + 1);
             if (this.state[soc].apoderado === "true") {
                 cantApoderados++;
-                if (cantApoderados === 2) return false
+                if (cantApoderados === 2) {
+                    alert("La sociedad no puede registrar dos o más apoderados. Por favor, seleccioná uno solo con el check verde.");
+                    return false
+                }
             }
         }
         return true
@@ -490,8 +489,6 @@ export default class ApoderadoDashboard extends Component {
         if (!this.state.pais1 || this.state.pais1.name === "") {
             // O sea no se eligió ninguno, así que asigno a Argentina
             paises_estados = this.armarJSONArgentina();
-            console.log('Argentina por defecto:');
-            console.log(paises_estados);
         }
         else paises_estados = this.armarJSONPaisesYEstados();
         let formData = new FormData();
@@ -503,6 +500,8 @@ export default class ApoderadoDashboard extends Component {
         formData.append('socios', socios);
         formData.append('archivo_estatuto', this.state.archivo_estatuto);
         formData.append('paises_estados', paises_estados);
+
+        console.log(paises_estados);
 
         fetch(env("BACKEND_URL") + ruta, {
             method: 'POST',

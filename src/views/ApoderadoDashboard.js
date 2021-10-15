@@ -32,7 +32,7 @@ export default class ApoderadoDashboard extends Component {
       primerInicio: false,
       alertPrimerInicio: false,
 
-      sociedades: null,
+      sociedades: [],
       sociedadesCargadas: false,
 
       mostrarAlertCorreccionSAExitosa: false,
@@ -157,10 +157,12 @@ export default class ApoderadoDashboard extends Component {
     })
       .then(response => response.json())
       .then(data => {
-        this.setState({
-          sociedades: data,
-          sociedadesCargadas: true
-        })
+        if (!data.data) {
+          this.setState({
+            sociedades: data,
+            sociedadesCargadas: true
+          })
+        }
       })
       .catch(error => console.error(error));
   }
