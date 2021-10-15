@@ -1,13 +1,12 @@
 import { React, Component } from "react";
 
-import { Container, Grid, Paper, Divider, Typography, CircularProgress, Box, Button, Snackbar, Alert, AlertTitle, TextField, ListItemIcon, ListItemText, List, ListItem } from '@mui/material';
+import { Container, Grid, Paper, Chip, Divider, Typography, CircularProgress, Box, Button, Snackbar, Alert, AlertTitle, TextField, ListItemIcon, ListItemText, List, ListItem } from '@mui/material';
 import DescriptionIcon from '@mui/icons-material/Description';
 import GroupIcon from '@mui/icons-material/Group';
 import ApartmentIcon from '@mui/icons-material/Apartment';
 import EventIcon from '@mui/icons-material/Event';
 import RoomIcon from '@mui/icons-material/Room';
 import EmailIcon from '@mui/icons-material/Email';
-import Chip from '@mui/material/Chip';
 import PublicIcon from '@mui/icons-material/Public';
 
 import '../assets/css/dashboard.css'
@@ -158,7 +157,6 @@ export default class ApoderadoDashboard extends Component {
     })
       .then(response => response.json())
       .then(data => {
-        console.log(data);
         if (data.data.length) {
           this.setState({
             sociedades: data.data,
@@ -201,6 +199,14 @@ export default class ApoderadoDashboard extends Component {
         >
           <b>{s.nombre} {s.apellido}</b>, con un {s.porcentaje}% {s.id == sociedad.apoderado_id ? <Chip label="Apoderado" color="primary" variant="outlined" /> : '.'}
         </Typography>
+      </Grid>
+    )
+  }
+
+  mostrarEstados(sociedad) {
+    return sociedad.estados.map((e) =>
+      <Grid key={e.id} item xs={12}>
+        <b>Nombre {e.name} - País {e.pais} - Continente {e.continente}</b>
       </Grid>
     )
   }
@@ -305,7 +311,7 @@ export default class ApoderadoDashboard extends Component {
                   </Grid>
                 }
               </Grid>
-              <Grid item xs={7}>
+              <Grid item xs={12} sm={7}>
                 <Typography sx={{ fontSize: 18 }}>
                   Datos generales
                 </Typography>
@@ -325,7 +331,7 @@ export default class ApoderadoDashboard extends Component {
                   <Typography variant="body1">Fecha de creación: {this.formatDate(s.fecha_creacion)}</Typography>
                 </Grid>
               </Grid>
-              <Grid item xs={5}>
+              <Grid item xs={12} sm={5}>
                 <Grid item xs={12}>
                   <Typography sx={{ fontSize: 18 }}>
                     Socios
@@ -335,6 +341,17 @@ export default class ApoderadoDashboard extends Component {
                   <Divider sx={{ mb: 1, width: '85%' }} />
                 </Grid>
                 {this.mostrarSocios(s)}
+              </Grid>
+              <Grid item xs={12}>
+                <Grid item xs={12}>
+                  <Typography sx={{ fontSize: 18 }}>
+                    Estados
+                  </Typography>
+                </Grid>
+                <Grid item xs={12}>
+                  <Divider sx={{ mb: 1, width: '85%' }} />
+                </Grid>
+                {this.mostrarEstados(s)}
               </Grid>
             </Grid>
           </Box>

@@ -436,6 +436,17 @@ export default class EscribanoDashboard extends Component {
                 <Grid item xs={12}>
                     <Grid item xs={12}>
                         <Typography sx={{ fontSize: 18 }}>
+                            Estados
+                        </Typography>
+                    </Grid>
+                    <Grid item xs={12}>
+                        <Divider sx={{ mb: 1, width: '85%' }} />
+                    </Grid>
+                    {this.mostrarEstados(s)}
+                </Grid>
+                <Grid item xs={12}>
+                    <Grid item xs={12}>
+                        <Typography sx={{ fontSize: 18 }}>
                             Enlace a la carpeta de Drive con el estatuto
                         </Typography>
                     </Grid>
@@ -464,6 +475,14 @@ export default class EscribanoDashboard extends Component {
             </Grid>
         )
     }
+
+    mostrarEstados(sociedad) {
+        return sociedad.estados.map((e) =>
+          <Grid key={e.id} item xs={12}>
+            <b>Nombre {e.name} - País {e.pais} - Continente {e.continente}</b>
+          </Grid>
+        )
+      }
 
 
     render() {
