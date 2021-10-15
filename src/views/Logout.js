@@ -25,7 +25,6 @@ export default function Logout(props) {
             .then(data => {
                 if (data.error) alert("Ocurrió un error")
                 else {
-                    console.log(data);
                     var cookies = document.cookie.split(";");
 
                     for (var i = 0; i < cookies.length; i++) {

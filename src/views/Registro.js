@@ -65,7 +65,7 @@ export default class Registro extends Component {
             .then(response => response.json())
             .then(data => {
                 console.log(data);
-                if (data.message) this.registroExitoso(data);
+                if (!data.message.includes("ya existe")) this.registroExitoso(data);
                 else this.mostrarError(data)
             })
             .catch(error => console.error(error));
@@ -102,7 +102,7 @@ export default class Registro extends Component {
     }
 
     mostrarError(data) {
-        if (data.email) {
+        if (data.message) {
             this.emailError();
         }
     }

@@ -8,6 +8,7 @@ import EventIcon from '@mui/icons-material/Event';
 import RoomIcon from '@mui/icons-material/Room';
 import EmailIcon from '@mui/icons-material/Email';
 import PublicIcon from '@mui/icons-material/Public';
+import DomainIcon from '@mui/icons-material/Domain';
 
 import '../assets/css/dashboard.css'
 
@@ -45,6 +46,7 @@ export default class ApoderadoDashboard extends Component {
     this.noMostrarAlertCorreccionSAExitosa = this.noMostrarAlertCorreccionSAExitosa.bind(this);
     this.noMostrarAlertActualizacionEstatutoExitosa = this.noMostrarAlertActualizacionEstatutoExitosa.bind(this);
     this.noMostrarAlertPrimerInicio = this.noMostrarAlertPrimerInicio.bind(this);
+    this.agruparEstadosPorPais = this.agruparEstadosPorPais.bind(this);
 
   }
 
@@ -202,10 +204,51 @@ export default class ApoderadoDashboard extends Component {
     )
   }
 
+  agruparEstadosPorPais(estadosData) {
+    let paisObj = {};
+    let paises = [];
+    let pais = '';
+    let estados = [];
+    for (let i = 0; i < estadosData.length; i++) {
+      if (pais === '') {
+        pais = estadosData[i].pais;
+        paisObj = {
+          nombre: pais,
+          continente: estadosData[i].continente
+        };
+      }
+      if (estadosData[i].pais !== pais) {
+        paisObj.estados = estados; // le agrego los estados al obj del pais
+        paises.push(paisObj); // Pusheo el pais al array
+
+        pais = estadosData[i].pais; // Seteo el nuevo país
+        estados = []; // Reseteo el array de estados por país
+        // Reseteo el object del país
+        paisObj = {
+          nombre: pais,
+          continente: estadosData[i].continente
+        };
+      }
+      estados.push(estadosData[i].name); // Le agrego el primer estado
+      if (i === estadosData.length - 1) { // si es el último...
+        paisObj.estados = estados; // le agrego los estados al obj del pais
+        paises.push(paisObj); // Pusheo el pais al array
+      }
+    }
+    return paises
+  }
+
   mostrarEstados(sociedad) {
-    return sociedad.estados.map((e) =>
-      <Grid key={e.id} item xs={12}>
-        <b>Nombre {e.name} - País {e.pais} - Continente {e.continente}</b>
+    let paises = this.agruparEstadosPorPais(sociedad.estados);
+    return paises.map((p) =>
+      <Grid key={p.nombre} container>
+        <Grid item xs={12}>
+          <Typography variant="body1"><strong>{p.nombre}</strong> <i>({p.continente})</i>:{' '}
+            {p.estados.map((e) => {
+              return e === p.estados[p.estados.length - 1] ? e : e + ', '
+            })}
+          </Typography>
+        </Grid>
       </Grid>
     )
   }
@@ -224,11 +267,11 @@ export default class ApoderadoDashboard extends Component {
               py: 2,
               mb: 2
             }}>
-            <Grid container spacing={1}>
+            <Grid container spacing={2}>
               <Grid item xs={12}>
                 <Typography variant="h6">{s.nombre}</Typography>
               </Grid>
-              <Box sx={{ width: '100%', my: 1 }}>
+              <Box sx={{ width: '100%', my: 1, mx: 1 }}>
                 <LineaProgresoTramite
                   height={10}
                   value={valorYColorLineaProgreso(s.estado_evaluacion).valor}
@@ -248,8 +291,8 @@ export default class ApoderadoDashboard extends Component {
                 </Typography>
               </Grid>
               {/* Si tiene que corregir la solicitud... */}
-              <Grid item xs={12}>
-                {s.estado_evaluacion.includes("Rechazado por empleado-mesa") &&
+              {s.estado_evaluacion.includes("Rechazado por empleado-mesa") &&
+                <Grid item xs={12}>
                   <Grid item xs={12}>
                     <Button
                       size="small"
@@ -261,11 +304,12 @@ export default class ApoderadoDashboard extends Component {
                       Corregir solicitud
                     </Button>
                   </Grid>
-                }
-              </Grid>
+
+                </Grid>
+              }
               {/* Si tiene que actualizar el estatuto... */}
-              <Grid item xs={12}>
-                {s.estado_evaluacion.includes("Rechazado por escribano") &&
+              {s.estado_evaluacion.includes("Rechazado por escribano") &&
+                <Grid item xs={12}>
                   <Grid container spacing={1}>
                     <Grid item xs={5}>
                       <label htmlFor={"botonSubirEstatuto" + s.id}>
@@ -308,12 +352,19 @@ export default class ApoderadoDashboard extends Component {
                       </Grid>
                     }
                   </Grid>
-                }
-              </Grid>
+                </Grid>
+              }
               <Grid item xs={12} sm={7}>
-                <Typography sx={{ fontSize: 18 }}>
-                  Datos generales
-                </Typography>
+                <Grid container spacing={1}>
+                  <Grid item>
+                    <ApartmentIcon />
+                  </Grid>
+                  <Grid item>
+                    <Typography sx={{ fontSize: 18 }}>
+                      Datos generales
+                    </Typography>
+                  </Grid>
+                </Grid>
                 <Grid item xs={12}>
                   <Divider sx={{ mb: 1, width: '95%' }} />
                 </Grid>
@@ -331,10 +382,15 @@ export default class ApoderadoDashboard extends Component {
                 </Grid>
               </Grid>
               <Grid item xs={12} sm={5}>
-                <Grid item xs={12}>
-                  <Typography sx={{ fontSize: 18 }}>
-                    Socios
-                  </Typography>
+                <Grid container spacing={1}>
+                  <Grid item>
+                    <GroupIcon />
+                  </Grid>
+                  <Grid item>
+                    <Typography sx={{ fontSize: 18 }}>
+                      Socios
+                    </Typography>
+                  </Grid>
                 </Grid>
                 <Grid item xs={12}>
                   <Divider sx={{ mb: 1, width: '85%' }} />
@@ -342,10 +398,15 @@ export default class ApoderadoDashboard extends Component {
                 {this.mostrarSocios(s)}
               </Grid>
               <Grid item xs={12}>
-                <Grid item xs={12}>
-                  <Typography sx={{ fontSize: 18 }}>
-                    Estados
-                  </Typography>
+                <Grid container spacing={1}>
+                  <Grid item>
+                    <PublicIcon />
+                  </Grid>
+                  <Grid item>
+                    <Typography sx={{ fontSize: 18 }}>
+                      Países y estados a los que exporta
+                    </Typography>
+                  </Grid>
                 </Grid>
                 <Grid item xs={12}>
                   <Divider sx={{ mb: 1, width: '85%' }} />
