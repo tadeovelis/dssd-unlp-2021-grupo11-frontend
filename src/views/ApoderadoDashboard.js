@@ -201,6 +201,14 @@ export default class ApoderadoDashboard extends Component {
     )
   }
 
+  mostrarEstados(sociedad) {
+    return sociedad.estados.map((e) =>
+      <Grid key={e.id} item xs={12}>
+        <b>Nombre {e.name} - País {e.pais} - Continente {e.continente}</b>
+      </Grid>
+    )
+  }
+
   mostrarSociedades() {
     if (this.state.sociedadesCargadas) {
       return this.state.sociedades.map((s) => {
@@ -301,7 +309,7 @@ export default class ApoderadoDashboard extends Component {
                   </Grid>
                 }
               </Grid>
-              <Grid item xs={7}>
+              <Grid item xs={12} sm={7}>
                 <Typography sx={{ fontSize: 18 }}>
                   Datos generales
                 </Typography>
@@ -321,7 +329,7 @@ export default class ApoderadoDashboard extends Component {
                   <Typography variant="body1">Fecha de creación: {this.formatDate(s.fecha_creacion)}</Typography>
                 </Grid>
               </Grid>
-              <Grid item xs={5}>
+              <Grid item xs={12} sm={5}>
                 <Grid item xs={12}>
                   <Typography sx={{ fontSize: 18 }}>
                     Socios
@@ -331,6 +339,17 @@ export default class ApoderadoDashboard extends Component {
                   <Divider sx={{ mb: 1, width: '85%' }} />
                 </Grid>
                 {this.mostrarSocios(s)}
+              </Grid>
+              <Grid item xs={12}>
+                <Grid item xs={12}>
+                  <Typography sx={{ fontSize: 18 }}>
+                    Estados
+                  </Typography>
+                </Grid>
+                <Grid item xs={12}>
+                  <Divider sx={{ mb: 1, width: '85%' }} />
+                </Grid>
+                {this.mostrarEstados(s)}
               </Grid>
             </Grid>
           </Box>
