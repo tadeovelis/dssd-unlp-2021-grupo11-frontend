@@ -157,12 +157,11 @@ export default class ApoderadoDashboard extends Component {
     })
       .then(response => response.json())
       .then(data => {
-        if (data.data.length) {
-          this.setState({
-            sociedades: data.data,
-            sociedadesCargadas: true
-          })
-        }
+        console.log(data);
+        this.setState({
+          sociedades: data.data,
+          sociedadesCargadas: true
+        })
       })
       .catch(error => console.error(error));
   }
@@ -491,10 +490,21 @@ export default class ApoderadoDashboard extends Component {
                     <h1 className="dashboard-titulo" variant="h1">Trámites en curso</h1>
                   </Grid>
                   <Grid item xs={12}>
-                    {this.state.sociedadesCargadas && (this.state.sociedades.length !== 0) ?
-                      this.mostrarSociedades()
-                      :
-                      <span>Todavía no tenés ningún trámite en curso</span>
+                    {this.state.sociedadesCargadas ? (
+                      this.state.sociedades.length !== 0 ?
+                        this.mostrarSociedades()
+                        :
+                        <span>Todavía no tenés ningún trámite en curso</span>
+                    ) : (
+                      <Grid container spacing={2} alignItems='center'>
+                        <Grid item>
+                          <CircularProgress />
+                        </Grid>
+                        <Grid item>
+                          <span>Cargando trámites...</span>
+                        </Grid>
+                      </Grid>
+                    )
                     }
                   </Grid>
                 </Grid>
