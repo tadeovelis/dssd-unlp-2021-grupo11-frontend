@@ -158,7 +158,7 @@ export default class ApoderadoDashboard extends Component {
       .then(response => response.json())
       .then(data => {
         this.setState({
-          sociedades: data,
+          sociedades: data.data,
           sociedadesCargadas: true
         })
       })
