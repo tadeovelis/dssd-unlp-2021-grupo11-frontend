@@ -7,6 +7,8 @@ import { styled } from '@mui/material/styles';
 import LabelIcon from '@mui/icons-material/Label';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
+import Chip from '@mui/material/Chip';
+
 import '../assets/css/dashboard.css'
 
 import env from "@beam-australia/react-env";
