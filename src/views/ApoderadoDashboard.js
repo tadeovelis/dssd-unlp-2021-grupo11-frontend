@@ -8,6 +8,7 @@ import EventIcon from '@mui/icons-material/Event';
 import RoomIcon from '@mui/icons-material/Room';
 import EmailIcon from '@mui/icons-material/Email';
 import Chip from '@mui/material/Chip';
+import PublicIcon from '@mui/icons-material/Public';
 
 import '../assets/css/dashboard.css'
 
@@ -440,6 +441,14 @@ export default class ApoderadoDashboard extends Component {
                         </ListItemIcon>
                         <ListItemText
                           primary="Información de los socios"
+                        />
+                      </ListItem>
+                      <ListItem sx={{ px: 0 }}>
+                        <ListItemIcon sx={{ minWidth: '15%' }}>
+                          <PublicIcon />
+                        </ListItemIcon>
+                        <ListItemText
+                          primary="Países y estados a los que exporta"
                         />
                       </ListItem>
                       <ListItem sx={{ px: 0 }}>
