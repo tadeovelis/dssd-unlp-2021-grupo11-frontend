@@ -32,7 +32,7 @@ const formatosValidosEstatuto = 'application/pdf,' +
     'application/vnd.oasis.opendocument.text';
 
 
-export default class ApoderadoDashboard extends Component {
+export default class ApoderadoRegistrarSociedadAnonima extends Component {
     constructor(props) {
         super(props);
 
@@ -255,12 +255,12 @@ export default class ApoderadoDashboard extends Component {
 
     armarJSONArgentina() {
         if (this.state.argentina) {
-            return (JSON.stringify({
+            return (JSON.stringify([{
                 'code': this.state.argentina.code,
                 'name': this.state.argentina.name,
                 'continent': this.state.argentina.continent.name,
                 'estados': this.state.argentina.states
-            }))
+            }]))
         }
         return false
     }

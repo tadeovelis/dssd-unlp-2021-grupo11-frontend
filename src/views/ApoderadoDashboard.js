@@ -17,6 +17,7 @@ import env from "@beam-australia/react-env";
 import { getCookie, textoEstadoDeEvaluacion, valorYColorLineaProgreso } from '../helpers/helpers';
 
 import LineaProgresoTramite from "./LineaProgresoTramite";
+import { MostrarSociedad } from "./MostrarSociedad";
 
 
 const formatosValidosEstatuto = 'application/pdf,' +
@@ -47,6 +48,9 @@ export default class ApoderadoDashboard extends Component {
     this.noMostrarAlertActualizacionEstatutoExitosa = this.noMostrarAlertActualizacionEstatutoExitosa.bind(this);
     this.noMostrarAlertPrimerInicio = this.noMostrarAlertPrimerInicio.bind(this);
     this.agruparEstadosPorPais = this.agruparEstadosPorPais.bind(this);
+    this.redirectACorregirSolicitud = this.redirectACorregirSolicitud.bind(this);
+    this.renderizarCorregirSolicitud = this.renderizarCorregirSolicitud.bind(this);
+    this.renderizarSubidaEstatuto = this.renderizarSubidaEstatuto.bind(this);
 
   }
 
@@ -113,6 +117,76 @@ export default class ApoderadoDashboard extends Component {
     else this.setState({
       [estatuto]: this.state[estatuto]
     })
+  }
+
+  // Renderiza todo el manejo del estatuto
+  renderizarSubidaEstatuto(s) {
+    let estatuto = 'archivo_estatuto' + s.id;
+    let cargandoSubidaEstatuto = 'cargandoSubidaEstatuto' + s.id;
+    return (
+      <Grid item xs={12}>
+        <Grid container spacing={1}>
+          <Grid item xs={5}>
+            <label htmlFor={"botonSubirEstatuto" + s.id}>
+              <TextField
+                id={'botonSubirEstatuto' + s.id}
+                type="file"
+                inputProps={{ accept: formatosValidosEstatuto }}
+                style={{ display: 'none' }}
+                onChange={this.handleChangeEstatuto.bind(this, s)}
+                required
+              />
+              <Button
+                variant="outlined"
+                component="span"
+                color="warning"
+                startIcon={<DescriptionIcon />}
+              >
+                Actualizar estatuto
+              </Button>
+            </label>
+          </Grid>
+          <Grid item xs={7}>
+            {this.state[estatuto] &&
+              <span>Nombre: {this.state[estatuto].name}</span>
+            }
+          </Grid>
+          <Grid item xs={12} sx={{ mb: 2, fontSize: 15 }}>
+            <span>Recordá que los formatos válidos son: PDF, docx, ODT.</span>
+          </Grid>
+          {this.state[estatuto] &&
+            <Grid item xs={12} sx={{ mb: 2, fontSize: 15 }}>
+              <Button
+                variant="contained"
+                color="warning"
+                onClick={this.actualizarEstatuto.bind(this, s)}
+              >
+                Enviar estatuto actualizado
+              </Button>
+              {this.state[cargandoSubidaEstatuto] && <CircularProgress />}
+            </Grid>
+          }
+        </Grid>
+      </Grid>
+    )
+  }
+
+  renderizarCorregirSolicitud(s) {
+    return (
+      <Grid item xs={12}>
+        <Grid item xs={12}>
+          <Button
+            size="small"
+            variant="outlined"
+            color="warning"
+            sx={{ my: 1 }}
+            onClick={this.redirectACorregirSolicitud.bind(this, s)}
+          >
+            Corregir solicitud
+          </Button>
+        </Grid>
+      </Grid>
+    )
   }
 
   actualizarEstatuto(sociedad) {
@@ -255,168 +329,12 @@ export default class ApoderadoDashboard extends Component {
 
   mostrarSociedades() {
     if (this.state.sociedadesCargadas) {
-      return this.state.sociedades.map((s) => {
-        let estatuto = 'archivo_estatuto' + s.id;
-        let cargandoSubidaEstatuto = 'cargandoSubidaEstatuto' + s.id;
-        return (
-          <Box
-            key={s.id}
-            sx={{
-              border: '0.1px solid #e8e8e8',
-              px: 3,
-              py: 2,
-              mb: 2
-            }}>
-            <Grid container spacing={2}>
-              <Grid item xs={12}>
-                <Typography variant="h6">{s.nombre}</Typography>
-              </Grid>
-              <Box sx={{ width: '100%', my: 1, mx: 1 }}>
-                <LineaProgresoTramite
-                  height={10}
-                  value={valorYColorLineaProgreso(s.estado_evaluacion).valor}
-                  color={valorYColorLineaProgreso(s.estado_evaluacion).color.string}
-                />
-              </Box>
-              <Grid item xs={12}>
-                <Typography
-                  variant="body1"
-                  sx={{
-                    color: valorYColorLineaProgreso(s.estado_evaluacion).color.hexa,
-                    fontWeight: 800,
-                    fontSize: 14,
-                    mt: -1,
-                  }}
-                >{textoEstadoDeEvaluacion(s, "apoderado")}
-                </Typography>
-              </Grid>
-              {/* Si tiene que corregir la solicitud... */}
-              {s.estado_evaluacion.includes("Rechazado por empleado-mesa") &&
-                <Grid item xs={12}>
-                  <Grid item xs={12}>
-                    <Button
-                      size="small"
-                      variant="outlined"
-                      color="warning"
-                      sx={{ my: 1 }}
-                      onClick={this.redirectACorregirSolicitud.bind(this, s)}
-                    >
-                      Corregir solicitud
-                    </Button>
-                  </Grid>
-
-                </Grid>
-              }
-              {/* Si tiene que actualizar el estatuto... */}
-              {s.estado_evaluacion.includes("Rechazado por escribano") &&
-                <Grid item xs={12}>
-                  <Grid container spacing={1}>
-                    <Grid item xs={5}>
-                      <label htmlFor={"botonSubirEstatuto" + s.id}>
-                        <TextField
-                          id={'botonSubirEstatuto' + s.id}
-                          type="file"
-                          inputProps={{ accept: formatosValidosEstatuto }}
-                          style={{ display: 'none' }}
-                          onChange={this.handleChangeEstatuto.bind(this, s)}
-                          required
-                        />
-                        <Button
-                          variant="outlined"
-                          component="span"
-                          color="warning"
-                          startIcon={<DescriptionIcon />}
-                        >
-                          Actualizar estatuto
-                        </Button>
-                      </label>
-                    </Grid>
-                    <Grid item xs={7}>
-                      {this.state[estatuto] &&
-                        <span>Nombre: {this.state[estatuto].name}</span>
-                      }
-                    </Grid>
-                    <Grid item xs={12} sx={{ mb: 2, fontSize: 15 }}>
-                      <span>Recordá que los formatos válidos son: PDF, docx, ODT.</span>
-                    </Grid>
-                    {this.state[estatuto] &&
-                      <Grid item xs={12} sx={{ mb: 2, fontSize: 15 }}>
-                        <Button
-                          variant="contained"
-                          color="warning"
-                          onClick={this.actualizarEstatuto.bind(this, s)}
-                        >
-                          Enviar estatuto actualizado
-                        </Button>
-                        {this.state[cargandoSubidaEstatuto] && <CircularProgress />}
-                      </Grid>
-                    }
-                  </Grid>
-                </Grid>
-              }
-              <Grid item xs={12} sm={7}>
-                <Grid container spacing={1}>
-                  <Grid item>
-                    <ApartmentIcon />
-                  </Grid>
-                  <Grid item>
-                    <Typography sx={{ fontSize: 18 }}>
-                      Datos generales
-                    </Typography>
-                  </Grid>
-                </Grid>
-                <Grid item xs={12}>
-                  <Divider sx={{ mb: 1, width: '95%' }} />
-                </Grid>
-                <Grid item xs={12}>
-                  <Typography variant="body1">Email del apoderado: {s.email_apoderado}</Typography>
-                </Grid>
-                <Grid item xs={12}>
-                  <Typography variant="body1">Domicilio legal: {s.domicilio_legal}</Typography>
-                </Grid>
-                <Grid item xs={12}>
-                  <Typography variant="body1">Domicilio real: {s.domicilio_real}</Typography>
-                </Grid>
-                <Grid item xs={12}>
-                  <Typography variant="body1">Fecha de creación: {this.formatDate(s.fecha_creacion)}</Typography>
-                </Grid>
-              </Grid>
-              <Grid item xs={12} sm={5}>
-                <Grid container spacing={1}>
-                  <Grid item>
-                    <GroupIcon />
-                  </Grid>
-                  <Grid item>
-                    <Typography sx={{ fontSize: 18 }}>
-                      Socios
-                    </Typography>
-                  </Grid>
-                </Grid>
-                <Grid item xs={12}>
-                  <Divider sx={{ mb: 1, width: '85%' }} />
-                </Grid>
-                {this.mostrarSocios(s)}
-              </Grid>
-              <Grid item xs={12}>
-                <Grid container spacing={1}>
-                  <Grid item>
-                    <PublicIcon />
-                  </Grid>
-                  <Grid item>
-                    <Typography sx={{ fontSize: 18 }}>
-                      Países y estados a los que exporta
-                    </Typography>
-                  </Grid>
-                </Grid>
-                <Grid item xs={12}>
-                  <Divider sx={{ mb: 1, width: '85%' }} />
-                </Grid>
-                {this.mostrarEstados(s)}
-              </Grid>
-            </Grid>
-          </Box>
-        )
-      }
+      return this.state.sociedades.map((s) =>
+        <MostrarSociedad
+          sociedad={s}
+          renderizarSubidaEstatuto={this.renderizarSubidaEstatuto}
+          renderizarCorregirSolicitud={this.renderizarCorregirSolicitud}
+        />
       )
     }
   }
