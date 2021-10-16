@@ -469,7 +469,7 @@ export default class ApoderadoDashboard extends Component {
                   </Grid>
                   <Grid item xs={12}>
                     {this.state.sociedadesCargadas ? (
-                      this.state.sociedades.length !== 0 ?
+                      this.state.sociedades && this.state.sociedades.length !== 0 ?
                         this.mostrarSociedades()
                         :
                         <span>Todavía no tenés ningún trámite en curso</span>
