@@ -3,6 +3,8 @@ import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
 import AppRoutes from './AppRoutes';
 
+import './assets/css/dashboard.css';
+
 class App extends Component {
     constructor(props) {
         super(props)

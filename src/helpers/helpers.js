@@ -106,10 +106,13 @@ export function getCookie(name) {
   if (parts.length === 2) return parts.pop().split(';').shift();
 }
 
-export function setearCookies(auth) {
-  document.cookie = "X-Bonita-API-Token=" + auth['X-Bonita-API-Token'];
-  document.cookie = "JSESSIONID=" + auth.JSESSIONID;
-  document.cookie = "access_token=" + auth.access_token;
+export function setearCookies(data) {
+  document.cookie = "X-Bonita-API-Token=" + data.auth['X-Bonita-API-Token'];
+  document.cookie = "JSESSIONID=" + data.auth.JSESSIONID;
+  document.cookie = "access_token=" + data.auth.access_token;
+  document.cookie = "name=" + data.user.name;
+  document.cookie = "email=" + data.user.email;
+  document.cookie = "rol=" + data.user.roles[0];
 }
 
 export function formatDate(date) {

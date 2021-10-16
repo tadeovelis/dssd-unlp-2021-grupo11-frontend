@@ -83,7 +83,7 @@ export default class Login extends Component {
     loginExitoso(data) {
 
         // Seteo las cookies
-        setearCookies(data.auth);
+        setearCookies(data);
 
         // Agarra el nombre del rol y usa eso para la ruta
         let ruta = '/' + data.user.roles[0] + '/inicio';

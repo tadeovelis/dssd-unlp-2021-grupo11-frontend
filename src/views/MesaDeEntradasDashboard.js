@@ -475,15 +475,6 @@ export default class MesaDeEntradasDashboard extends Component {
             <Container>
                 <Box p={2}>
                     <Grid container spacing={2}>
-
-                        <Grid item xs={12}>
-                            <Box p={2}>
-                                <span><b>Mis datos</b></span><br />
-                                <span>Nombre de usuario: {user.name}</span><br />
-                                <span>Email: {user.email}</span>
-                            </Box>
-                        </Grid>
-
                         <Grid item xs={12}>
                             <Paper className="dashboard-paper">
                                 <Typography variant="h6">¡Hola {user.name}!</Typography>

@@ -90,7 +90,7 @@ export default class Registro extends Component {
             .then(data => {
 
                 // Seteo las cookies
-                setearCookies(data.auth);
+                setearCookies(data);
                 
                 let ruta = '/' + data.user.roles[0] + '/inicio';
                 this.props.history.push({

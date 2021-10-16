@@ -2,6 +2,7 @@ import { React, Component } from 'react';
 
 import { Box, AppBar, Toolbar, IconButton, Typography, Slide, useScrollTrigger } from '@mui/material';
 import Logout from './Logout';
+import { UserInfo } from './UserInfo';
 
 
 function HideOnScroll(props) {
@@ -34,11 +35,14 @@ export default class Header extends Component {
                     {/* Sacar position para que tome la función de hideonscroll, pero tapa el fondo */}
                     <AppBar position="relative">
                         <Box sx={{ display: 'flex', p: 2, alignItems: 'center' }}>
-                            <Box sx={{flexGrow: 1}}>
+                            <Box sx={{ flexGrow: 1 }}>
                                 <Typography sx={{ fontWeight: 800 }}>Dirección Nacional de Personas Jurídicas</Typography>
                             </Box>
                             <Box>
                                 <Logout />
+                            </Box>
+                            <Box>
+                                <UserInfo />
                             </Box>
                         </Box>
                     </AppBar>
