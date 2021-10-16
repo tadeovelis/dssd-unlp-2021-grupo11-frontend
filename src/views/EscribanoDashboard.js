@@ -16,7 +16,7 @@ import { getCookie, textoEstadoDeEvaluacion, valorYColorLineaProgreso } from '..
 
 import { Link } from "react-router-dom";
 
-import LineaProgresoTramite from "./LineaProgresoTramite";
+import LineaProgresoTramite from "../components/LineaProgresoTramite";
 
 
 

@@ -14,10 +14,9 @@ import '../assets/css/dashboard.css'
 
 import env from "@beam-australia/react-env";
 
-import { getCookie, textoEstadoDeEvaluacion, valorYColorLineaProgreso } from '../helpers/helpers';
+import { getCookie } from '../helpers/helpers';
 
-import LineaProgresoTramite from "./LineaProgresoTramite";
-import { MostrarSociedad } from "./MostrarSociedad";
+import { MostrarSociedad } from "components/MostrarSociedad";
 
 
 const formatosValidosEstatuto = 'application/pdf,' +

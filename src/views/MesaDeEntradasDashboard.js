@@ -13,7 +13,7 @@ import env from "@beam-australia/react-env";
 
 import { getCookie, textoEstadoDeEvaluacion, valorYColorLineaProgreso } from '../helpers/helpers';
 
-import LineaProgresoTramite from "./LineaProgresoTramite";
+import LineaProgresoTramite from "../components/LineaProgresoTramite";
 
 
 export default class MesaDeEntradasDashboard extends Component {

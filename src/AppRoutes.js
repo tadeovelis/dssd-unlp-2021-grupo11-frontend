@@ -16,8 +16,6 @@ const MesaDeEntradasDashboard = lazy(() => import("views/MesaDeEntradasDashboard
 
 const EscribanoDashboard = lazy(() => import("views/EscribanoDashboard.js"));
 
-const Header = lazy(() => import("views/Header.js"));
-
 
 class AppRoutes extends Component {
     constructor(props) {

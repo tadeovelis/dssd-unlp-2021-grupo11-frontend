@@ -22,8 +22,8 @@ import {
     useQuery,
     gql
 } from "@apollo/client";
-import { FormsPaises } from "./FormsPaises.js";
-import Logout from "./Logout.js";
+import { FormsPaises } from "../components/FormsPaises.js";
+import Logout from "../components/Logout.js";
 import { getCookie } from "helpers/helpers.js";
 import { formatDate } from "helpers/helpers.js";
 

@@ -1,7 +1,6 @@
 import { React, Component } from 'react';
 
-import { Container } from '@mui/material';
-import Header from './Header';
+import Header from '../components/Header';
 
 export default class DashboardContainer extends Component {
     constructor(props) {

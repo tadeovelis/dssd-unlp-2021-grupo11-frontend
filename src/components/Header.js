@@ -1,7 +1,6 @@
 import { React, Component } from 'react';
 
 import { Box, AppBar, Toolbar, IconButton, Typography, Slide, useScrollTrigger } from '@mui/material';
-import MenuIcon from '@mui/icons-material/Menu';
 import Logout from './Logout';
 
 
