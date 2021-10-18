@@ -32,6 +32,7 @@ export default class Login extends Component {
         this.noMostrarAlertLogoutExitoso = this.noMostrarAlertLogoutExitoso.bind(this);
     }
 
+    /*
     componentDidMount(prevProps) {
         if (this.props !== prevProps) {
             if (this.props.location.state && this.props.location.state.logoutExitoso) {
@@ -41,6 +42,7 @@ export default class Login extends Component {
             }
         }
     }
+    */
 
     noMostrarAlertLogoutExitoso() {
         this.setState({
@@ -95,105 +97,121 @@ export default class Login extends Component {
 
     render() {
         return (
-            <div className="background">
-                <Container>
-                    <Card className="login-card">
-                        <CardBody>
-                            <span className="login-title">Sistema de Registro de Sociedad Anónima</span><br />
-                            <span className="login-subtitle">Dirección Nacional de Personas Jurídicas</span><br />
-                            <p>
-                                Ingresá tu email y contraseña para poder ingresar al sistema
-                            </p>
-                            <form onSubmit={this.handleSubmit}>
-                                <Box>
-                                    <Grid container spacing={2}>
-                                        <Grid item xs={12}>
-                                            <FormControl fullWidth={true}>
-                                                <TextField
-                                                    name="email"
-                                                    id="email"
-                                                    placeholder="Ej: juan@gmail.com"
-                                                    label="Email"
-                                                    required={true}
-                                                    InputProps={{
-                                                        startAdornment: (
-                                                            <InputAdornment position="start">
-                                                                <MailOutlineIcon />
-                                                            </InputAdornment>
-                                                        )
-                                                    }}
-                                                    value={this.state.email}
-                                                    onChange={this.handleChange}
-                                                />
-                                            </FormControl>
-                                        </Grid>
-                                        <Grid item xs={12}>
-                                            <FormControl fullWidth={true}>
-                                                <TextField
-                                                    name="password"
-                                                    id="password"
-                                                    placeholder=""
-                                                    label="Contraseña"
-                                                    type="password"
-                                                    required={true}
-                                                    InputProps={{
-                                                        startAdornment: (
-                                                            <InputAdornment position="start">
-                                                                <VpnKeyIcon />
-                                                            </InputAdornment>
-                                                        )
-                                                    }}
-                                                    value={this.state.password}
-                                                    onChange={this.handleChange}
-                                                />
-                                            </FormControl>
-                                        </Grid>
-                                        <Grid item xs={12}>
-                                            <Button
-                                                color="primary"
-                                                variant="contained"
-                                                type="submit"
+            <Box
+                sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    background: 'white',
+                    px: 8,
+                    py: 16,
+                    boxShadow: 4
+                }}
+            >
+                <Box>
+                    <span className="login-title">Iniciá sesión y empezá a operar</span><br />
+                </Box>
+                <Box>
+                    <p>
+                        Ingresá tu email y contraseña para poder ingresar al sistema
+                    </p>
+                </Box>
+                <Box
+                    sx={{
+                        mr: 6
+                    }}>
+                    <form onSubmit={this.handleSubmit}>
 
-                                            >
-                                                Ingresar
-                                            </Button>
-                                        </Grid>
-                                        <Grid item xs={12}>
-                                            <Divider sx={{
-                                                mt: 2
-                                            }} />
-                                        </Grid>
-                                        <Grid item xs={12}>
-                                            <p>Si todavía no tenés una cuenta, registrate haciendo click <Link to="/registro">
-                                                aquí.
-                                            </Link></p>
+                        <Grid container spacing={2}>
+                            <Grid item xs={12}>
+                                <FormControl fullWidth={true}>
+                                    <TextField
+                                        name="email"
+                                        id="email"
+                                        placeholder="Ej: juan@gmail.com"
+                                        label="Email"
+                                        required={true}
+                                        InputProps={{
+                                            startAdornment: (
+                                                <InputAdornment position="start">
+                                                    <MailOutlineIcon />
+                                                </InputAdornment>
+                                            )
+                                        }}
+                                        value={this.state.email}
+                                        onChange={this.handleChange}
+                                    />
+                                </FormControl>
+                            </Grid>
+                            <Grid item xs={12}>
+                                <FormControl fullWidth={true}>
+                                    <TextField
+                                        name="password"
+                                        id="password"
+                                        placeholder=""
+                                        label="Contraseña"
+                                        type="password"
+                                        required={true}
+                                        InputProps={{
+                                            startAdornment: (
+                                                <InputAdornment position="start">
+                                                    <VpnKeyIcon />
+                                                </InputAdornment>
+                                            )
+                                        }}
+                                        value={this.state.password}
+                                        onChange={this.handleChange}
+                                    />
+                                </FormControl>
+                            </Grid>
+                            <Grid item xs={12}>
+                                <Button
+                                    color="primary"
+                                    variant="contained"
+                                    type="submit"
 
-                                        </Grid>
-                                    </Grid>
-                                </Box>
-                            </form>
-                        </CardBody>
-                    </Card>
+                                >
+                                    Ingresar
+                                </Button>
+                            </Grid>
+                            <Grid item xs={12}>
+                                <Divider
+                                    textAlign="left"
+                                    sx={{
+                                        mt: 2,
+                                        fontSize: 13
+                                    }}>
+                                    o, si todavía no tenés cuenta
+                                </Divider>
+                            </Grid>
+                            <Grid item xs={12}>
+                                <p>registrate haciendo click <Link to="/registro">
+                                    aquí.
+                                </Link></p>
 
-                    {/* Alert de logout exitoso */}
-                    <Snackbar
-                        open={this.state.mostrarAlertLogoutExitoso}
+                            </Grid>
+                        </Grid>
+
+                    </form>
+                </Box>
+
+                {/* Alert de logout exitoso */}
+                <Snackbar
+                    open={this.state.mostrarAlertLogoutExitoso}
+                    onClose={this.noMostrarAlertLogoutExitoso}
+                    sx={{ width: '80%' }}
+                    spacing={2}
+                    anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+                >
+                    <Alert
+                        variant="filled"
                         onClose={this.noMostrarAlertLogoutExitoso}
-                        sx={{ width: '80%' }}
-                        spacing={2}
-                        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+                        closeText={'Cerrar'}
                     >
-                        <Alert
-                            variant="filled"
-                            onClose={this.noMostrarAlertLogoutExitoso}
-                            closeText={'Cerrar'}
-                        >
-                            <AlertTitle>Te deslogueaste correctamente</AlertTitle>
-                        </Alert>
-                    </Snackbar>
+                        <AlertTitle>Te deslogueaste correctamente</AlertTitle>
+                    </Alert>
+                </Snackbar>
 
-                </Container>
-            </div>
+            </Box>
         );
     }
 }

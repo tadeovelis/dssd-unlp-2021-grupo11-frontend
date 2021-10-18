@@ -5,7 +5,7 @@ import DashboardContainer from "views/DashboardContainer";
 
 
 // Sección Opciones predefinidas
-const Login = lazy(() => import("views/Login.js"));
+const Home = lazy(() => import("views/Home.js"));
 const Registro = lazy(() => import("views/Registro.js"));
 
 const ApoderadoDashboard = lazy(() => import("views/ApoderadoDashboard.js"));
@@ -27,7 +27,7 @@ class AppRoutes extends Component {
             <Suspense fallback={<div></div>}>
                 <Switch>
                     {/* Login y registro */}
-                    <Route exact path="/login" component={Login} />
+                    <Route exact path="/" component={Home} />
                     <Route exact path="/registro" component={Registro} />
 
                     {/* Apoderado */}
