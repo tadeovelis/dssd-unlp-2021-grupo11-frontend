@@ -46,8 +46,12 @@ const client = new ApolloClient({
 const theme = createTheme({
   palette: {
     primary: {
+      /* verde
       main: "#4ebc58",
       contrastText: '#ffffff'
+      */
+     main: "#36b582",
+     contrastText: '#ffffff'
     },
     secondary: {
       //main: "#6783FF"
@@ -56,7 +60,8 @@ const theme = createTheme({
     white: {
       main: '#ffffff',
       contrastText: '#4ebc58'
-    }
+    },
+    
   },
   components: {
     MuiTextField: {

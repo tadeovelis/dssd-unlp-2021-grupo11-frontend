@@ -1,15 +1,26 @@
 .login-title {
     font-weight: 500;
-    font-size: 16pt;
+    font-size: 18pt;
 }
 .login-subtitle {
     font-weight: 800;
-    font-size: 12pt;
+    font-size: 11pt;
     color: gray;
 }
 
 .login-card {
-    margin: 10% auto;
-    max-width: 40%;
-    padding: 3%
+    margin: 30% auto 0%;
+    max-width: 80%;
+    padding: 3%;
+    z-index: 2
+}
+
+.background {
+    /*background-image: url("../img/red-background.jpg");
+    background-position: center;
+    background-attachment: fixed;
+    background-size: cover;
+    */
+    height: 100vh;
+    padding: 30px;
 }

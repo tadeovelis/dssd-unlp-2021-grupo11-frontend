@@ -5,31 +5,58 @@ import {
 } from "@apollo/client";
 
 
-import { propsToClassKey } from "@mui/styles";
-
 import { Grid, Autocomplete, TextField, Button } from '@mui/material';
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { FormEstados } from './FormEstados';
 
 // Query de GraphQL de países
 const GET_PAISES = gql`
-      query GetPaises {
-          countries {
-              code
-              name
-              continent {
-                  name
-              }
-          }
-      }
-  `;
+    query GetPaises {
+        countries {
+            code
+            name
+            continent {
+                name
+            }
+        }
+    }
+`;
+
+// Query de GraphQL de Argentina (para setear por defecto)
+const GET_ARGENTINA = gql`
+    query GetArgentina {
+        country(code: "AR") {
+            code
+            name
+            continent {
+                name
+            }
+            states {
+                name
+            }
+        }
+    }  
+`;
 
 
 export function FormsPaises(props) {
 
-    const { loading, error, data } = useQuery(GET_PAISES);
+    const paises = useQuery(GET_PAISES);
 
+    // Hasta que no refactorice todo, necesito llamar a la query desde este componente
+    // y setearlo en el componente ApoderadoRegistrarSociedadAnonima
+    const argentina = useQuery(GET_ARGENTINA, {
+        onCompleted: (data) => {
+            props.setearArgentinaPorDefecto(data);
+            console.log(data);
+        }
+    });
+
+    //if (loadingArgentina) return 'Cargando países...';
+    //if (errorArgentina) return `¡Error! ${errorPaises.message}`;
+    if (paises.loading) return 'Cargando países...';
+    if (paises.error) return `¡Error! ${paises.error.message}`;
     const handleChangeEstados = (e, estados, numPais) => {
         props.handleChangeEstados(e, estados, numPais);
     }
@@ -37,12 +64,6 @@ export function FormsPaises(props) {
     const handleChangeInputEstados = (e, inputEstados, numPais) => {
         props.handleChangeInputEstados(e, inputEstados, numPais);
     }
-
-
-    if (loading) return 'Cargando países...';
-    if (error) return `¡Error! ${error.message}`;
-
-
 
 
     // Generar forms de los países
@@ -77,21 +98,21 @@ export function FormsPaises(props) {
                             props.handleChangeInputPais(event, inputPais, i + 1)
                         }
                         }
-                        loading={loading}
+                        loading={paises.loading}
                         id="select-pais"
                         placeholder="Buscá el país"
                         sx={{ width: 300 }}
                         renderInput={(params) =>
                             <TextField {...params} label="País" />
                         }
-                        options={data.countries}
+                        options={paises.data.countries}
                         getOptionLabel={(option) => option.name ? option.name : ""}
                     />
                 </Grid>
                 {props.state[pais] &&
                     <FormEstados
                         pais={props.state[pais]}
-                        numPais={i+1}
+                        numPais={i + 1}
                         handleChangeEstados={handleChangeEstados}
                         handleChangeInputEstados={handleChangeInputEstados}
                         state={props.state}

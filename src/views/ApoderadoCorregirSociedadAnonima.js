@@ -15,6 +15,7 @@ import 'assets/css/apoderado-registro-sa.css';
 import 'assets/css/dashboard.css';
 
 import env from "@beam-australia/react-env";
+import { getCookie } from "helpers/helpers";
 
 
 const formatosValidosEstatuto = 'application/pdf,' +
@@ -349,23 +350,29 @@ export default class ApoderadoCorregirSociedadAnonima extends Component {
         })
         let ruta = 'api/sociedadAnonima/' + this.props.location.state.sociedad.id;
         let socios = this.armarJSONSocios();
-       
+
+        // PAISES ESTADOS TEMPORALES HARDCODEADOS
+        let paises_estados = JSON.stringify([{ "code": "BR", "name": "Brazil", "continent": "South America", "estados": [{ "_typename": "State", "name": "Ceará" }, { "typename": "State", "name": "Goiás" }] }, { "code": "CL", "name": "Chile", "continent": "South America", "estados": [{ "typename": "State", "name": "Antofagasta" }, { "_typename": "State", "name": "Iquique" }] }])
+
 
         fetch(env("BACKEND_URL") + ruta, {
             method: 'PATCH',
             credentials: 'include',
             headers: {
-                'Authorization': 'Bearer ' + this.props.location.state.data.auth.access_token
+                'Authorization': 'Bearer ' + getCookie("access_token")
             },
             body: new URLSearchParams({
                 'fecha_creacion': this.formatDate(new Date(this.state.fecha_creacion).toDateString()),
                 'domicilio_legal': this.state.domicilio_legal,
                 'domicilio_real': this.state.domicilio_real,
                 'email_apoderado': this.state.email_apoderado,
-                'socios': socios
-            })})
+                'socios': socios,
+                'paises_estados': paises_estados
+            })
+        })
             .then(response => response.json())
             .then(data => {
+                console.log(data);
                 if (data.error) alert("Datos incorrectos")
                 else {
                     this.setState({
@@ -463,7 +470,7 @@ export default class ApoderadoCorregirSociedadAnonima extends Component {
                                     <TextField
                                         name="email_apoderado"
                                         id="email_apoderado"
-                                        placeholder="jorge@gmail.com"
+                                        placeholder="juan@gmail.com"
                                         label="Email del apoderado"
                                         required={true}
                                         value={this.state.email_apoderado}

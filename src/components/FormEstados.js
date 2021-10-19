@@ -23,8 +23,24 @@ export function FormEstados(props) {
     const { loading, error, data } = useQuery(GET_ESTADOS, {
         variables: {
             code: props.pais.code
+        },
+        /*
+        onCompleted: (data) => {
+            // Seteo los estados por si no elige ninguno para mandar
+            // todos por defecto
+            props.handleChangeEstados(0, data.country.states, props.numPais);
         }
+        */
     });
+
+    const handleChangeEstados = (event, estados, numPais) => {
+        props.handleChangeEstados(event, estados, numPais);
+        // Si está vacío envía todos los estados
+        /*
+        if (estados.length) console.log("tiene algo")
+        else console.log("está vacío")
+        */
+    }
 
 
     if (loading) return 'Cargando estados...';
@@ -39,7 +55,7 @@ export function FormEstados(props) {
                 fullWidth={true}
                 sx={{ width: '100%' }}
                 multiple
-                onChange={(event, estados) => props.handleChangeEstados(event, estados, props.numPais)}
+                onChange={(event, estados) => handleChangeEstados(event, estados, props.numPais)}
                 value={props.state[estados]}
                 inputValue={props.state[inputEstados]}
                 onInputChange={(event, inputEstados) => {

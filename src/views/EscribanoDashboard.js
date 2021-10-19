@@ -3,6 +3,7 @@ import { React, Component } from "react";
 import { Container, Accordion, AccordionSummary, CircularProgress, AccordionDetails, Grid, Paper, Divider, Typography, Box, Button, Snackbar, Alert, AlertTitle, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from '@mui/material';
 import LinearProgress, { linearProgressClasses } from '@mui/material/LinearProgress';
 import { styled } from '@mui/material/styles';
+import Chip from '@mui/material/Chip';
 
 import LabelIcon from '@mui/icons-material/Label';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -11,11 +12,12 @@ import '../assets/css/dashboard.css'
 
 import env from "@beam-australia/react-env";
 
-import { textoEstadoDeEvaluacion, valorYColorLineaProgreso } from '../helpers/helpers';
+import { getCookie, textoEstadoDeEvaluacion, valorYColorLineaProgreso } from '../helpers/helpers';
 
 import { Link } from "react-router-dom";
 
-import LineaProgresoTramite from "./LineaProgresoTramite";
+import LineaProgresoTramite from "../components/LineaProgresoTramite";
+
 
 
 export default class EscribanoDashboard extends Component {
@@ -142,7 +144,7 @@ export default class EscribanoDashboard extends Component {
             method: 'GET',
             credentials: 'include',
             headers: {
-                'Authorization': 'Bearer ' + this.props.location.state.data.auth.access_token
+                'Authorization': 'Bearer ' + getCookie("access_token")
             }
         })
             .then(response => response.json())
@@ -168,7 +170,7 @@ export default class EscribanoDashboard extends Component {
                 method: 'GET',
                 credentials: 'include',
                 headers: {
-                    'Authorization': 'Bearer ' + this.props.location.state.data.auth.access_token
+                    'Authorization': 'Bearer ' + getCookie("access_token")
                 }
             })
                 .then(response => response.json())
@@ -202,7 +204,7 @@ export default class EscribanoDashboard extends Component {
                 method: 'POST',
                 credentials: 'include',
                 headers: {
-                    'Authorization': 'Bearer ' + this.props.location.state.data.auth.access_token
+                    'Authorization': 'Bearer ' + getCookie("access_token")
                 }
             })
                 .then(response => response.json())
@@ -230,7 +232,7 @@ export default class EscribanoDashboard extends Component {
                 method: 'POST',
                 credentials: 'include',
                 headers: {
-                    'Authorization': 'Bearer ' + this.props.location.state.data.auth.access_token
+                    'Authorization': 'Bearer ' + getCookie("access_token")
                 }
             })
                 .then(response => response.json())
@@ -253,7 +255,7 @@ export default class EscribanoDashboard extends Component {
             method: 'POST',
             credentials: 'include',
             headers: {
-                'Authorization': 'Bearer ' + this.props.location.state.data.auth.access_token
+                'Authorization': 'Bearer ' + getCookie("access_token")
             },
             body: formData
         })
@@ -434,6 +436,17 @@ export default class EscribanoDashboard extends Component {
                 <Grid item xs={12}>
                     <Grid item xs={12}>
                         <Typography sx={{ fontSize: 18 }}>
+                            Estados
+                        </Typography>
+                    </Grid>
+                    <Grid item xs={12}>
+                        <Divider sx={{ mb: 1, width: '85%' }} />
+                    </Grid>
+                    {this.mostrarEstados(s)}
+                </Grid>
+                <Grid item xs={12}>
+                    <Grid item xs={12}>
+                        <Typography sx={{ fontSize: 18 }}>
                             Enlace a la carpeta de Drive con el estatuto
                         </Typography>
                     </Grid>
@@ -451,18 +464,25 @@ export default class EscribanoDashboard extends Component {
     }
 
     mostrarSocios(sociedad) {
-        let apoderado = sociedad.apoderado_id;
         return sociedad.socios.map((s) =>
             <Grid key={s.id} item xs={12}>
                 <Typography
                     variant="body1"
                 >
                     <b>{s.nombre} {s.apellido}
-                        {s.id === apoderado && ' (apoderado)'}</b>, con un {s.porcentaje}%.
+                    </b>, con un {s.porcentaje}% {s.id === sociedad.apoderado_id ? <Chip label="Apoderado" color="primary" variant="outlined" /> : '.'}
                 </Typography>
             </Grid>
         )
     }
+
+    mostrarEstados(sociedad) {
+        return sociedad.estados.map((e) =>
+          <Grid key={e.id} item xs={12}>
+            <b>Nombre {e.name} - País {e.pais} - Continente {e.continente}</b>
+          </Grid>
+        )
+      }
 
 
     render() {

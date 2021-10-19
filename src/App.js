@@ -1,14 +1,9 @@
+import { Footer } from 'components/Footer';
 import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
 import AppRoutes from './AppRoutes';
-/*
-import Navbar from './shared/Navbar';
-import Sidebar from './shared/Sidebar';
-import Footer from './shared/Footer';
-*/
 
-import { Button } from '@mui/material';
-import Header from 'views/Header';
+import './assets/css/dashboard.css';
 
 class App extends Component {
     constructor(props) {
@@ -19,14 +14,10 @@ class App extends Component {
         this.onRouteChanged();
     }
     render() {
-        /*
-        let navbarComponent = !this.state.isFullPageLayout ? <Navbar breadcrumb={this.state.breadcrumbHeader}/> : '';
-        let sidebarComponent = !this.state.isFullPageLayout ? <Sidebar/> : '';
-        let footerComponent = !this.state.isFullPageLayout ? <Footer/> : '';
-        */
         return (
             <div>
                 <AppRoutes />
+                <Footer />
             </div>
         );
     }
