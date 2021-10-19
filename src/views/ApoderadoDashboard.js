@@ -61,7 +61,7 @@ export default class ApoderadoDashboard extends Component {
       })
     }
 
-    if (this.props.location.state.primerInicio && !this.state.primerInicio) {
+    if (this.props.location.state.primerInicio) {
       this.setState({
         primerInicio: true,
         alertPrimerInicio: true

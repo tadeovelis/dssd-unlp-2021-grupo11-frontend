@@ -1,5 +1,5 @@
 import { Divider, Grid, Typography, Snackbar, Alert, AlertTitle, Button, List, ListItem, ListItemIcon, ListItemText } from "@mui/material";
-import { BuscadorPublicoSociedad } from "./BuscadorPublicoSociedad";
+import { BuscadorPublicoSociedad } from "../components/BuscadorPublicoSociedad";
 import { Box } from "@mui/system";
 import AnchorLink from 'react-anchor-link-smooth-scroll'
 
