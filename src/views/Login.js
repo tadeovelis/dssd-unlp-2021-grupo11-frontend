@@ -101,10 +101,11 @@ export default class Login extends Component {
                 sx={{
                     display: 'flex',
                     flexDirection: 'column',
-                    background: 'white',
+                    background: '#f1f6f7',
                     px: 8,
                     py: 16,
-                    boxShadow: 4
+                    boxShadow: 3,
+                    mr: 4
                 }}
             >
                 <Box>

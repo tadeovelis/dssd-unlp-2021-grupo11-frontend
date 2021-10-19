@@ -28,6 +28,7 @@
     "perfect-scrollbar": "1.5.1",
     "prop-types": "15.7.2",
     "react": "17.0.2",
+    "react-anchor-link-smooth-scroll": "^1.0.12",
     "react-chartist": "0.14.4",
     "react-dom": "17.0.2",
     "react-pdf": "^5.4.0",

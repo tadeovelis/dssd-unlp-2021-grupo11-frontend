@@ -71,7 +71,7 @@ class AppRoutes extends Component {
                         }
                     />
 
-                    <Redirect to="/login" />
+                    <Redirect to="/" />
                 </Switch>
             </Suspense>
         );
