@@ -35,7 +35,7 @@ export default function Logout(props) {
                     }
 
                     history.push({
-                        pathname: '/login',
+                        pathname: '/',
                         state: { logoutExitoso: true }
                     })
                 }

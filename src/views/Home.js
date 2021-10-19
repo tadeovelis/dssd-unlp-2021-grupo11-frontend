@@ -1,12 +1,15 @@
-import { Divider, Grid, Typography, Link, Button, List, ListItem, ListItemIcon, ListItemText } from "@mui/material";
+import { Divider, Grid, Typography, Snackbar, Alert, AlertTitle, Button, List, ListItem, ListItemIcon, ListItemText } from "@mui/material";
 import { BuscadorPublicoSociedad } from "./BuscadorPublicoSociedad";
-import Login from "./Login";
 import { Box } from "@mui/system";
 import AnchorLink from 'react-anchor-link-smooth-scroll'
 
 import BackgroundImage from 'assets/img/background.jpg';
 
 import Check from '@mui/icons-material/CheckBox';
+import { ContainerLoginRegister } from "components/ContainerLoginRegister";
+import { useEffect, useState } from "react";
+import { useHistory } from "react-router";
+import { MyAlert } from "components/MyAlert";
 
 
 const CheckIcon = () => {
@@ -22,6 +25,18 @@ const CheckIcon = () => {
 
 
 export default function Home(props) {
+
+    const [mostrarAlertLogoutExitoso, setMostrarAlertLogoutExitoso] = useState(false);
+
+    useEffect(() => {
+        if (props.history.location.state && props.history.location.state.logoutExitoso) {
+            setMostrarAlertLogoutExitoso(true);
+        }
+    }, [props.history.location])
+
+    function noMostrarAlertLogoutExitoso() {
+        setMostrarAlertLogoutExitoso(false)
+    }
 
     return (
         <Box>
@@ -173,7 +188,7 @@ export default function Home(props) {
                     </Grid>
                 </Grid>
                 <Grid item xs={5}>
-                    <Login />
+                    <ContainerLoginRegister />
                 </Grid>
             </Grid>
             <Grid container id="buscadorPublicoSociedad"
@@ -189,6 +204,16 @@ export default function Home(props) {
                     <BuscadorPublicoSociedad />
                 </Grid>
             </Grid>
+
+            {/* Alert de logout exitoso */}
+            <MyAlert 
+                open={mostrarAlertLogoutExitoso}
+                onClose={noMostrarAlertLogoutExitoso}
+                title="Te deslogueaste correctamente"
+                severity="success"
+                variant="filled"
+            />
+
         </Box>
     )
 }

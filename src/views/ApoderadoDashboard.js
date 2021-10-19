@@ -17,6 +17,7 @@ import env from "@beam-australia/react-env";
 import { getCookie } from '../helpers/helpers';
 
 import { MostrarSociedad } from "components/MostrarSociedad";
+import { MyAlert } from "components/MyAlert";
 
 
 const formatosValidosEstatuto = 'application/pdf,' +
@@ -491,75 +492,46 @@ export default class ApoderadoDashboard extends Component {
           </Grid>
         </Box>
 
-        {/* Aviso de registro de solicitud de SA exitoso*/}
-        <Snackbar
+        {/* Alert de registro de solicitud de SA exitoso */}
+        <MyAlert
           open={this.state.mostrarAlertRegistroSAExitoso}
           onClose={this.noMostrarAlertRegistroSAExitoso}
-          sx={{ width: '80%' }}
-          spacing={2}
-          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-        >
-          <Alert
-            variant="filled"
-            onClose={this.noMostrarAlertRegistroSAExitoso}
-            closeText={'Cerrar'}
-          >
-            <AlertTitle>¡La solicitud se ha registrado exitosamente!</AlertTitle>
-            Ya podés visualizar tu trámite en la sección "Trámites en curso". La Mesa de Entradas evaluará la solicitud y
-            te notificará cualquier novedad por correo electrónico, así que revisá tu bandeja de entrada regularmente.</Alert>
-        </Snackbar>
+          title="¡La solicitud se ha registrado exitosamente!"
+          text='Ya podés visualizar tu trámite en la sección "Trámites en curso". La Mesa de Entradas evaluará la solicitud y
+                te notificará cualquier novedad por correo electrónico, así que revisá tu bandeja de entrada regularmente.'
+          severity="success"
+          variant="filled"
+        />
 
-        {/* Aviso de corrección de solicitud de SA exitosa*/}
-        <Snackbar
+        {/* Alert de corrección de solicitud de SA exitoso */}
+        <MyAlert
           open={this.state.mostrarAlertCorreccionSAExitosa}
           onClose={this.noMostrarAlertCorreccionSAExitosa}
-          sx={{ width: '80%' }}
-          spacing={2}
-          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-        >
-          <Alert
-            variant="filled"
-            onClose={this.noMostrarAlertCorreccionSAExitosa}
-            closeText={'Cerrar'}
-          >
-            <AlertTitle>¡La solicitud se ha corregido exitosamente!</AlertTitle>
-            La mesa de entradas volverá a evaluar tu solicitud. Ante cualquier novedad te notificarán mediante correo electrónico.</Alert>
-        </Snackbar>
+          title="¡La solicitud se ha corregido exitosamente!"
+          text='La mesa de entradas volverá a evaluar tu solicitud. Ante cualquier novedad te notificarán mediante correo electrónico.'
+          severity="success"
+          variant="filled"
+        />
 
-        {/* Aviso de actualización de estatuto exitoso*/}
-        <Snackbar
+        {/* Aviso de actualización de estatuto exitoso */}
+        <MyAlert
           open={this.state.mostrarAlertActualizacionEstatutoExitosa}
           onClose={this.noMostrarAlertActualizacionEstatutoExitosa}
-          sx={{ width: '80%' }}
-          spacing={2}
-          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-        >
-          <Alert
-            variant="filled"
-            onClose={this.noMostrarAlertActualizacionEstatutoExitosa}
-            closeText={'Cerrar'}
-          >
-            <AlertTitle>¡El estatuto se actualizó exitosamente!</AlertTitle>
-            Un escribano volverá a evaluar el estatuto. Ante cualquier novedad te notificará mediante correo electrónico.</Alert>
-        </Snackbar>
+          title="¡El estatuto se actualizó exitosamente!"
+          text='Un escribano volverá a evaluar el estatuto. Ante cualquier novedad te notificará mediante correo electrónico.'
+          severity="success"
+          variant="filled"
+        />
 
-        {/* Aviso de registro de usuario exitoso*/}
-        <Snackbar
+        {/* Aviso de registro de usuario exitoso */}
+        <MyAlert
           open={this.state.alertPrimerInicio}
           onClose={this.noMostrarAlertPrimerInicio}
-          sx={{ width: '80%' }}
-          spacing={2}
-          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-        >
-          <Alert
-            variant="filled"
-            onClose={this.noMostrarAlertPrimerInicio}
-            closeText={'Cerrar'}
-          >
-            <AlertTitle>¡Registro exitoso!</AlertTitle>
-            Ya podés registrar tu Sociedad Anónima.</Alert>
-        </Snackbar>
-
+          title="¡Registro exitoso!"
+          text='Ya podés registrar tu Sociedad Anónima.'
+          severity="success"
+          variant="filled"
+        />
 
       </Container>
     )
