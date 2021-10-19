@@ -61,7 +61,7 @@ export default class ApoderadoDashboard extends Component {
       })
     }
 
-    if (this.props.location.state.primerInicio) {
+    if (this.props.location.state.primerInicio && !this.state.primerInicio) {
       this.setState({
         primerInicio: true,
         alertPrimerInicio: true
@@ -87,6 +87,8 @@ export default class ApoderadoDashboard extends Component {
   noMostrarAlertRegistroSAExitoso() {
     this.setState({
       mostrarAlertRegistroSAExitoso: false
+    }, () => {
+      this.props.location.state.primerInicio
     })
   }
   noMostrarAlertCorreccionSAExitosa() {

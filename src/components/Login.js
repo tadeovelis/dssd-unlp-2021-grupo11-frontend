@@ -11,16 +11,37 @@ import "assets/css/login.css";
 import env from "@beam-australia/react-env";
 import { setearCookies } from "helpers/helpers.js";
 import { useHistory } from "react-router";
+import { MyAlert } from "./MyAlert";
 
 
 export default function Login(props) {
 
     const [state, setState] = useState({ email: '', password: '' });
+    const [alert, setAlert] = useState({ 
+        mostrarAlert: false,
+        alertTitle: '',
+        alertText: '',
+        alertSeverity: 'info',
+        alertVariant: 'filled'
+    })
     const [mostrarAlertLogoutExitoso, setMostrarAlertLogoutExitoso] = useState(false);
     const history = useHistory();
 
-    function noMostrarAlertLogoutExitoso() {
-        setMostrarAlertLogoutExitoso(false)
+    function noMostrarAlert() {
+        setAlert(prevState => ({
+            ...prevState,
+            mostrarAlert: false
+        }))
+    }
+
+    function mostrarAlertDatosErroneos() {
+        setAlert({
+            mostrarAlert: true,
+            alertTitle: "Datos incorrectos",
+            alertText: "Los datos ingresados no coinciden o no existen, verificalos y volvé a intentar.",
+            alertSeverity: "error",
+            alertVariant: "filled"
+        })
     }
 
     function handleSubmit(e) {
@@ -38,7 +59,9 @@ export default function Login(props) {
         })
             .then(response => response.json())
             .then(data => {
-                if (data.error) alert("Datos incorrectos")
+                if (data.error === "Unauthorized") {
+                    mostrarAlertDatosErroneos();
+                }
                 else {
                     console.log(data);
                     loginExitoso(data);
@@ -76,7 +99,7 @@ export default function Login(props) {
             </Box>
             <Box>
                 <p>
-                    Ingresá tu email y contraseña para poder ingresar al sistema:
+                    Completá tu email y contraseña para poder ingresar al sistema:
                 </p>
             </Box>
             <Box
@@ -93,6 +116,7 @@ export default function Login(props) {
                                     id="email"
                                     placeholder="Ej: juan@gmail.com"
                                     label="Email"
+                                    type="email"
                                     required={true}
                                     InputProps={{
                                         startAdornment: (
@@ -163,6 +187,16 @@ export default function Login(props) {
                     </Grid>
                 </form>
             </Box>
+
+            {/* Alert de datos erróneos */}
+            <MyAlert 
+                open={alert.mostrarAlert}
+                onClose={noMostrarAlert}
+                title={alert.alertTitle}
+                text={alert.alertText}
+                severity={alert.alertSeverity}
+                variant={alert.alertVariant}
+            />
         </>
     );
 }
