@@ -2,7 +2,7 @@ import { formatDate } from "helpers/helpers";
 import { textoEstadoDeEvaluacion } from "helpers/helpers";
 import { valorYColorLineaProgreso } from "helpers/helpers";
 
-import { Box, Grid, Typography, Chip, Divider } from '@mui/material';
+import { Box, Grid, Typography, Chip, Divider, Button, SvgIcon, Link, Tooltip } from '@mui/material';
 import LineaProgresoTramite from "./LineaProgresoTramite";
 import GroupIcon from '@mui/icons-material/Group';
 import ApartmentIcon from '@mui/icons-material/Apartment';
@@ -106,6 +106,24 @@ export function MostrarSociedad(props) {
                     >{textoEstadoDeEvaluacion(s, "apoderado")}
                     </Typography>
                 </Grid>
+                {s.url_carpeta_apoderado &&
+                    <Grid item xs={12}>
+                        <Tooltip placement="right" title="Almacena información pública de la sociedad">
+                            <Button href={s.url_carpeta_apoderado} target="_blank" variant="text" startIcon={
+                                <SvgIcon {...props}>
+                                    <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px"
+                                        viewBox="0 0 512 512" style={{ enableBackground: 'new 0 0 512 512' }} >
+                                        <polygon style={{ fill: '#3089F3' }} points="512,336.842 155.396,336.842 80.842,480.561 431.158,480.561 " />
+                                        <polygon style={{ fill: '#00A76A' }} points="170.667,31.439 0,318.877 80.842,480.561 245.221,164.379 " />
+                                        <polygon style={{ fill: '#FDD446' }} points="332.351,31.439 170.667,31.439 341.333,336.842 512,336.842 " />
+                                    </svg>
+                                </SvgIcon>
+                            }>
+                                Ir a la carpeta de Google Drive
+                            </Button>
+                        </Tooltip>
+                    </Grid>
+                }
                 {/* Si tiene que corregir la solicitud... */}
                 {s.estado_evaluacion.includes("Rechazado por empleado-mesa") &&
                     props.renderizarCorregirSolicitud(s)
