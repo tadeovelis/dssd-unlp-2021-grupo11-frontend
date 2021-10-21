@@ -9,6 +9,10 @@ export function textoEstadoDeEvaluacion(tramite, rol) {
       else if (tramite.estado_evaluacion.includes("probado por empleado-mesa")) {
         return '¡El trámite ya fue aprobado por mesa de entradas! Ahora un escribano está evaluando el estatuto'
       }
+      else if (tramite.estado_evaluacion.includes("statuto corregido por apoderado")) {
+        return '¡Perfecto! Ya actualizaste el estatuto. Nuevamente, un escribano lo evaluará y ' +
+          'te notificará por email ante cualquier novedad'
+      }
       else if (tramite.estado_evaluacion.includes("echazado por empleado-mesa")) {
         return 'El trámite fue rechazado por la mesa de entradas. Por favor, revisá tu email para conocer los detalles. ' +
           'Cuando ya sepas qué datos tenés que corregir, hacé click en "Corregir solicitud"'
@@ -51,6 +55,10 @@ export function textoEstadoDeEvaluacion(tramite, rol) {
       if (tramite.estado_evaluacion.includes("probado por empleado-mesa")) {
         return 'La solicitud está lista para validar. El estatuto se encuentra en la url de la carpeta de Drive'
       }
+      else if (tramite.estado_evaluacion.includes("statuto corregido por apoderado")) {
+        return 'El apoderado ha actualizado el estatuto por pedido de un escribano y la solicitud está nuevamente lista para validar. ' +
+          'El estatuto se encuentra en la url de la carpeta de Drive'
+      }
       /*
       else if (tramite.estado_evaluacion.includes("echazado por empleado-mesa")) {
         return 'El trámite fue rechazado por la mesa de entradas. Por favor, revisá tu email para conocer los detalles'
@@ -91,7 +99,11 @@ export function valorYColorLineaProgreso(estado) {
         valor: cantPorEstado * 4,
         color: { string: "secondary", hexa: '#4378d4' }
       }
-
+    case "Estatuto corregido por apoderado":
+      return {
+        valor: cantPorEstado * 4,
+        color: { string: "secondary", hexa: '#4378d4' }
+      }
     case "Aprobado por escribano-area-legales":
       return {
         valor: cantPorEstado * 5,
@@ -117,14 +129,14 @@ export function setearCookies(data) {
 
 export function formatDate(date) {
   var d = new Date(date),
-      month = '' + (d.getMonth() + 1),
-      day = '' + d.getDate(),
-      year = d.getFullYear();
+    month = '' + (d.getMonth() + 1),
+    day = '' + d.getDate(),
+    year = d.getFullYear();
 
   if (month.length < 2)
-      month = '0' + month;
+    month = '0' + month;
   if (day.length < 2)
-      day = '0' + day;
+    day = '0' + day;
 
   return [year, month, day].join('-');
 }
