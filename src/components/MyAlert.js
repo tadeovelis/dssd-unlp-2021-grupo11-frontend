@@ -20,10 +20,6 @@ import { useEffect } from "react";
 
 export function MyAlert(props) {
 
-    useEffect(() => {
-        console.log(props.variant ? props.variant : "standard")
-    }, [])
-
     return (
         <>
             <Snackbar

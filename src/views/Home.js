@@ -171,9 +171,12 @@ export default function Home(props) {
                                 }}
                                 color="primary.contrastText"
                             >
-                                Podés buscar una sociedad y ver su información pública
+                                Podés buscar una sociedad y ver su información pública. 
+                                Por ahora, ingresando el número de hash de la sociedad en la ruta:
+                                localhost:3002/sa/{'{hash}'}
                             </Typography>
                         </Grid>
+                        {/*
                         <Grid item xs={12}>
                             <AnchorLink href="#buscadorPublicoSociedad">
                                 <Button
@@ -185,12 +188,14 @@ export default function Home(props) {
                                 </Button>
                             </AnchorLink>
                         </Grid>
+                        */}
                     </Grid>
                 </Grid>
                 <Grid item xs={5}>
                     <ContainerLoginRegister />
                 </Grid>
             </Grid>
+            {/*
             <Grid container id="buscadorPublicoSociedad"
                 sx={{
                     bgcolor: "#29303a"
@@ -204,7 +209,7 @@ export default function Home(props) {
                     <BuscadorPublicoSociedad />
                 </Grid>
             </Grid>
-
+            */}
             {/* Alert de logout exitoso */}
             <MyAlert 
                 open={mostrarAlertLogoutExitoso}
