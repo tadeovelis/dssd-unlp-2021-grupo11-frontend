@@ -1,5 +1,5 @@
 import { Divider, Grid, Typography, Snackbar, Alert, AlertTitle, Button, List, ListItem, ListItemIcon, ListItemText } from "@mui/material";
-import { BuscadorPublicoSociedad } from "../components/BuscadorPublicoSociedad";
+import BuscadorPublicoSociedad from "../components/BuscadorPublicoSociedad";
 import { Box } from "@mui/system";
 import AnchorLink from 'react-anchor-link-smooth-scroll'
 
@@ -18,7 +18,7 @@ const CheckIcon = () => {
             sx={{
                 color: "primary.contrastText",
                 fontSize: 30,
-            }} 
+            }}
         />
     )
 }
@@ -171,47 +171,21 @@ export default function Home(props) {
                                 }}
                                 color="primary.contrastText"
                             >
-                                Podés buscar una sociedad y ver su información pública. 
-                                Por ahora, ingresando el número de hash de la sociedad en la ruta:
-                                localhost:3002/sa/{'{hash}'}
+                                Podés buscar una sociedad y ver su información pública.
                             </Typography>
                         </Grid>
-                        {/*
                         <Grid item xs={12}>
-                            <AnchorLink href="#buscadorPublicoSociedad">
-                                <Button
-                                    variant="outlined"
-                                    color="white"
-                                    size="large"
-                                >
-                                    Buscar
-                                </Button>
-                            </AnchorLink>
+                            <BuscadorPublicoSociedad />
                         </Grid>
-                        */}
                     </Grid>
                 </Grid>
                 <Grid item xs={5}>
                     <ContainerLoginRegister />
                 </Grid>
             </Grid>
-            {/*
-            <Grid container id="buscadorPublicoSociedad"
-                sx={{
-                    bgcolor: "#29303a"
-                }}
-            >
-                <Grid item xs={12}
-                    sx={{
-                        p: 5
-                    }}
-                >
-                    <BuscadorPublicoSociedad />
-                </Grid>
-            </Grid>
-            */}
+
             {/* Alert de logout exitoso */}
-            <MyAlert 
+            <MyAlert
                 open={mostrarAlertLogoutExitoso}
                 onClose={noMostrarAlertLogoutExitoso}
                 title="Te deslogueaste correctamente"
