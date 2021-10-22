@@ -1,54 +1,53 @@
-import { Box } from "@mui/system";
+
 import { Paper, Typography, Grid, FormControl, TextField, Button } from "@mui/material";
 import { useState } from "react";
+import { useHistory } from "react-router";
 
 
-export function BuscadorPublicoSociedad(props) {
+export default function BuscadorPublicoSociedad(props) {
 
-    const [hash, setHash] = useState('');
+    const [numHash, setNumHash] = useState('');
+    const history = useHistory();
 
-    const handleChange = (e) => {
-        setHash(e.target.value)
+    const handleChangeNumHash = (e) => {
+        setNumHash(e.target.value)
     }
 
     const handleSubmit = (e) => {
-        alert("Todavía no implementado");
+        history.push({
+            pathname: '/sa/' + numHash,
+        })
         e.preventDefault();
     }
 
     return (
-        <Paper sx={{ p: 3 }}>
-            <Grid container spacing={3} alignItems="flex-end">
-                <Grid item xs={12}>
-                    <Typography
-                        sx={{
-                            fontSize: 18
-                        }}
-                    >Ver los datos públicos de una sociedad anónima
-                    </Typography>
-                </Grid>
-                <Grid item xs={4}>
-                    <FormControl>
+        <form onSubmit={handleSubmit}>
+
+            <FormControl>
+                <Grid container spacing={2} alignItems="center">
+                    <Grid item>
                         <TextField
                             name="hash"
                             id="hash"
-                            placeholder="Ingresá el número de hash"
-                            label="Número de hash"
+                            placeholder="da39a3ee5e6b4b0d3255bfef95601890afd80709"
+                            label="Número de hash de la sociedad"
                             required={true}
-                            value={hash}
-                            onChange={handleChange}
+                            value={numHash}
+                            onChange={handleChangeNumHash}
                         />
-                    </FormControl>
+                    </Grid>
+                    <Grid item>
+                        <Button
+                            variant="outlined"
+                            color="white"
+                            size="large"
+                            type="submit"
+                        >
+                            Buscar
+                        </Button>
+                    </Grid>
                 </Grid>
-                <Grid item xs={4}>
-                    <Button
-                        variant="outlined"
-                        onClick={handleSubmit}
-                    >
-                        Buscar
-                    </Button>
-                </Grid>
-            </Grid>
-        </Paper>
+            </FormControl>
+        </form>
     )
 }

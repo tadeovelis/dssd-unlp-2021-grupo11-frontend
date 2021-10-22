@@ -15,6 +15,8 @@ const MesaDeEntradasDashboard = lazy(() => import("views/MesaDeEntradasDashboard
 
 const EscribanoDashboard = lazy(() => import("views/EscribanoDashboard.js"));
 
+const InfoPublicaSociedad = lazy(() => import("views/InfoPublicaSociedad.js"));
+
 
 class AppRoutes extends Component {
     constructor(props) {
@@ -65,6 +67,16 @@ class AppRoutes extends Component {
                         exact path="/escribano-area-legales/inicio"
                         render={(props) => (
                             <DashboardContainer {...props} componente={<EscribanoDashboard {...props}/>}/>
+                            )
+                        }
+                    />
+
+
+                    {/* Info pública de una sociedad */}
+                    <Route
+                        path="/sa/"
+                        render={(props) => (
+                            <DashboardContainer {...props} componente={<InfoPublicaSociedad {...props}/>}/>
                             )
                         }
                     />
