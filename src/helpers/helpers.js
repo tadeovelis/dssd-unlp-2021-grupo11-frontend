@@ -127,6 +127,10 @@ export function setearCookies(data) {
   document.cookie = "rol=" + data.user.roles[0];
 }
 
+export function userLogueado() {
+  return (getCookie("name")) ? true : false
+}
+
 export function formatDate(date) {
   var d = new Date(date),
     month = '' + (d.getMonth() + 1),

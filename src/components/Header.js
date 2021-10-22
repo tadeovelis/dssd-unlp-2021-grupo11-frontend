@@ -3,6 +3,7 @@ import { React, Component } from 'react';
 import { Box, AppBar, Toolbar, IconButton, Typography, Slide, useScrollTrigger } from '@mui/material';
 import Logout from './Logout';
 import { UserInfo } from './UserInfo';
+import { userLogueado } from 'helpers/helpers';
 
 
 function HideOnScroll(props) {
@@ -38,12 +39,14 @@ export default class Header extends Component {
                             <Box sx={{ flexGrow: 1 }}>
                                 <Typography sx={{ fontWeight: 800 }}>Dirección Nacional de Personas Jurídicas</Typography>
                             </Box>
-                            <Box>
-                                <Logout />
-                            </Box>
-                            <Box>
-                                <UserInfo />
-                            </Box>
+                            {userLogueado() && (<>
+                                <Box>
+                                    <Logout />
+                                </Box>
+                                <Box>
+                                    <UserInfo />
+                                </Box>
+                            </>)}
                         </Box>
                     </AppBar>
                 </HideOnScroll>
