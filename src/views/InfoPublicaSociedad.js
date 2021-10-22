@@ -15,6 +15,7 @@ export default function InfoPublicaSociedad(props) {
     const [numPages, setNumPages] = useState(null);
     const [pageNumber, setPageNumber] = useState(1);
     const [pdf, setPdf] = useState(null);
+    const [fileName, setFileName] = useState(null);
 
     const location = useLocation();
     const history = useHistory();
@@ -39,12 +40,14 @@ export default function InfoPublicaSociedad(props) {
                 'Authorization': 'Bearer ' + getCookie("access_token")
             }
         })
-            .then(response => response.blob())
+            .then(response => {
+                setFileName(response.headers.get('Content-Disposition').split('filename=')[1])
+                return response.blob()
+            })
             .then(data => {
-                //const file = download(data, 'pdf', 'application/pdf');
 
                 //Create a Blob from the PDF Stream
-                const file = new Blob([data], {
+                let file = new File([data], fileName, {
                     type: "application/pdf"
                 });
 
@@ -57,7 +60,7 @@ export default function InfoPublicaSociedad(props) {
                 */
             })
             .catch(error => console.error(error));
-    }, [])
+    }, [fileName])
 
     const document = (
         <Document
@@ -95,7 +98,7 @@ export default function InfoPublicaSociedad(props) {
                             <Box sx={{ my: 2 }}>
                                 <Button
                                     variant="outlined"
-                                    onClick={() => download(pdf, 'Información pública de Sociedad Anónima', 'application/pdf')}
+                                    onClick={() => download(pdf, fileName)}
                                 >
                                     Descargar
                                 </Button>
