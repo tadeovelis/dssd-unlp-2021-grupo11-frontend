@@ -15,7 +15,7 @@ export default function InfoPublicaSociedad(props) {
     const [numPages, setNumPages] = useState(null);
     const [pageNumber, setPageNumber] = useState(1);
     const [pdf, setPdf] = useState(null);
-    const [pdfName, setPdfName] = useState('');
+    const [fileName, setFileName] = useState(null);
 
     const location = useLocation();
     const history = useHistory();
@@ -40,19 +40,20 @@ export default function InfoPublicaSociedad(props) {
             }
         })
             .then(response => {
-                setPdfName(response.headers.get('Content-Disposition').split(';')[1].split('=')[1]);
-                response.blob()
+                setFileName(response.headers.get('Content-Disposition').split('filename=')[1])
+                return response.blob()
+            })
             .then(data => {
+
                 //Create a Blob from the PDF Stream
-                const file = new Blob([data], {
+                let file = new File([data], fileName, {
                     type: "application/pdf"
                 });
 
                 setPdf(file);
             })
-            .catch(error => console.error(error))
-        });
-    }, [])
+            .catch(error => console.error(error));
+    }, [fileName])
 
     const document = (
         <Document
@@ -90,7 +91,7 @@ export default function InfoPublicaSociedad(props) {
                             <Box sx={{ my: 2 }}>
                                 <Button
                                     variant="outlined"
-                                    onClick={() => download(pdf, pdfName, 'application/pdf')}
+                                    onClick={() => download(pdf, fileName)}
                                 >
                                     Descargar
                                 </Button>
