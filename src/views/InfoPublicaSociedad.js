@@ -15,6 +15,7 @@ export default function InfoPublicaSociedad(props) {
     const [numPages, setNumPages] = useState(null);
     const [pageNumber, setPageNumber] = useState(1);
     const [pdf, setPdf] = useState(null);
+    const [pdfName, setPdfName] = useState('');
 
     const location = useLocation();
     const history = useHistory();
@@ -30,7 +31,6 @@ export default function InfoPublicaSociedad(props) {
     useEffect(() => {
         let nroHash = getNroHash();
         let ruta = 'api/sa/' + nroHash;
-        console.log(ruta);
 
         fetch(env("BACKEND_URL") + ruta, {
             method: 'GET',
@@ -39,24 +39,19 @@ export default function InfoPublicaSociedad(props) {
                 'Authorization': 'Bearer ' + getCookie("access_token")
             }
         })
-            .then(response => response.blob())
+            .then(response => {
+                setPdfName(response.headers.get('Content-Disposition').split(';')[1].split('=')[1]);
+                response.blob()
             .then(data => {
-                //const file = download(data, 'pdf', 'application/pdf');
-
                 //Create a Blob from the PDF Stream
                 const file = new Blob([data], {
                     type: "application/pdf"
                 });
 
                 setPdf(file);
-                /*
-                //Build a URL from the file
-                const fileURL = URL.createObjectURL(file);
-                //Open the URL on new Window
-                window.open(fileURL);
-                */
             })
-            .catch(error => console.error(error));
+            .catch(error => console.error(error))
+        });
     }, [])
 
     const document = (
@@ -95,7 +90,7 @@ export default function InfoPublicaSociedad(props) {
                             <Box sx={{ my: 2 }}>
                                 <Button
                                     variant="outlined"
-                                    onClick={() => download(pdf, 'Información pública de Sociedad Anónima', 'application/pdf')}
+                                    onClick={() => download(pdf, pdfName, 'application/pdf')}
                                 >
                                     Descargar
                                 </Button>
