@@ -117,6 +117,7 @@ export function MostrarSociedad(props) {
                 {s.estado_evaluacion.includes("Rechazado por escribano") &&
                     props.renderizarSubidaEstatuto(s)
                 }
+                {s.url_carpeta_apoderado &&
                 <Grid item xs={12}>
                     <Grid container spacing={1}>
                         <Grid item>
@@ -131,7 +132,6 @@ export function MostrarSociedad(props) {
                     <Grid item xs={12}>
                         <Divider sx={{ mb: 1, width: '95%' }} />
                     </Grid>
-                    {s.url_carpeta_apoderado &&
                         <Grid item xs={12}>
                             <Tooltip placement="right" title="Almacena información pública de la sociedad">
                                 <Button href={s.url_carpeta_apoderado} target="_blank" variant="text" startIcon={
@@ -148,16 +148,14 @@ export function MostrarSociedad(props) {
                                 </Button>
                             </Tooltip>
                         </Grid>
-                    }
-                    {s.numero_hash &&
                         <Grid item xs={12}>
                             <DescriptionIcon />
                             <Tooltip title="Comparte este link para acceder a la información pública de la S.A." enterDelay={500} leaveDelay={200}>
                                 <Button component={Link} to={'/sa/' + s.numero_hash}>{location.protocol + '//' + location.host + /sa/ + s.numero_hash}</Button>
                             </Tooltip>
                         </Grid>
-                    }
                 </Grid>
+                }
                 <Grid item xs={12} sm={7}>
                     <Grid container spacing={1}>
                         <Grid item>
