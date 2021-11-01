@@ -18,11 +18,16 @@ export function textoEstadoDeEvaluacion(tramite, rol) {
           'Cuando ya sepas qué datos tenés que corregir, hacé click en "Corregir solicitud"'
       }
       else if (tramite.estado_evaluacion.includes("probado por escribano-area")) {
-        return '¡FELICITACIONES! El trámite fue validado por el escribano y la sociedad ya fue registrada'
+        return 'El trámite fue aprobado por el área de legales. \
+        Ahora solo falta preparar la carpeta física y digital. \
+        Por favor, revisá tu email para conocer los detalles.'
       }
       else if (tramite.estado_evaluacion.includes("echazado por escribano-area")) {
         return 'El estatuto fue rechazado por el escribano. Por favor, revisá tu email para conocer los detalles. ' +
           'Cuando ya sepas qué datos corregir, hacé click en "Actualizar estatuto"'
+      }
+      else if (tramite.estado_evaluacion.includes("ociedad registrada")) {
+        return '¡FELICITACIONES! La sociedad ahora se encuentra registrada'
       }
       break;
 
@@ -30,28 +35,9 @@ export function textoEstadoDeEvaluacion(tramite, rol) {
       if (tramite.estado_evaluacion.includes("endiente mesa de entradas")) {
         return 'La solicitud está lista para evaluar'
       }
-      /*
-      else if (tramite.estado_evaluacion.includes("probado por empleado-mesa")) {
-        return '¡El trámite ya fue aprobado por mesa de entradas! Ahora un escribano está evaluando el estatuto'
-      }
-      else if (tramite.estado_evaluacion.includes("echazado por empleado-mesa")) {
-        return 'El trámite fue rechazado por la mesa de entradas. Por favor, revisá tu email para conocer los detalles'
-      }
-      else if (tramite.estado_evaluacion.includes("probado por escribano-area")) {
-        return '¡FELICITACIONES! El trámite fue evaluado por el escribano y la sociedad ya fue registrada'
-      }
-      else if (tramite.estado_evaluacion.includes("echazado por escribano-area")) {
-        return '¡FELICITACIONES! El trámite fue evaluado por el escribano y la sociedad ya fue registrada'
-      }
-      */
       break;
 
     case "escribano":
-      /*
-      if (tramite.estado_evaluacion.includes("endiente mesa de entradas")) {
-        return 'La solicitud está lista para evaluar'
-      }
-      */
       if (tramite.estado_evaluacion.includes("probado por empleado-mesa")) {
         return 'La solicitud está lista para validar. El estatuto se encuentra en la url de la carpeta de Drive'
       }
@@ -59,25 +45,14 @@ export function textoEstadoDeEvaluacion(tramite, rol) {
         return 'El apoderado ha actualizado el estatuto por pedido de un escribano y la solicitud está nuevamente lista para validar. ' +
           'El estatuto se encuentra en la url de la carpeta de Drive'
       }
-      /*
-      else if (tramite.estado_evaluacion.includes("echazado por empleado-mesa")) {
-        return 'El trámite fue rechazado por la mesa de entradas. Por favor, revisá tu email para conocer los detalles'
-      }
-      else if (tramite.estado_evaluacion.includes("probado por escribano-area")) {
-        return '¡FELICITACIONES! El trámite fue evaluado por el escribano y la sociedad ya fue registrada'
-      }
-      else if (tramite.estado_evaluacion.includes("echazado por escribano-area")) {
-        return '¡FELICITACIONES! El trámite fue evaluado por el escribano y la sociedad ya fue registrada'
-      }
-      */
       break;
   }
 
 }
 
 export function valorYColorLineaProgreso(estado) {
-  // Son 5 estados posibles por los que puede pasar el trámite
-  let cantPorEstado = 100 / 5;
+  // Son 6 estados posibles por los que puede pasar el trámite
+  let cantPorEstado = 100 / 6;
   switch (estado) {
     case "Rechazado por empleado-mesa-de-entradas":
       return {
@@ -107,6 +82,11 @@ export function valorYColorLineaProgreso(estado) {
     case "Aprobado por escribano-area-legales":
       return {
         valor: cantPorEstado * 5,
+        color: { string: "secondary", hexa: '#4378d4' }
+      };
+    case "Sociedad registrada":
+      return {
+        valor: cantPorEstado * 6,
         color: { string: "primary", hexa: '#4ebc58' }
       };
   }
