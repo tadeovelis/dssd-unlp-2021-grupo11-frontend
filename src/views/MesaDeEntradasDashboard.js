@@ -36,6 +36,7 @@ export default class MesaDeEntradasDashboard extends Component {
             mostrarAlertAprobacionORechazoExitoso: false,
             textoAlertAprobacionORechazoExitoso: '',
             abrirDialogoConfirmacion: false,
+            abrirDialogoCarpeta: false,
             textoDialogoConfirmacion: '',
             textoBotonConfirmacion: '',
             accionBotonConfirmacion: ''
@@ -45,6 +46,8 @@ export default class MesaDeEntradasDashboard extends Component {
         this.handleInfoSociedad = this.handleInfoSociedad.bind(this);
         this.handleCloseDialogoConfirmacion = this.handleCloseDialogoConfirmacion.bind(this);
         this.handleOpenDialogoConfirmacion = this.handleOpenDialogoConfirmacion.bind(this);
+        this.handleCloseDialogoCarpeta = this.handleCloseDialogoCarpeta.bind(this);
+        this.handleOpenDialogoCarpeta = this.handleOpenDialogoCarpeta.bind(this);
         this.noMostrarAlert = this.noMostrarAlert.bind(this);
 
     }
@@ -95,6 +98,22 @@ export default class MesaDeEntradasDashboard extends Component {
             solicitudAConfirmar: solicitud,
             sociedadAConfirmar: sociedad
         }, () => this.setState({ abrirDialogoConfirmacion: true }))
+    }
+
+    handleCloseDialogoCarpeta() {
+        this.setState({ abrirDialogoCarpeta: false })
+    }
+
+    handleOpenDialogoCarpeta(solicitud, sociedad) {
+        const texto = '¿Estás seguro que querés marcar la carpeta como creada y finalizar el registro?';
+        const textoBoton = 'Aprobar';
+
+        this.setState({
+            textoDialogoConfirmacion: texto,
+            textoBotonConfirmacion: textoBoton,
+            solicitudAConfirmar: solicitud,
+            sociedadAConfirmar: sociedad
+        }, () => this.setState({ abrirDialogoCarpeta: true }))
     }
 
     componentDidMount() {
@@ -265,6 +284,26 @@ export default class MesaDeEntradasDashboard extends Component {
             .catch(error => console.error(error));
     }
 
+    crearCarpeta() {
+        let ruta = 'api/carpetaFisica/' + this.state.solicitudAConfirmar.id;
+
+        fetch(env("BACKEND_URL") + ruta, {
+            method: 'POST',
+            credentials: 'include',
+            headers: {
+                'Authorization': 'Bearer ' + getCookie("access_token")
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                this.mostrarAlert(accion);
+                this.getSolicitudesAsignadas();
+                this.getSolicitudes();
+            })
+            .catch(error => console.error(error));
+    }
+
     // Setea todo para mostrar el alert de aprobación o rechazo de solicitud
     mostrarAlert(accion) {
         let texto = (accion === "true")
@@ -276,6 +315,7 @@ export default class MesaDeEntradasDashboard extends Component {
             this.setState({
                 mostrarAlertAprobacionORechazoExitoso: true,
                 abrirDialogoConfirmacion: false,
+                abrirDialogoCarpeta: false,
             })
         })
     }
@@ -307,7 +347,7 @@ export default class MesaDeEntradasDashboard extends Component {
                                 variant="contained"
                                 color="info"
                                 onClick={this.asignarmeSolicitud.bind(this, s)}>
-                                Evaluar
+                                Asignar
                             </Button>
                         </Grid>
                     </Grid>
@@ -347,13 +387,23 @@ export default class MesaDeEntradasDashboard extends Component {
                                     </Button>
                                 </Grid>
                                 <Grid item>
+                                    {s.displayName == 'Creación de carpeta física' ?
                                     <Button
                                         variant="contained"
                                         color="primary"
-                                        onClick={this.handleOpenDialogoConfirmacion.bind(this, s, this.state['sociedad' + s.caseId], "true")}>
-                                        Aceptar solicitud
+                                        onClick={this.handleOpenDialogoCarpeta.bind(this, s, this.state['sociedad' + s.caseId])}>
+                                        Crear carpeta
                                     </Button>
+                                    :
+                                    <Button
+                                    variant="contained"
+                                    color="primary"
+                                    onClick={this.handleOpenDialogoConfirmacion.bind(this, s, this.state['sociedad' + s.caseId], "true")}>
+                                    Aceptar solicitud
+                                    </Button>
+                                    }
                                 </Grid>
+                                {s.displayName != 'Creación de carpeta física' &&
                                 <Grid item>
                                     <Button
                                         variant="contained"
@@ -362,6 +412,7 @@ export default class MesaDeEntradasDashboard extends Component {
                                         Rechazar solicitud
                                     </Button>
                                 </Grid>
+                                }
                             </Grid>
                         </AccordionSummary>
                         <AccordionDetails>
@@ -487,20 +538,20 @@ export default class MesaDeEntradasDashboard extends Component {
                                         fontSize: 20
                                     }}
                                 >
-                                    Listado de solicitudes <b>pendientes</b> para evaluar (nuevas o con corrección)
+                                    Listado de tareas <b>disponibles</b> para asignar
                                 </Typography>
                                 <Typography
                                     variant="body2"
                                     sx={{ mt: 1 }}
                                 >
-                                    Cuando hagas click en "Evaluar" se te asignará la solicitud y podrás ver toda la información de la misma.
+                                    Cuando hagas click en "Asignar" se te asignará la tarea y podrás ver toda la información de la misma.
                                 </Typography>
                                 <Divider sx={{ my: 2 }} />
                                 <Grid container spacing={2}>
                                     {this.state.solicitudesCargadas && (this.state.solicitudes.length !== 0) ?
                                         this.mostrarSolicitudes()
                                         :
-                                        <Grid item><span>No hay ninguna solicitud para evaluar</span></Grid>
+                                        <Grid item><span>No hay ninguna tarea para asignar</span></Grid>
                                     }
                                 </Grid>
                             </Paper>
@@ -512,13 +563,13 @@ export default class MesaDeEntradasDashboard extends Component {
                                         fontSize: 20
                                     }}
                                 >
-                                    Listado de solicitudes <b>tomadas</b> para evaluar (nuevas o con corrección)
+                                    Listado de tareas <b>tomadas</b> para realizar
                                 </Typography>
                                 <Typography
                                     variant="body2"
                                     sx={{ mt: 1 }}
                                 >
-                                    Cuando hagas click en "Desasignar" se te desasignará la solicitud para que otro usuario la pueda evaluar.
+                                    Cuando hagas click en "Desasignar" se te desasignará la tarea y estará disponible nuevamente.
                                 </Typography>
                                 <Divider sx={{ my: 2 }} />
                                 <Grid container spacing={2}>
@@ -528,7 +579,7 @@ export default class MesaDeEntradasDashboard extends Component {
                                         (this.state.solicitudesAsignadas.length !== 0) ?
                                             this.mostrarSolicitudesAsignadas()
                                             :
-                                            <Grid item><span>No tenés asignada ninguna solicitud.</span></Grid>
+                                            <Grid item><span>No tenés asignada ninguna tarea.</span></Grid>
                                     }
                                 </Grid>
                             </Paper>
@@ -562,6 +613,39 @@ export default class MesaDeEntradasDashboard extends Component {
                                 variant="contained"
                                 color="error"
                                 onClick={this.handleCloseDialogoConfirmacion}
+                            >
+                                Cancelar
+                            </Button>
+                        </DialogActions>
+                    </DialogContent>
+                </Dialog>
+
+                {/* Diálogo de confirmación de creación de carpeta */}
+                <Dialog
+                    open={this.state.abrirDialogoCarpeta}
+                    onClose={this.handleCloseDialogoCarpeta}
+                >
+                    <DialogTitle>Confirmar operación</DialogTitle>
+                    <DialogContent>
+                        <DialogContentText>
+                            {this.state.textoDialogoConfirmacion + ' '}
+                            Es la solicitud nro. <b>{this.state.solicitudAConfirmar.id}</b>,
+                            para marcar la creación de carpeta física de
+                            la Sociedad Anónima <b>{this.state.sociedadAConfirmar.nombre}</b>.
+                            Esta operación es irreversible.
+                        </DialogContentText>
+                        <DialogActions>
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                onClick={this.crearCarpeta.bind(this, this.state.accionBotonConfirmacion)}
+                            >
+                                {this.state.textoBotonConfirmacion}
+                            </Button>
+                            <Button
+                                variant="contained"
+                                color="error"
+                                onClick={this.handleCloseDialogoCarpeta}
                             >
                                 Cancelar
                             </Button>
