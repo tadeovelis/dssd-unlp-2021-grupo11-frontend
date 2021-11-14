@@ -14,6 +14,7 @@ import env from "@beam-australia/react-env";
 import { getCookie, textoEstadoDeEvaluacion, valorYColorLineaProgreso } from '../helpers/helpers';
 
 import LineaProgresoTramite from "../components/LineaProgresoTramite";
+import { MostrarSociedad } from "components/MostrarSociedad";
 
 
 export default class MesaDeEntradasDashboard extends Component {
@@ -50,20 +51,6 @@ export default class MesaDeEntradasDashboard extends Component {
         this.handleOpenDialogoCarpeta = this.handleOpenDialogoCarpeta.bind(this);
         this.noMostrarAlert = this.noMostrarAlert.bind(this);
 
-    }
-
-    formatDate(date) {
-        var d = new Date(date),
-            month = '' + (d.getMonth() + 1),
-            day = '' + d.getDate(),
-            year = d.getFullYear();
-
-        if (month.length < 2)
-            month = '0' + month;
-        if (day.length < 2)
-            day = '0' + day;
-
-        return [year, month, day].join('-');
     }
 
     handleInfoSociedad(panel) {
@@ -178,7 +165,6 @@ export default class MesaDeEntradasDashboard extends Component {
 
     getSociedadesAsociadasASolicitudes() {
         for (let i = 0; i < this.state.solicitudesAsignadas.length; i++) {
-            console.log("A");
             let ruta = 'api/sociedadAnonimaByCaseId/' + this.state.solicitudesAsignadas[i].caseId;
 
             fetch(env("BACKEND_URL") + ruta, {
@@ -388,30 +374,30 @@ export default class MesaDeEntradasDashboard extends Component {
                                 </Grid>
                                 <Grid item>
                                     {s.displayName == 'Creación de carpeta física' ?
-                                    <Button
-                                        variant="contained"
-                                        color="primary"
-                                        onClick={this.handleOpenDialogoCarpeta.bind(this, s, this.state['sociedad' + s.caseId])}>
-                                        Crear carpeta
-                                    </Button>
-                                    :
-                                    <Button
-                                    variant="contained"
-                                    color="primary"
-                                    onClick={this.handleOpenDialogoConfirmacion.bind(this, s, this.state['sociedad' + s.caseId], "true")}>
-                                    Aceptar solicitud
-                                    </Button>
+                                        <Button
+                                            variant="contained"
+                                            color="primary"
+                                            onClick={this.handleOpenDialogoCarpeta.bind(this, s, this.state['sociedad' + s.caseId])}>
+                                            Crear carpeta
+                                        </Button>
+                                        :
+                                        <Button
+                                            variant="contained"
+                                            color="primary"
+                                            onClick={this.handleOpenDialogoConfirmacion.bind(this, s, this.state['sociedad' + s.caseId], "true")}>
+                                            Aceptar solicitud
+                                        </Button>
                                     }
                                 </Grid>
                                 {s.displayName != 'Creación de carpeta física' &&
-                                <Grid item>
-                                    <Button
-                                        variant="contained"
-                                        color="error"
-                                        onClick={this.handleOpenDialogoConfirmacion.bind(this, s, this.state['sociedad' + s.caseId], "false")}>
-                                        Rechazar solicitud
-                                    </Button>
-                                </Grid>
+                                    <Grid item>
+                                        <Button
+                                            variant="contained"
+                                            color="error"
+                                            onClick={this.handleOpenDialogoConfirmacion.bind(this, s, this.state['sociedad' + s.caseId], "false")}>
+                                            Rechazar solicitud
+                                        </Button>
+                                    </Grid>
                                 }
                             </Grid>
                         </AccordionSummary>
@@ -426,72 +412,10 @@ export default class MesaDeEntradasDashboard extends Component {
 
     mostrarInfoSociedad(s) {
         return (
-            <Grid key={s.id} container spacing={1}>
-                <Grid item xs={12}>
-                    <Typography variant="h6">{s.nombre}</Typography>
-                </Grid>
-                <Box sx={{ width: '100%', my: 1 }}>
-                    <LineaProgresoTramite
-                        height={10}
-                        value={valorYColorLineaProgreso(s.estado_evaluacion).valor}
-                        color={valorYColorLineaProgreso(s.estado_evaluacion).color.string}
-                    />
-                </Box>
-                <Grid item xs={12}>
-                    <Typography
-                        variant="body1"
-                        sx={{
-                            color: '#6783FF',
-                            fontWeight: 800,
-                            fontSize: 14,
-                            mt: -1,
-                        }}
-                    >{textoEstadoDeEvaluacion(s, "mesa-de-entradas")}
-                    </Typography>
-                </Grid>
-                <Grid item xs={7}>
-                    <Typography sx={{ fontSize: 18 }}>
-                        Datos generales
-                    </Typography>
-                    <Grid item xs={12}>
-                        <Divider sx={{ mb: 1, width: '95%' }} />
-                    </Grid>
-                    <Grid item xs={12}>
-                        <Typography variant="body1">Email del apoderado: {s.email_apoderado}</Typography>
-                    </Grid>
-                    <Grid item xs={12}>
-                        <Typography variant="body1">Domicilio legal: {s.domicilio_legal}</Typography>
-                    </Grid>
-                    <Grid item xs={12}>
-                        <Typography variant="body1">Domicilio real: {s.domicilio_real}</Typography>
-                    </Grid>
-                    <Grid item xs={12}>
-                        <Typography variant="body1">Fecha de creación: {this.formatDate(s.fecha_creacion)}</Typography>
-                    </Grid>
-                </Grid>
-                <Grid item xs={5}>
-                    <Grid item xs={12}>
-                        <Typography sx={{ fontSize: 18 }}>
-                            Socios
-                        </Typography>
-                    </Grid>
-                    <Grid item xs={12}>
-                        <Divider sx={{ mb: 1, width: '85%' }} />
-                    </Grid>
-                    {this.mostrarSocios(s)}
-                </Grid>
-                <Grid item xs={12}>
-                    <Grid item xs={12}>
-                        <Typography sx={{ fontSize: 18 }}>
-                            Estados
-                        </Typography>
-                    </Grid>
-                    <Grid item xs={12}>
-                        <Divider sx={{ mb: 1, width: '85%' }} />
-                    </Grid>
-                    {this.mostrarEstados(s)}
-                </Grid>
-            </Grid>
+           <MostrarSociedad
+                sociedad={s}
+                rol={env("ROL_MESA_ENTRADAS")}
+           />
         )
     }
 
@@ -510,11 +434,11 @@ export default class MesaDeEntradasDashboard extends Component {
 
     mostrarEstados(sociedad) {
         return sociedad.estados.map((e) =>
-          <Grid key={e.id} item xs={12}>
-            <b>Nombre {e.name} - País {e.pais} - Continente {e.continente}</b>
-          </Grid>
+            <Grid key={e.id} item xs={12}>
+                <b>Nombre {e.name} - País {e.pais} - Continente {e.continente}</b>
+            </Grid>
         )
-      }
+    }
 
     render() {
 

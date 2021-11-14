@@ -1,8 +1,9 @@
+import env from "@beam-australia/react-env"
 
 // Devuelve el texto para mostrar al apoderado
 export function textoEstadoDeEvaluacion(tramite, rol) {
   switch (rol) {
-    case "apoderado":
+    case env("ROL_APODERADO"):
       if (tramite.estado_evaluacion.includes("endiente mesa de entradas")) {
         return 'El trámite está siendo evaluado por la mesa de entradas'
       }
@@ -31,13 +32,13 @@ export function textoEstadoDeEvaluacion(tramite, rol) {
       }
       break;
 
-    case "mesa-de-entradas":
+    case env("ROL_MESA_ENTRADAS"):
       if (tramite.estado_evaluacion.includes("endiente mesa de entradas")) {
         return 'La solicitud está lista para evaluar'
       }
       break;
 
-    case "escribano":
+    case env("ROL_LEGALES"):
       if (tramite.estado_evaluacion.includes("probado por empleado-mesa")) {
         return 'La solicitud está lista para validar. El estatuto se encuentra en la url de la carpeta de Drive'
       }

@@ -254,20 +254,6 @@ export default class ApoderadoDashboard extends Component {
     })
   }
 
-  formatDate(date) {
-    var d = new Date(date),
-      month = '' + (d.getMonth() + 1),
-      day = '' + d.getDate(),
-      year = d.getFullYear();
-
-    if (month.length < 2)
-      month = '0' + month;
-    if (day.length < 2)
-      day = '0' + day;
-
-    return [year, month, day].join('-');
-  }
-
   mostrarSocios(sociedad) {
     return sociedad.socios.map((s) =>
       <Grid key={s.id} item xs={12}>
@@ -336,6 +322,7 @@ export default class ApoderadoDashboard extends Component {
           sociedad={s}
           renderizarSubidaEstatuto={this.renderizarSubidaEstatuto}
           renderizarCorregirSolicitud={this.renderizarCorregirSolicitud}
+          rol={env("ROL_APODERADO")}
         />
       )
     }
