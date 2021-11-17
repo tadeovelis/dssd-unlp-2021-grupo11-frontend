@@ -4,12 +4,11 @@ import React, { useEffect, useState } from 'react';
 import { Document, Page } from 'react-pdf';
 import { useHistory, useLocation } from 'react-router';
 import { pdfjs } from 'react-pdf';
-import { Button, CircularProgress, Divider, Grid } from '@mui/material';
+import { Button, CircularProgress, Divider, Grid, Pagination, Typography } from '@mui/material';
 import { Box } from '@mui/system';
 import { userLogueado } from 'helpers/helpers';
 import { getCookie } from 'helpers/helpers';
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
-
 
 
 export default function InfoPublicaSociedad(props) {
@@ -28,6 +27,10 @@ export default function InfoPublicaSociedad(props) {
     function getNroHash() {
         return location.pathname.split("/").pop()
     }
+
+    const handleChange = (event, value) => {
+        setPageNumber(value);
+    };
 
     useEffect(() => {
         let nroHash = getNroHash();
@@ -55,6 +58,7 @@ export default function InfoPublicaSociedad(props) {
             })
             .catch(error => console.error(error));
     }, [fileName])
+
 
     const document = (
         <Document
@@ -113,6 +117,18 @@ export default function InfoPublicaSociedad(props) {
                                 >
                                     Descargar
                                 </Button>
+                            </Box>
+                            <Divider sx={{ my: 2 }} />
+                            <Box sx={{ my: 2 }}>
+                                <Typography sx={{ mb: 2 }}>
+                                    Páginas del documento
+                                </Typography>
+                                <Pagination
+                                    count={numPages}
+                                    color="primary"
+                                    page={pageNumber}
+                                    onChange={handleChange}
+                                />
                             </Box>
                         </Box>
                     </Box>
