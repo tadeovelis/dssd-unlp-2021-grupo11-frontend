@@ -1,8 +1,9 @@
+import env from "@beam-australia/react-env"
 
 // Devuelve el texto para mostrar al apoderado
 export function textoEstadoDeEvaluacion(tramite, rol) {
   switch (rol) {
-    case "apoderado":
+    case env("ROL_APODERADO"):
       if (tramite.estado_evaluacion.includes("endiente mesa de entradas")) {
         return 'El trámite está siendo evaluado por la mesa de entradas'
       }
@@ -31,19 +32,22 @@ export function textoEstadoDeEvaluacion(tramite, rol) {
       }
       break;
 
-    case "mesa-de-entradas":
+    case env("ROL_MESA_ENTRADAS"):
       if (tramite.estado_evaluacion.includes("endiente mesa de entradas")) {
         return 'La solicitud está lista para evaluar'
       }
+      else if (tramite.estado_evaluacion.includes("probado por escribano-area")) {
+        return 'La solicitud fue aprobada por un escribano y ya se puede crear la carpeta física'
+      }
       break;
 
-    case "escribano":
+    case env("ROL_LEGALES"):
       if (tramite.estado_evaluacion.includes("probado por empleado-mesa")) {
-        return 'La solicitud está lista para validar. El estatuto se encuentra en la url de la carpeta de Drive'
+        return 'La solicitud está lista para validar. El estatuto se encuentra en la carpeta de Drive referenciada más abajo'
       }
       else if (tramite.estado_evaluacion.includes("statuto corregido por apoderado")) {
         return 'El apoderado ha actualizado el estatuto por pedido de un escribano y la solicitud está nuevamente lista para validar. ' +
-          'El estatuto se encuentra en la url de la carpeta de Drive'
+          'El estatuto se encuentra en la carpeta de Drive referenciada más abajo'
       }
       break;
   }
@@ -123,4 +127,12 @@ export function formatDate(date) {
     day = '0' + day;
 
   return [year, month, day].join('-');
+}
+
+export function estoyEnUnDashboard(pathname) {
+  if (pathname.includes("/apoderado")
+      || pathname.includes("/empleado-mesa-de-entradas")
+      || pathname.includes("/escribano-area-legales"))
+      return true
+  else return false
 }

@@ -55,20 +55,20 @@ export default class ApoderadoDashboard extends Component {
   }
 
   componentDidMount() {
-    if (this.props.location.state.registroDeSAExitoso) {
+    if (this.props.location.state && this.props.location.state.registroDeSAExitoso) {
       this.setState({
         mostrarAlertRegistroSAExitoso: true
       })
     }
 
-    if (this.props.location.state.primerInicio) {
+    if (this.props.location.state && this.props.location.state.primerInicio) {
       this.setState({
         primerInicio: true,
         alertPrimerInicio: true
       })
     }
 
-    if (this.props.location.state.correccionDeSAExitosa) {
+    if (this.props.location.state && this.props.location.state.correccionDeSAExitosa) {
       this.setState({
         mostrarAlertCorreccionSAExitosa: true
       })
@@ -79,7 +79,7 @@ export default class ApoderadoDashboard extends Component {
 
   componentDidUpdate(prevProps) {
     // Uso tipico (no olvides de comparar las props):
-    if (this.props.location.state.refreshTramites !== prevProps.location.state.refreshTramites) {
+    if (this.props.location.state && this.props.location.state.refreshTramites !== prevProps.location.state.refreshTramites) {
       this.getTramitesEnCurso();
     }
   }
@@ -254,20 +254,6 @@ export default class ApoderadoDashboard extends Component {
     })
   }
 
-  formatDate(date) {
-    var d = new Date(date),
-      month = '' + (d.getMonth() + 1),
-      day = '' + d.getDate(),
-      year = d.getFullYear();
-
-    if (month.length < 2)
-      month = '0' + month;
-    if (day.length < 2)
-      day = '0' + day;
-
-    return [year, month, day].join('-');
-  }
-
   mostrarSocios(sociedad) {
     return sociedad.socios.map((s) =>
       <Grid key={s.id} item xs={12}>
@@ -336,6 +322,7 @@ export default class ApoderadoDashboard extends Component {
           sociedad={s}
           renderizarSubidaEstatuto={this.renderizarSubidaEstatuto}
           renderizarCorregirSolicitud={this.renderizarCorregirSolicitud}
+          rol={env("ROL_APODERADO")}
         />
       )
     }
@@ -345,8 +332,9 @@ export default class ApoderadoDashboard extends Component {
   render() {
 
     // Acá me traigo el response del login
-    const user = this.props.location.state.data.user;
-    const auth = this.props.location.state.data.auth;
+    //const user = this.props.location.state.data.user;
+    const user_name = getCookie("name");
+    //const auth = this.props.location.state.data.auth;
 
     return (
       <Container>
@@ -356,11 +344,11 @@ export default class ApoderadoDashboard extends Component {
             <Grid item xs={12}>
               <Paper className="dashboard-paper">
                 {this.state.primerInicio ? (<div>
-                  <Typography variant="h6">¡Bienvenido {user.name}!</Typography>
+                  <Typography variant="h6">¡Bienvenido {user_name}!</Typography>
                   <Typography variant="body1">Con este sistema podrás registrar tu Sociedad Anónima y visualizar el estado del trámite.</Typography>
                 </div>
                 ) :
-                  <Typography variant="h6">¡Hola de nuevo {user.name}!</Typography>
+                  <Typography variant="h6">¡Hola de nuevo {user_name}!</Typography>
                 }
               </Paper>
             </Grid>
