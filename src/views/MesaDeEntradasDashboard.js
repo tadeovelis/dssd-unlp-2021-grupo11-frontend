@@ -1,8 +1,6 @@
 import { React, Component } from "react";
 
 import { Container, Accordion, AccordionSummary, CircularProgress, Chip, AccordionDetails, Grid, Paper, Divider, Typography, Box, Button, Snackbar, Alert, AlertTitle, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from '@mui/material';
-import LinearProgress, { linearProgressClasses } from '@mui/material/LinearProgress';
-import { styled } from '@mui/material/styles';
 
 import LabelIcon from '@mui/icons-material/Label';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -11,9 +9,8 @@ import '../assets/css/dashboard.css'
 
 import env from "@beam-australia/react-env";
 
-import { getCookie, textoEstadoDeEvaluacion, valorYColorLineaProgreso } from '../helpers/helpers';
+import { getCookie } from '../helpers/helpers';
 
-import LineaProgresoTramite from "../components/LineaProgresoTramite";
 import { MostrarSociedad } from "components/MostrarSociedad";
 
 
@@ -91,13 +88,14 @@ export default class MesaDeEntradasDashboard extends Component {
         this.setState({ abrirDialogoCarpeta: false })
     }
 
-    handleOpenDialogoCarpeta(solicitud, sociedad) {
+    handleOpenDialogoCarpeta(solicitud, sociedad, accion) {
         const texto = '¿Estás seguro que querés marcar la carpeta como creada y finalizar el registro?';
         const textoBoton = 'Aprobar';
 
         this.setState({
             textoDialogoConfirmacion: texto,
             textoBotonConfirmacion: textoBoton,
+            accionBotonConfirmacion: accion,
             solicitudAConfirmar: solicitud,
             sociedadAConfirmar: sociedad
         }, () => this.setState({ abrirDialogoCarpeta: true }))
@@ -270,7 +268,7 @@ export default class MesaDeEntradasDashboard extends Component {
             .catch(error => console.error(error));
     }
 
-    crearCarpeta() {
+    crearCarpeta(accion) {
         let ruta = 'api/carpetaFisica/' + this.state.solicitudAConfirmar.id;
 
         fetch(env("BACKEND_URL") + ruta, {
@@ -292,9 +290,19 @@ export default class MesaDeEntradasDashboard extends Component {
 
     // Setea todo para mostrar el alert de aprobación o rechazo de solicitud
     mostrarAlert(accion) {
-        let texto = (accion === "true")
-            ? 'Aprobaste la solicitud correctamente' : 'Rechazaste la solicitud correctamente';
-
+        let texto = "";
+        switch (accion) {
+            case "true":
+                texto = 'Aprobaste la solicitud correctamente'
+                break;
+            case "false":
+                texto = 'Rechazaste la solicitud correctamente'
+                break;
+            case "true-carpeta":
+                texto = 'Creaste la carpeta correctamente'
+                break;
+        }
+        
         this.setState({
             textoAlertAprobacionORechazoExitoso: texto
         }, () => {
@@ -377,7 +385,7 @@ export default class MesaDeEntradasDashboard extends Component {
                                         <Button
                                             variant="contained"
                                             color="primary"
-                                            onClick={this.handleOpenDialogoCarpeta.bind(this, s, this.state['sociedad' + s.caseId])}>
+                                            onClick={this.handleOpenDialogoCarpeta.bind(this, s, this.state['sociedad' + s.caseId], "true-carpeta")}>
                                             Crear carpeta
                                         </Button>
                                         :

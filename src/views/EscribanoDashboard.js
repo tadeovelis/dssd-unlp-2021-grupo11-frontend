@@ -1,8 +1,7 @@
 import { React, Component } from "react";
 
 import { Container, Accordion, AccordionSummary, CircularProgress, AccordionDetails, Grid, Paper, Divider, Typography, Box, Button, Snackbar, Alert, AlertTitle, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from '@mui/material';
-import LinearProgress, { linearProgressClasses } from '@mui/material/LinearProgress';
-import { styled } from '@mui/material/styles';
+
 import Chip from '@mui/material/Chip';
 
 import LabelIcon from '@mui/icons-material/Label';
@@ -12,11 +11,9 @@ import '../assets/css/dashboard.css'
 
 import env from "@beam-australia/react-env";
 
-import { getCookie, textoEstadoDeEvaluacion, valorYColorLineaProgreso } from '../helpers/helpers';
+import { getCookie } from '../helpers/helpers';
 
-import { Link } from "react-router-dom";
-
-import LineaProgresoTramite from "../components/LineaProgresoTramite";
+import { MostrarSociedad } from "components/MostrarSociedad";
 
 
 
@@ -51,20 +48,6 @@ export default class EscribanoDashboard extends Component {
         this.handleOpenDialogoConfirmacion = this.handleOpenDialogoConfirmacion.bind(this);
         this.noMostrarAlert = this.noMostrarAlert.bind(this);
 
-    }
-
-    formatDate(date) {
-        var d = new Date(date),
-            month = '' + (d.getMonth() + 1),
-            day = '' + d.getDate(),
-            year = d.getFullYear();
-
-        if (month.length < 2)
-            month = '0' + month;
-        if (day.length < 2)
-            day = '0' + day;
-
-        return [year, month, day].join('-');
     }
 
     handleInfoSociedad(panel) {
@@ -379,87 +362,10 @@ export default class EscribanoDashboard extends Component {
 
     mostrarInfoSociedad(s) {
         return (
-            <Grid key={s.id} container spacing={1}>
-                <Grid item xs={12}>
-                    <Typography variant="h6">{s.nombre}</Typography>
-                </Grid>
-                <Box sx={{ width: '100%', my: 1 }}>
-                    <LineaProgresoTramite
-                        height={10}
-                        value={valorYColorLineaProgreso(s.estado_evaluacion).valor}
-                        color={valorYColorLineaProgreso(s.estado_evaluacion).color.string}
-                    />
-                </Box>
-                <Grid item xs={12}>
-                    <Typography
-                        variant="body1"
-                        sx={{
-                            color: '#6783FF',
-                            fontWeight: 800,
-                            fontSize: 14,
-                            mt: -1,
-                        }}
-                    >{textoEstadoDeEvaluacion(s, "escribano")}
-                    </Typography>
-                </Grid>
-                <Grid item xs={7}>
-                    <Typography sx={{ fontSize: 18 }}>
-                        Datos generales
-                    </Typography>
-                    <Grid item xs={12}>
-                        <Divider sx={{ mb: 1, width: '95%' }} />
-                    </Grid>
-                    <Grid item xs={12}>
-                        <Typography variant="body1">Email del apoderado: {s.email_apoderado}</Typography>
-                    </Grid>
-                    <Grid item xs={12}>
-                        <Typography variant="body1">Domicilio legal: {s.domicilio_legal}</Typography>
-                    </Grid>
-                    <Grid item xs={12}>
-                        <Typography variant="body1">Domicilio real: {s.domicilio_real}</Typography>
-                    </Grid>
-                    <Grid item xs={12}>
-                        <Typography variant="body1">Fecha de creación: {this.formatDate(s.fecha_creacion)}</Typography>
-                    </Grid>
-                </Grid>
-                <Grid item xs={5}>
-                    <Grid item xs={12}>
-                        <Typography sx={{ fontSize: 18 }}>
-                            Socios
-                        </Typography>
-                    </Grid>
-                    <Grid item xs={12}>
-                        <Divider sx={{ mb: 1, width: '85%' }} />
-                    </Grid>
-                    {this.mostrarSocios(s)}
-                </Grid>
-                <Grid item xs={12}>
-                    <Grid item xs={12}>
-                        <Typography sx={{ fontSize: 18 }}>
-                            Estados
-                        </Typography>
-                    </Grid>
-                    <Grid item xs={12}>
-                        <Divider sx={{ mb: 1, width: '85%' }} />
-                    </Grid>
-                    {this.mostrarEstados(s)}
-                </Grid>
-                <Grid item xs={12}>
-                    <Grid item xs={12}>
-                        <Typography sx={{ fontSize: 18 }}>
-                            Enlace a la carpeta de Drive con el estatuto
-                        </Typography>
-                    </Grid>
-                    <Grid item xs={12}>
-                        <Divider sx={{ mb: 1, width: '95%' }} />
-                    </Grid>
-                    <Grid item xs={12}>
-                        <Link to={{ pathname: s.url_carpeta_estatuto }} target="_blank">
-                            {s.url_carpeta_estatuto}
-                        </Link>
-                    </Grid>
-                </Grid>
-            </Grid>
+            <MostrarSociedad
+                sociedad={s}
+                rol={env("ROL_LEGALES")}
+            />
         )
     }
 
@@ -478,11 +384,11 @@ export default class EscribanoDashboard extends Component {
 
     mostrarEstados(sociedad) {
         return sociedad.estados.map((e) =>
-          <Grid key={e.id} item xs={12}>
-            <b>Nombre {e.name} - País {e.pais} - Continente {e.continente}</b>
-          </Grid>
+            <Grid key={e.id} item xs={12}>
+                <b>Nombre {e.name} - País {e.pais} - Continente {e.continente}</b>
+            </Grid>
         )
-      }
+    }
 
 
     render() {

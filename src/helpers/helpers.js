@@ -36,15 +36,18 @@ export function textoEstadoDeEvaluacion(tramite, rol) {
       if (tramite.estado_evaluacion.includes("endiente mesa de entradas")) {
         return 'La solicitud está lista para evaluar'
       }
+      else if (tramite.estado_evaluacion.includes("probado por escribano-area")) {
+        return 'La solicitud fue aprobada por un escribano y ya se puede crear la carpeta física'
+      }
       break;
 
     case env("ROL_LEGALES"):
       if (tramite.estado_evaluacion.includes("probado por empleado-mesa")) {
-        return 'La solicitud está lista para validar. El estatuto se encuentra en la url de la carpeta de Drive'
+        return 'La solicitud está lista para validar. El estatuto se encuentra en la carpeta de Drive referenciada más abajo'
       }
       else if (tramite.estado_evaluacion.includes("statuto corregido por apoderado")) {
         return 'El apoderado ha actualizado el estatuto por pedido de un escribano y la solicitud está nuevamente lista para validar. ' +
-          'El estatuto se encuentra en la url de la carpeta de Drive'
+          'El estatuto se encuentra en la carpeta de Drive referenciada más abajo'
       }
       break;
   }

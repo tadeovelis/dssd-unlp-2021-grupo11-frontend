@@ -2,16 +2,14 @@ import { formatDate } from "helpers/helpers";
 import { textoEstadoDeEvaluacion } from "helpers/helpers";
 import { valorYColorLineaProgreso } from "helpers/helpers";
 
-import { Link } from "react-router-dom";
 import { Box, Grid, Typography, Chip, Divider, Button, SvgIcon, Tooltip } from '@mui/material';
 import LineaProgresoTramite from "./LineaProgresoTramite";
 import GroupIcon from '@mui/icons-material/Group';
 import ApartmentIcon from '@mui/icons-material/Apartment';
 import PublicIcon from '@mui/icons-material/Public';
-import ShareIcon from '@mui/icons-material/Share';
-import DescriptionIcon from '@mui/icons-material/Description';
 import MostrarSociedadInfoEspecificaApoderado from "./MostrarSociedadInfoEspecificaApoderado";
 import env from "@beam-australia/react-env";
+import MostrarSociedadInfoEspecificaEscribano from "./MostrarSociedadInfoEspecificaEscribano";
 
 
 export function MostrarSociedad(props) {
@@ -183,6 +181,13 @@ export function MostrarSociedad(props) {
                     </Grid>
                     {mostrarEstados()}
                 </Grid>
+
+                {/* Si estoy en el dash del escribano muestro la URL a la carpeta del estatuto */}
+                {rol === env("ROL_LEGALES") &&
+                    <MostrarSociedadInfoEspecificaEscribano
+                        sociedad={s}
+                    />
+                }
             </Grid>
         </Box>
     )
