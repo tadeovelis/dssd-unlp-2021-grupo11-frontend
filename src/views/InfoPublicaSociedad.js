@@ -12,7 +12,7 @@ pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/$
 
 
 export default function InfoPublicaSociedad(props) {
-    const [numPages, setNumPages] = useState(null);
+    const [numPages, setNumPages] = useState(1);
     const [pageNumber, setPageNumber] = useState(1);
     const [pdf, setPdf] = useState(null);
     const [fileName, setFileName] = useState(null);
@@ -30,6 +30,7 @@ export default function InfoPublicaSociedad(props) {
 
     const handleChange = (event, value) => {
         setPageNumber(value);
+        event.preventDefault();
     };
 
     useEffect(() => {
