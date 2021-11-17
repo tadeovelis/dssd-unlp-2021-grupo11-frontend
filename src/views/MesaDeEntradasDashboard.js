@@ -90,7 +90,7 @@ export default class MesaDeEntradasDashboard extends Component {
 
     handleOpenDialogoCarpeta(solicitud, sociedad, accion) {
         const texto = '¿Estás seguro que querés marcar la carpeta como creada y finalizar el registro?';
-        const textoBoton = 'Aprobar';
+        const textoBoton = 'Crear';
 
         this.setState({
             textoDialogoConfirmacion: texto,
