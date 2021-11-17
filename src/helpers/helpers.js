@@ -128,3 +128,11 @@ export function formatDate(date) {
 
   return [year, month, day].join('-');
 }
+
+export function estoyEnUnDashboard(pathname) {
+  if (pathname.includes("/apoderado")
+      || pathname.includes("/empleado-mesa-de-entradas")
+      || pathname.includes("/escribano-area-legales"))
+      return true
+  else return false
+}
