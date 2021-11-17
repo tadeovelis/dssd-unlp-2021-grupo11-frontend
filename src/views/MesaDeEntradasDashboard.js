@@ -483,7 +483,7 @@ export default class MesaDeEntradasDashboard extends Component {
                                     {this.state.solicitudesCargadas && (this.state.solicitudes.length !== 0) ?
                                         this.mostrarSolicitudes()
                                         :
-                                        <Grid item><span>No hay ninguna tarea para asignar</span></Grid>
+                                        <Grid item><span>No hay ninguna tarea para asignar.</span></Grid>
                                     }
                                 </Grid>
                             </Paper>

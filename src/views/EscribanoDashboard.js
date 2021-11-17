@@ -401,15 +401,6 @@ export default class EscribanoDashboard extends Component {
             <Container>
                 <Box p={2}>
                     <Grid container spacing={2}>
-
-                        <Grid item xs={12}>
-                            <Box p={2}>
-                                <span><b>Mis datos</b></span><br />
-                                <span>Nombre de usuario: {user.name}</span><br />
-                                <span>Email: {user.email}</span>
-                            </Box>
-                        </Grid>
-
                         <Grid item xs={12}>
                             <Paper className="dashboard-paper">
                                 <Typography variant="h6">¡Hola {user.name}!</Typography>
@@ -435,7 +426,7 @@ export default class EscribanoDashboard extends Component {
                                     {this.state.solicitudesCargadas && (this.state.solicitudes.length !== 0) ?
                                         this.mostrarSolicitudes()
                                         :
-                                        <Grid item><span>No hay ninguna solicitud para evaluar</span></Grid>
+                                        <Grid item><span>No hay ninguna solicitud para evaluar.</span></Grid>
                                     }
                                 </Grid>
                             </Paper>
