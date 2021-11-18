@@ -18,7 +18,7 @@ import { TextValidator, ValidatorForm } from "react-material-ui-form-validator";
 export default function Login(props) {
 
     const [state, setState] = useState({ email: '', password: '' });
-    const [alert, setAlert] = useState({ 
+    const [alert, setAlert] = useState({
         mostrarAlert: false,
         alertTitle: '',
         alertText: '',
@@ -26,6 +26,9 @@ export default function Login(props) {
         alertVariant: 'filled'
     })
     const [mostrarAlertLogoutExitoso, setMostrarAlertLogoutExitoso] = useState(false);
+    const [huboErrores, setHuboErrores] = useState(false);
+    const [cantErrores, setCantErrores] = useState(0);
+
     const history = useHistory();
 
     function noMostrarAlert() {
@@ -46,6 +49,9 @@ export default function Login(props) {
     }
 
     function handleSubmit(e) {
+
+        setHuboErrores(false);
+
         let ruta = 'api/auth/login';
 
         fetch(env("BACKEND_URL") + ruta, {
@@ -110,6 +116,10 @@ export default function Login(props) {
                 <ValidatorForm
                     onSubmit={handleSubmit}
                     instantValidate={false}
+                    onError={(errores) => {
+                        setHuboErrores(true);
+                        setCantErrores(errores.length);
+                    }}
                 >
 
                     <Grid container spacing={2}>
@@ -159,6 +169,24 @@ export default function Login(props) {
                                 />
                             </FormControl>
                         </Grid>
+                        {huboErrores &&
+                            <Grid item xs={12}>
+                                <Alert severity="error" variant="outlined"
+                                    onClose={
+                                        () => setHuboErrores(false)
+                                    }
+                                    sx={{
+                                        fontSize: '.8em'
+                                    }}
+                                >
+                                    {(cantErrores > 1) ?
+                                        "Por favor, corregí los campos marcados en rojo y volvé a intentar."
+                                        :
+                                        "Por favor, corregí el campo marcado en rojo y volvé a intentar."
+                                    }
+                                </Alert>
+                            </Grid>
+                        }
                         <Grid item xs={12}>
                             <Button
                                 color="primary"
@@ -197,7 +225,7 @@ export default function Login(props) {
             </Box>
 
             {/* Alert de datos erróneos */}
-            <MyAlert 
+            <MyAlert
                 open={alert.mostrarAlert}
                 onClose={noMostrarAlert}
                 title={alert.alertTitle}
