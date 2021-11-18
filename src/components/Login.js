@@ -12,6 +12,7 @@ import env from "@beam-australia/react-env";
 import { setearCookies } from "helpers/helpers.js";
 import { useHistory } from "react-router";
 import { MyAlert } from "./MyAlert";
+import { TextValidator, ValidatorForm } from "react-material-ui-form-validator";
 
 
 export default function Login(props) {
@@ -106,18 +107,23 @@ export default function Login(props) {
                 sx={{
                     mr: 6
                 }}>
-                <form onSubmit={handleSubmit}>
+                <ValidatorForm
+                    onSubmit={handleSubmit}
+                    instantValidate={false}
+                >
 
                     <Grid container spacing={2}>
                         <Grid item xs={12}>
                             <FormControl fullWidth={true}>
-                                <TextField
+                                <TextValidator
+                                    fullWidth={true}
                                     name="email"
                                     id="email"
                                     placeholder="Ej: juan@gmail.com"
                                     label="Email"
-                                    type="email"
-                                    required={true}
+                                    //type="email"
+                                    validators={['required', 'isEmail']}
+                                    errorMessages={['Este campo es obligatorio', 'El formato del email es inválido']}
                                     InputProps={{
                                         startAdornment: (
                                             <InputAdornment position="start">
@@ -132,13 +138,15 @@ export default function Login(props) {
                         </Grid>
                         <Grid item xs={12}>
                             <FormControl fullWidth={true}>
-                                <TextField
+                                <TextValidator
+                                    fullWidth={true}
                                     name="password"
                                     id="password"
                                     placeholder=""
                                     label="Contraseña"
                                     type="password"
-                                    required
+                                    validators={['required']}
+                                    errorMessages={['Este campo es obligatorio']}
                                     InputProps={{
                                         startAdornment: (
                                             <InputAdornment position="start">
@@ -185,7 +193,7 @@ export default function Login(props) {
                             </Typography>
                         </Grid>
                     </Grid>
-                </form>
+                </ValidatorForm>
             </Box>
 
             {/* Alert de datos erróneos */}
