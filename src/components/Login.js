@@ -123,7 +123,7 @@ export default function Login(props) {
                                     label="Email"
                                     //type="email"
                                     validators={['required', 'isEmail']}
-                                    errorMessages={['Este campo es obligatorio', 'El formato del email es inválido']}
+                                    errorMessages={[env("REQUIRED_FIELD_ERROR_TEXT"), env("EMAIL_ERROR_TEXT")]}
                                     InputProps={{
                                         startAdornment: (
                                             <InputAdornment position="start">
@@ -146,7 +146,7 @@ export default function Login(props) {
                                     label="Contraseña"
                                     type="password"
                                     validators={['required']}
-                                    errorMessages={['Este campo es obligatorio']}
+                                    errorMessages={[env("REQUIRED_FIELD_ERROR_TEXT")]}
                                     InputProps={{
                                         startAdornment: (
                                             <InputAdornment position="start">

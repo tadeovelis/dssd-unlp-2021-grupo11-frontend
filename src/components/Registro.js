@@ -1,9 +1,9 @@
-import { React, Component, useState } from "react";
+import { React, Component, useState, useEffect } from "react";
 
 import Card from "components/Card/Card.js";
 import CardBody from "components/Card/CardBody.js";
 
-import { Container, TextField, FormControl, InputLabel, InputAdornment, Grid, Typography } from "@mui/material";
+import { Container, TextField, FormControl, InputLabel, InputAdornment, Grid, Typography, Alert } from "@mui/material";
 import { Box, Button } from "@mui/material";
 
 import MailOutlineIcon from '@mui/icons-material/MailOutline';
@@ -15,6 +15,7 @@ import "assets/css/login.css";
 import env from "@beam-australia/react-env";
 import { setearCookies } from "helpers/helpers";
 import { useHistory } from "react-router";
+import { TextValidator, ValidatorForm } from "react-material-ui-form-validator";
 
 
 export default function Registro(props) {
@@ -32,6 +33,24 @@ export default function Registro(props) {
             textoErrorEmail: ''
         }
     )
+
+    const [huboErrores, setHuboErrores] = useState(false);
+    const [cantErrores, setCantErrores] = useState(0);
+
+    // Agregar custom validator para la confirmación de contraseña
+    useEffect(() => {
+        ValidatorForm.addValidationRule('confirmacionPasswordMatchea', (valor) => {
+            if (valor !== state.password_confirmation) {
+                console.log(valor);
+                console.log(state.password_confirmation);
+                return false
+            }
+            return true
+        });
+        return () => {
+            ValidatorForm.removeValidationRule('confirmacionPasswordMatchea')
+        }
+    }, [])
 
     function handleChange(e) {
         const { name, value } = e.target;
@@ -59,12 +78,13 @@ export default function Registro(props) {
             },
             body: JSON.stringify(datos)
         })
-            .then(response => response.json())
+            .then(response => response.json()
             .then(data => {
-                console.log(data);
-                if (!data.message.includes("ya existe")) registroExitoso(data);
+                if (response.ok) {
+                    registroExitoso(data);
+                }
                 else mostrarError(data)
-            })
+            }))
             .catch(error => console.error(error));
 
         e.preventDefault();
@@ -99,7 +119,9 @@ export default function Registro(props) {
     }
 
     function mostrarError(data) {
-        if (data.message) {
+        setCantErrores(1);
+        setHuboErrores(true);
+        if (data.email) {
             emailError();
         }
     }
@@ -125,18 +147,28 @@ export default function Registro(props) {
                 <p>
                     Ingresá los siguientes datos para poder registrarte en el sistema:
                 </p>
+                <p>{state.password} | {state.password_confirmation}</p>
             </Box>
             <Box>
-                <form onSubmit={handleSubmit}>
+                <ValidatorForm
+                    onSubmit={handleSubmit}
+                    instantValidate={false}
+                    onError={(errores) => {
+                        setCantErrores(errores.length);
+                        setHuboErrores(true)
+                    }}
+                >
                     <Grid container spacing={2}>
                         <Grid item xs={12}>
                             <FormControl fullWidth>
-                                <TextField
+                                <TextValidator
+                                    fullWidth
                                     name="name"
                                     id="name"
                                     placeholder="Ej: Juan Gonzalez"
                                     label="Nombre completo"
-                                    required
+                                    validators={['required']}
+                                    errorMessages={[env("REQUIRED_FIELD_ERROR_TEXT")]}
                                     InputProps={{
                                         startAdornment: (
                                             <InputAdornment position="start">
@@ -151,13 +183,15 @@ export default function Registro(props) {
                         </Grid>
                         <Grid item xs={12}>
                             <FormControl fullWidth>
-                                <TextField
+                                <TextValidator
+                                    fullWidth
                                     name="email"
                                     id="email"
-                                    type="email"
+                                    //type="email"
                                     placeholder="Ej: juan@gmail.com"
                                     label="Email"
-                                    required
+                                    validators={['required', 'isEmail']}
+                                    errorMessages={[env("REQUIRED_FIELD_ERROR_TEXT"), env("EMAIL_ERROR_TEXT")]}
                                     InputProps={{
                                         startAdornment: (
                                             <InputAdornment position="start">
@@ -174,13 +208,15 @@ export default function Registro(props) {
                         </Grid>
                         <Grid item xs={12}>
                             <FormControl fullWidth>
-                                <TextField
+                                <TextValidator
+                                    fullWidth
                                     name="password"
                                     id="password"
                                     placeholder=""
                                     label="Contraseña"
                                     type="password"
-                                    required
+                                    validators={['required', 'minStringLength:6']}
+                                    errorMessages={[env("REQUIRED_FIELD_ERROR_TEXT"), 'Debe tener como mínimo 6 caracteres']}
                                     helperText="Debe tener como mínimo 6 caracteres"
                                     InputProps={{
                                         startAdornment: (
@@ -196,13 +232,15 @@ export default function Registro(props) {
                         </Grid>
                         <Grid item xs={12}>
                             <FormControl fullWidth>
-                                <TextField
+                                <TextValidator
+                                    fullWidth
                                     name="password_confirmation"
                                     id="password_confirmation"
                                     placeholder=""
                                     label="Ingresá de vuelta la contraseña para confirmar"
                                     type="password"
-                                    required
+                                    validators={['required', 'minStringLength:6', 'confirmacionPasswordMatchea']}
+                                    errorMessages={[env("REQUIRED_FIELD_ERROR_TEXT"), 'Debe tener como mínimo 6 caracteres', 'Las contraseñas no coinciden']}
                                     helperText="Debe tener como mínimo 6 caracteres"
                                     InputProps={{
                                         startAdornment: (
@@ -216,6 +254,24 @@ export default function Registro(props) {
                                 />
                             </FormControl>
                         </Grid>
+                        {huboErrores &&
+                            <Grid item xs={12}>
+                                <Alert severity="error" variant="outlined"
+                                    onClose={
+                                        () => setHuboErrores(false)
+                                    }
+                                    sx={{
+                                        fontSize: '.8em'
+                                    }}
+                                >
+                                    {(cantErrores > 1) ?
+                                        "Por favor, corregí los campos marcados en rojo y volvé a intentar."
+                                        :
+                                        "Por favor, corregí el campo marcado en rojo y volvé a intentar."
+                                    }
+                                </Alert>
+                            </Grid>
+                        }
                         <Grid item xs={12}>
                             <Button
                                 color="primary"
@@ -227,7 +283,7 @@ export default function Registro(props) {
                             </Button>
                         </Grid>
                     </Grid>
-                </form>
+                </ValidatorForm>
             </Box>
         </>
     );
