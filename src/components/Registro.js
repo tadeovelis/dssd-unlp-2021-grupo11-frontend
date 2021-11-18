@@ -21,6 +21,9 @@ import { Controller, useForm } from "react-hook-form";
 
 const defaultValues = {
     name: "",
+    email: "",
+    password: "",
+    confirmPassword: ""
 }
 
 export default function Registro(props) {
@@ -135,12 +138,34 @@ export default function Registro(props) {
         }))
     }
 
+    // Mensajes de validación
     const nameErrorText = (errors) => {
         if (errors.name?.type === "required") {
             return env("REQUIRED_FIELD_ERROR_TEXT")
         }
-        else if (errors.name?.type === "minLength") {
-            return "Debe tener como mínimo 3 caracteres"
+    }
+    const emailErrorText = (errors) => {
+        if (errors.email?.type === "required") {
+            return env("REQUIRED_FIELD_ERROR_TEXT")
+        }
+        else if (errors.email?.type === "pattern") {
+            return env("EMAIL_ERROR_TEXT")
+        }
+    }
+    const passwordErrorText = (errors) => {
+        if (errors.password?.type === "required") {
+            return env("REQUIRED_FIELD_ERROR_TEXT")
+        }
+        else {
+            return "La contraseña debe tener como mínimo 6 caracteres"
+        }
+    }
+    const confirmPasswordErrorText = (errors) => {
+        if (errors.confirmPassword?.type === "required") {
+            return env("REQUIRED_FIELD_ERROR_TEXT")
+        }
+        else {
+            return "La contraseña debe tener como mínimo 6 caracteres"
         }
     }
 
@@ -162,7 +187,7 @@ export default function Registro(props) {
                                 <Controller
                                     name="name"
                                     control={control}
-                                    rules={{ required: true, minLength: 3 }}
+                                    rules={{ required: true }}
                                     render={({
                                         field
                                     }) => (
@@ -182,84 +207,104 @@ export default function Registro(props) {
                                             }}
                                             helperText={nameErrorText(errors)}
                                             error={errors.name && true}
-                                        /*
-                                        value={value}
-                                        onChange={onChange}
-                                        */
                                         />
                                     )}
                                 />
                             </FormControl>
                         </Grid>
-                        {/*
                         <Grid item xs={12}>
                             <FormControl fullWidth>
-                                <TextField
-                                    fullWidth
+                                <Controller
                                     name="email"
-                                    id="email"
-                                    //type="email"
-                                    placeholder="Ej: juan@gmail.com"
-                                    label="Email"
-                                    InputProps={{
-                                        startAdornment: (
-                                            <InputAdornment position="start">
-                                                <MailOutlineIcon />
-                                            </InputAdornment>
-                                        )
-                                    }}
-                                    value={state.email}
-                                    onChange={handleChange}
-                                    error={state.errorEmail}
-                                    helperText={state.textoErrorEmail}
+                                    control={control}
+                                    rules={{ required: true, pattern: {value: /\S+@\S+\.\S+/} }}
+                                    render={({
+                                        field
+                                    }) => (
+                                        <TextField
+                                            {...field}
+                                            fullWidth
+                                            name="email"
+                                            id="email"
+                                            //type="email"
+                                            placeholder="Ej: juan@gmail.com"
+                                            label="Email"
+                                            InputProps={{
+                                                startAdornment: (
+                                                    <InputAdornment position="start">
+                                                        <MailOutlineIcon />
+                                                    </InputAdornment>
+                                                )
+                                            }}
+                                            error={errors.email && true}
+                                            helperText={emailErrorText(errors)}
+                                        />
+                                    )}
                                 />
                             </FormControl>
                         </Grid>
                         <Grid item xs={12}>
                             <FormControl fullWidth>
-                                <TextField
-                                    fullWidth
+                                <Controller
                                     name="password"
-                                    id="password"
-                                    placeholder=""
-                                    label="Contraseña"
-                                    type="password"
-                                    helperText="Debe tener como mínimo 6 caracteres"
-                                    InputProps={{
-                                        startAdornment: (
-                                            <InputAdornment position="start">
-                                                <VpnKeyIcon />
-                                            </InputAdornment>
-                                        )
-                                    }}
-                                    value={state.password}
-                                    onChange={handleChange}
+                                    control={control}
+                                    rules={{ required: true, minLength: 6 }}
+                                    render={({
+                                        field
+                                    }) => (
+                                        <TextField
+                                            {...field}
+                                            fullWidth
+                                            name="password"
+                                            id="password"
+                                            placeholder=""
+                                            label="Contraseña"
+                                            type="password"
+                                            InputProps={{
+                                                startAdornment: (
+                                                    <InputAdornment position="start">
+                                                        <VpnKeyIcon />
+                                                    </InputAdornment>
+                                                )
+                                            }}
+                                            helperText={passwordErrorText(errors)}
+                                            error={errors.password && true}
+                                        />
+                                    )}
                                 />
                             </FormControl>
                         </Grid>
                         <Grid item xs={12}>
                             <FormControl fullWidth>
-                                <TextField
-                                    fullWidth
-                                    name="password_confirmation"
-                                    id="password_confirmation"
-                                    placeholder=""
-                                    label="Ingresá de vuelta la contraseña para confirmar"
-                                    type="password"
-                                    helperText="Debe tener como mínimo 6 caracteres"
-                                    InputProps={{
-                                        startAdornment: (
-                                            <InputAdornment position="start">
-                                                <VpnKeyIcon />
-                                            </InputAdornment>
-                                        )
-                                    }}
-                                    value={state.password_confirmation}
-                                    onChange={handleChange}
+                                <Controller
+                                    name="confirmPassword"
+                                    control={control}
+                                    rules={{ required: true, minLength: 6 }}
+                                    render={({
+                                        field
+                                    }) => (
+                                        <TextField
+                                            {...field}
+                                            fullWidth
+                                            name="password_confirmation"
+                                            id="password_confirmation"
+                                            placeholder=""
+                                            label="Ingresá de vuelta la contraseña para confirmar"
+                                            type="password"
+                                            InputProps={{
+                                                startAdornment: (
+                                                    <InputAdornment position="start">
+                                                        <VpnKeyIcon />
+                                                    </InputAdornment>
+                                                )
+                                            }}
+                                            error={errors.confirmPassword && true}
+                                            helperText={confirmPasswordErrorText(errors)}
+                                        />
+                                    )}
                                 />
                             </FormControl>
                         </Grid>
-                                */}
                         <Grid item xs={12}>
                             <Button
                                 color="primary"
