@@ -135,6 +135,15 @@ export default function Registro(props) {
         }))
     }
 
+    const nameErrorText = (errors) => {
+        if (errors.name?.type === "required") {
+            return env("REQUIRED_FIELD_ERROR_TEXT")
+        }
+        else if (errors.name?.type === "minLength") {
+            return "Debe tener como mínimo 3 caracteres"
+        }
+    }
+
     return (
         <>
             <Box>
@@ -171,12 +180,12 @@ export default function Registro(props) {
                                                     </InputAdornment>
                                                 )
                                             }}
-                                            helperText={errors.name && env("REQUIRED_FIELD_ERROR_TEXT")}
+                                            helperText={nameErrorText(errors)}
                                             error={errors.name && true}
-                                            /*
-                                            value={value}
-                                            onChange={onChange}
-                                            */
+                                        /*
+                                        value={value}
+                                        onChange={onChange}
+                                        */
                                         />
                                     )}
                                 />
