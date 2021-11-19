@@ -68,14 +68,6 @@ export default function Registro(props) {
     });
 
 
-    function handleChange(e) {
-        const { name, value } = e.target;
-        setState(prevState => ({
-            ...prevState,
-            [name]: value
-        }))
-    }
-
     function originalSubmit(data, e) {
 
         let ruta = 'api/auth/register';
