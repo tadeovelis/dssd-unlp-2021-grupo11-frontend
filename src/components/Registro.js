@@ -46,7 +46,7 @@ export default function Registro(props) {
     const [cantErrores, setCantErrores] = useState(0);
 
     // React hook form
-    const { control, handleSubmit, formState: { errors } } = useForm({ defaultValues });
+    const { control, handleSubmit, formState: { errors }, watch, getValues } = useForm({ defaultValues });
 
 
     function handleChange(e) {
@@ -57,15 +57,14 @@ export default function Registro(props) {
         }))
     }
 
-    function originalSubmit(e) {
-
+    function originalSubmit(data, e) {
         let ruta = 'api/auth/register';
 
         let datos = {
-            'name': state.name,
-            'email': state.email,
-            'password': state.password,
-            'password_confirmation': state.password_confirmation
+            'name': data.name,
+            'email': data.email,
+            'password': data.password,
+            'password_confirmation': data.confirmPassword
         }
 
         fetch(env("BACKEND_URL") + ruta, {
@@ -96,8 +95,8 @@ export default function Registro(props) {
                 'Content-Type': 'application/x-www-form-urlencoded'
             },
             body: new URLSearchParams({
-                'email': state.email,
-                'password': state.password
+                'email': getValues("email"),
+                'password': getValues("password")
             })
         })
             .then(response => response.json())
@@ -163,6 +162,9 @@ export default function Registro(props) {
     const confirmPasswordErrorText = (errors) => {
         if (errors.confirmPassword?.type === "required") {
             return env("REQUIRED_FIELD_ERROR_TEXT")
+        }
+        else if (errors.confirmPassword?.type === "validate") {
+            return "Las contraseñas no coinciden"
         }
         else {
             return "La contraseña debe tener como mínimo 6 caracteres"
@@ -279,7 +281,7 @@ export default function Registro(props) {
                                 <Controller
                                     name="confirmPassword"
                                     control={control}
-                                    rules={{ required: true, minLength: 6 }}
+                                    rules={{ required: true, minLength: 6, validate: value => value === watch('password')}}
                                     render={({
                                         field
                                     }) => (
@@ -305,6 +307,21 @@ export default function Registro(props) {
                                 />
                             </FormControl>
                         </Grid>
+                        {Object.entries(errors).length !== 0 &&
+                            <Grid item xs={12}>
+                                <Alert severity="error" variant="outlined"
+                                    sx={{
+                                        fontSize: '.8em'
+                                    }}
+                                >
+                                    {(Object.entries(errors).length > 1) ?
+                                        "Por favor, corregí los campos marcados en rojo y volvé a intentar."
+                                        :
+                                        "Por favor, corregí el campo marcado en rojo y volvé a intentar."
+                                    }
+                                </Alert>
+                            </Grid>
+                        }
                         <Grid item xs={12}>
                             <Button
                                 color="primary"
