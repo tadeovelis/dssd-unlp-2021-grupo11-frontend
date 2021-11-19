@@ -1,6 +1,6 @@
 import { React, useState } from "react";
 
-import { TextField, Alert, Divider, FormControl, InputAdornment, Grid, Typography } from "@mui/material";
+import { TextField, Alert, Divider, FormControl, InputAdornment, Grid, Typography, Tooltip, IconButton } from "@mui/material";
 import { Box, Button } from "@mui/material";
 
 import MailOutlineIcon from '@mui/icons-material/MailOutline';
@@ -16,6 +16,9 @@ import { MyAlert } from "./MyAlert";
 import { Controller, useForm } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from '@hookform/resolvers/yup';
+
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 
 
 // Valores default del form
@@ -41,6 +44,8 @@ export default function Login(props) {
         alertSeverity: 'info',
         alertVariant: 'filled'
     })
+
+    const [mostrarPassword, setMostrarPassword] = useState(false);
 
     const history = useHistory();
 
@@ -177,11 +182,22 @@ export default function Login(props) {
                                             id="password"
                                             placeholder=""
                                             label="Contraseña"
-                                            type="password"
+                                            type={mostrarPassword ? "text" : "password"}
                                             InputProps={{
                                                 startAdornment: (
                                                     <InputAdornment position="start">
                                                         <VpnKeyIcon />
+                                                    </InputAdornment>
+                                                ),
+                                                endAdornment: (
+                                                    <InputAdornment position="end">
+                                                        <Tooltip title={mostrarPassword ? "Ocultar contraseña" : "Revelar contraseña"}>
+                                                            <IconButton
+                                                                onClick={() => setMostrarPassword(!mostrarPassword)}
+                                                            >
+                                                                {mostrarPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                                                            </IconButton>
+                                                        </Tooltip>
                                                     </InputAdornment>
                                                 )
                                             }}

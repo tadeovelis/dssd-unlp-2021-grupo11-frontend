@@ -1,6 +1,6 @@
-import { React, useState, useEffect } from "react";
+import { React, useState } from "react";
 
-import { InputAdornment, Grid, Box, Alert, FormControl, Button, TextField } from "@mui/material";
+import { InputAdornment, Grid, Box, Alert, FormControl, Button, TextField, IconButton, Tooltip } from "@mui/material";
 
 import MailOutlineIcon from '@mui/icons-material/MailOutline';
 import VpnKeyIcon from '@mui/icons-material/VpnKey';
@@ -16,6 +16,9 @@ import { Controller, useForm } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from '@hookform/resolvers/yup';
 import { MyAlert } from "./MyAlert";
+
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 
 
 // Valores default del form
@@ -51,9 +54,12 @@ export default function Registro(props) {
             name: '',
 
             errorEmail: false,
-            textoErrorEmail: ''
+            textoErrorEmail: '',
         }
     )
+
+    const [mostrarPassword, setMostrarPassword] = useState(false);
+    const [mostrarConfirmPassword, setMostrarConfirmPassword] = useState(false);
 
     // React hook form
     const { control, handleSubmit, formState: { errors }, getValues, watch, trigger } = useForm({
@@ -206,7 +212,6 @@ export default function Registro(props) {
                                             fullWidth
                                             name="email"
                                             id="email"
-                                            //type="email"
                                             placeholder="Ej: juan@gmail.com"
                                             label="Email"
                                             InputProps={{
@@ -238,19 +243,33 @@ export default function Registro(props) {
                                             id="password"
                                             placeholder=""
                                             label="Contraseña"
-                                            type="password"
+                                            type={mostrarPassword ? "text" : "password"}
                                             InputProps={{
                                                 startAdornment: (
                                                     <InputAdornment position="start">
                                                         <VpnKeyIcon />
+                                                    </InputAdornment>
+                                                ),
+                                                endAdornment: (
+                                                    <InputAdornment position="end">
+                                                        <Tooltip title={mostrarPassword ? "Ocultar contraseña" : "Revelar contraseña"}>
+                                                            <IconButton
+                                                                onClick={() => setMostrarPassword(!mostrarPassword)}
+                                                            >
+                                                                {mostrarPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                                                            </IconButton>
+                                                        </Tooltip>
                                                     </InputAdornment>
                                                 )
                                             }}
                                             // El message lo trae del resolver de Yup, seteado arriba de todo
                                             helperText={errors.password?.message}
                                             error={errors.password && true}
+                                            // Con esto triggereo manualmente la validación del password confirm para que sea mutuo:
+                                            // si cambio este campo original también valida a ver si matchea con el otro
                                             onChange={e => {
                                                 onChange(e);
+                                                // Acá uso este condicional para que no chequee si todavía no se ingresó nada en el otro
                                                 if (watch("confirmPassword") !== '') trigger("confirmPassword")
                                             }}
                                         />
@@ -273,11 +292,22 @@ export default function Registro(props) {
                                             id="password_confirmation"
                                             placeholder=""
                                             label="Ingresá de vuelta la contraseña para confirmar"
-                                            type="password"
+                                            type={mostrarConfirmPassword ? "text" : "password"}
                                             InputProps={{
                                                 startAdornment: (
                                                     <InputAdornment position="start">
                                                         <VpnKeyIcon />
+                                                    </InputAdornment>
+                                                ),
+                                                endAdornment: (
+                                                    <InputAdornment position="end">
+                                                        <Tooltip title={mostrarConfirmPassword ? "Ocultar contraseña" : "Revelar contraseña"}>
+                                                            <IconButton
+                                                                onClick={() => setMostrarConfirmPassword(!mostrarConfirmPassword)}
+                                                            >
+                                                                {mostrarConfirmPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                                                            </IconButton>
+                                                        </Tooltip>
                                                     </InputAdornment>
                                                 )
                                             }}
