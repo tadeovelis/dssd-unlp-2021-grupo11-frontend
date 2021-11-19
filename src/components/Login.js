@@ -12,12 +12,29 @@ import env from "@beam-australia/react-env";
 import { setearCookies } from "helpers/helpers.js";
 import { useHistory } from "react-router";
 import { MyAlert } from "./MyAlert";
-import { TextValidator, ValidatorForm } from "react-material-ui-form-validator";
+
+import * as yup from "yup";
+import { setLocale } from 'yup';
+import { Controller, useForm } from "react-hook-form";
+import { yupResolver } from '@hookform/resolvers/yup';
+
+
+// Valores default del form
+const defaultValues = {
+    email: "",
+    password: ""
+}
+
+// Schema de Yup para las validaciones
+// - con el env() pongo el mensaje de error
+const schema = yup.object({
+    email: yup.string().email(env("EMAIL_ERROR_TEXT")).required(env("REQUIRED_FIELD_ERROR_TEXT")),
+    password: yup.string().required(env("REQUIRED_FIELD_ERROR_TEXT")),
+}).required(env("REQUIRED_FIELD_ERROR_TEXT"));
 
 
 export default function Login(props) {
 
-    const [state, setState] = useState({ email: '', password: '' });
     const [alert, setAlert] = useState({
         mostrarAlert: false,
         alertTitle: '',
@@ -25,11 +42,14 @@ export default function Login(props) {
         alertSeverity: 'info',
         alertVariant: 'filled'
     })
-    const [mostrarAlertLogoutExitoso, setMostrarAlertLogoutExitoso] = useState(false);
-    const [huboErrores, setHuboErrores] = useState(false);
-    const [cantErrores, setCantErrores] = useState(0);
 
     const history = useHistory();
+
+    // React hook form
+    const { control, handleSubmit, formState: { errors }, watch, getValues } = useForm({
+        defaultValues,
+        resolver: yupResolver(schema)
+    });
 
     function noMostrarAlert() {
         setAlert(prevState => ({
@@ -48,9 +68,7 @@ export default function Login(props) {
         })
     }
 
-    function handleSubmit(e) {
-
-        setHuboErrores(false);
+    function originalSubmit(data, e) {
 
         let ruta = 'api/auth/login';
 
@@ -60,8 +78,8 @@ export default function Login(props) {
                 'Content-Type': 'application/x-www-form-urlencoded'
             },
             body: new URLSearchParams({
-                'email': state.email,
-                'password': state.password
+                'email': data.email,
+                'password': data.password
             })
         })
             .then(response => response.json())
@@ -79,12 +97,6 @@ export default function Login(props) {
         e.preventDefault();
     }
 
-    function handleChange(e) {
-        const { name, value } = e.target;
-        setState(prevState => ({
-            ...prevState, [name]: value
-        }))
-    }
 
     function loginExitoso(data) {
 
@@ -98,6 +110,7 @@ export default function Login(props) {
             state: { data: data }
         });
     }
+
 
     return (
         <>
@@ -113,73 +126,82 @@ export default function Login(props) {
                 sx={{
                     mr: 6
                 }}>
-                <ValidatorForm
-                    onSubmit={handleSubmit}
-                    instantValidate={false}
-                    onError={(errores) => {
-                        setHuboErrores(true);
-                        setCantErrores(errores.length);
-                    }}
+                <form
+                    // Con handlesubmit de hook-form se valida, después invoca al submit original
+                    onSubmit={handleSubmit(originalSubmit)}
                 >
 
                     <Grid container spacing={2}>
                         <Grid item xs={12}>
                             <FormControl fullWidth={true}>
-                                <TextValidator
-                                    fullWidth={true}
+                                <Controller
                                     name="email"
-                                    id="email"
-                                    placeholder="Ej: juan@gmail.com"
-                                    label="Email"
-                                    //type="email"
-                                    validators={['required', 'isEmail']}
-                                    errorMessages={[env("REQUIRED_FIELD_ERROR_TEXT"), env("EMAIL_ERROR_TEXT")]}
-                                    InputProps={{
-                                        startAdornment: (
-                                            <InputAdornment position="start">
-                                                <MailOutlineIcon />
-                                            </InputAdornment>
-                                        )
-                                    }}
-                                    value={state.email}
-                                    onChange={handleChange}
+                                    control={control}
+                                    render={({
+                                        field
+                                    }) => (
+                                        <TextField
+                                            {...field}
+                                            fullWidth={true}
+                                            name="email"
+                                            id="email"
+                                            placeholder="Ej: juan@gmail.com"
+                                            label="Email"
+                                            //type="email"
+                                            InputProps={{
+                                                startAdornment: (
+                                                    <InputAdornment position="start">
+                                                        <MailOutlineIcon />
+                                                    </InputAdornment>
+                                                )
+                                            }}
+                                            helperText={errors.email?.message}
+                                            error={errors.email && true}
+                                        />
+                                    )}
                                 />
                             </FormControl>
                         </Grid>
                         <Grid item xs={12}>
                             <FormControl fullWidth={true}>
-                                <TextValidator
-                                    fullWidth={true}
+                                <Controller
                                     name="password"
-                                    id="password"
-                                    placeholder=""
-                                    label="Contraseña"
-                                    type="password"
-                                    validators={['required']}
-                                    errorMessages={[env("REQUIRED_FIELD_ERROR_TEXT")]}
-                                    InputProps={{
-                                        startAdornment: (
-                                            <InputAdornment position="start">
-                                                <VpnKeyIcon />
-                                            </InputAdornment>
-                                        )
-                                    }}
-                                    value={state.password}
-                                    onChange={handleChange}
+                                    control={control}
+                                    render={({
+                                        field
+                                    }) => (
+                                        <TextField
+                                            {...field}
+                                            fullWidth={true}
+                                            name="password"
+                                            id="password"
+                                            placeholder=""
+                                            label="Contraseña"
+                                            type="password"
+                                            InputProps={{
+                                                startAdornment: (
+                                                    <InputAdornment position="start">
+                                                        <VpnKeyIcon />
+                                                    </InputAdornment>
+                                                )
+                                            }}
+                                            helperText={errors.password?.message}
+                                            error={errors.password && true}
+                                        />
+                                    )}
                                 />
                             </FormControl>
                         </Grid>
-                        {huboErrores &&
+
+                        {/* Alert avisando que hay errores en los campos */}
+                        {Object.entries(errors).length !== 0 &&
                             <Grid item xs={12}>
                                 <Alert severity="error" variant="outlined"
-                                    onClose={
-                                        () => setHuboErrores(false)
-                                    }
                                     sx={{
                                         fontSize: '.8em'
                                     }}
                                 >
-                                    {(cantErrores > 1) ?
+                                    {(Object.entries(errors).length > 1) ?
                                         "Por favor, corregí los campos marcados en rojo y volvé a intentar."
                                         :
                                         "Por favor, corregí el campo marcado en rojo y volvé a intentar."
@@ -187,6 +209,7 @@ export default function Login(props) {
                                 </Alert>
                             </Grid>
                         }
+
                         <Grid item xs={12}>
                             <Button
                                 color="primary"
@@ -221,7 +244,7 @@ export default function Login(props) {
                             </Typography>
                         </Grid>
                     </Grid>
-                </ValidatorForm>
+                </form>
             </Box>
 
             {/* Alert de datos erróneos */}

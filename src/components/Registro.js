@@ -281,7 +281,9 @@ export default function Registro(props) {
                                 <Controller
                                     name="confirmPassword"
                                     control={control}
-                                    rules={{ required: true, minLength: 6, validate: value => value === watch('password')}}
+                                    rules={{
+                                        required: true, minLength: 6, validate: value => value === watch('password')
+                                    }}
                                     render={({
                                         field
                                     }) => (
@@ -307,6 +309,8 @@ export default function Registro(props) {
                                 />
                             </FormControl>
                         </Grid>
+
+                        {/* Alert avisando que hay errores en los campos */}
                         {Object.entries(errors).length !== 0 &&
                             <Grid item xs={12}>
                                 <Alert severity="error" variant="outlined"
@@ -322,6 +326,7 @@ export default function Registro(props) {
                                 </Alert>
                             </Grid>
                         }
+
                         <Grid item xs={12}>
                             <Button
                                 color="primary"
