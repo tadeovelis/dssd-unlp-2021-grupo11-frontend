@@ -1,5 +1,6 @@
 
 import { estoyEnUnDashboard } from 'helpers/helpers';
+import { borrarCookies } from 'helpers/helpers';
 import { userLogueado } from 'helpers/helpers';
 import { React, Component } from 'react';
 
@@ -16,6 +17,8 @@ export default class DashboardContainer extends Component {
         // entonces redirecciono al Home.
         if (estoyEnUnDashboard(this.props.location.pathname)) {
             if (!userLogueado()) {
+                console.log("Acceso no autorizado. Redireccionando al home...");
+                borrarCookies();
                 this.props.history.push({
                     pathname: '/'
                 })

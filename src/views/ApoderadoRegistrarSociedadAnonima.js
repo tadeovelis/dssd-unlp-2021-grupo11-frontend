@@ -1,6 +1,6 @@
 import { React, Component } from "react";
 
-import { Container, Grid, Paper, FormControl, TextField, InputAdornment, Divider, FormControlLabel } from '@mui/material';
+import { Container, Grid, Paper, FormControl, TextField, InputAdornment, Divider, FormControlLabel, Alert } from '@mui/material';
 import { Box, Button, Checkbox, CircularProgress } from "@mui/material";
 
 import DescriptionIcon from '@mui/icons-material/Description';
@@ -46,7 +46,7 @@ export default class ApoderadoRegistrarSociedadAnonima extends Component {
 
             // Socios
             cantSocios: 1,
-            socio1: { apellido: '', nombre: '', porcentaje: 0, apoderado: 'false' },
+            socio1: { apellido: '', nombre: '', porcentaje: "", apoderado: 'false' },
 
             // Estatuto
             archivo_estatuto: null,
@@ -281,7 +281,7 @@ export default class ApoderadoRegistrarSociedadAnonima extends Component {
     habilitarFormSocio() {
         let socio = 'socio' + (this.state.cantSocios + 1);
         this.setState({
-            [socio]: { apellido: '', nombre: '', porcentaje: 0, apoderado: 'false' }
+            [socio]: { apellido: '', nombre: '', porcentaje: "", apoderado: 'false' }
         }, () => {
             this.setState({ cantSocios: this.state.cantSocios + 1 })
         });
@@ -317,87 +317,93 @@ export default class ApoderadoRegistrarSociedadAnonima extends Component {
         for (let i = 0; i < this.state.cantSocios; i++) {
             soc = 'socio' + (i + 1);
             forms.push(
-                <Grid key={i} container spacing={3} justifyContent="flex-start" alignItems="center">
-                    <Grid item>
-                        <Button
-                            data-numdesocio={i + 1}
-                            variant="contained"
-                            style={{ backgroundColor: '#fa0000', 'color': 'white' }}
-                            onClick={this.removerSocio}
-                        >Remover
-                        </Button>
-                    </Grid>
-                    <Grid item xs={3}>
-                        <FormControl fullWidth={true}>
-                            <TextField
-                                name="apellido"
-                                id={"apellido" + (i + 1)}
-                                placeholder="Ej: Gómez"
-                                label="Apellido"
-                                required={true}
-                                value={this.state[soc].apellido}
-                                onChange={this.handleChangeSocio}
-                                helperText="[Texto de ayuda]"
-                                inputProps={{
-                                    'data-numdesocio': (i + 1)
-                                }}
-                            />
-                        </FormControl>
-                    </Grid>
-                    <Grid item xs={3}>
-                        <FormControl fullWidth={true}>
-                            <TextField
-                                name="nombre"
-                                id={"nombre" + (i + 1)}
-                                placeholder="Ej: Roberto"
-                                label="Nombre"
-                                required={true}
-                                value={this.state[soc].nombre}
-                                onChange={this.handleChangeSocio}
-                                helperText="[Texto de ayuda]"
-                                inputProps={{
-                                    'data-numdesocio': (i + 1)
-                                }}
-                            />
-                        </FormControl>
-                    </Grid>
-                    <Grid item xs={2}>
-                        <FormControl fullWidth={true}>
-                            <TextField
-                                type="number"
-                                name="porcentaje"
-                                id={"porcentaje" + (i + 1)}
-                                placeholder="Entre 0 y 100"
-                                label="Porcentaje"
-                                required={true}
-                                value={this.state[soc].porcentaje}
-                                onChange={this.handleChangeSocio}
-                                helperText="[Texto de ayuda]"
-                                inputProps={{
-                                    'data-numdesocio': (i + 1)
-                                }}
-                            />
-                        </FormControl>
-                    </Grid>
-                    <Grid item xs={2}>
-                        <FormControl fullWidth={true}>
-                            <FormControlLabel
-                                control={
-                                    <Checkbox
-                                        onChange={this.handleChangeEsApoderado}
-                                        inputProps={{
-                                            'data-numdesocio': (i + 1)
-                                        }} />
-                                }
-                                name="apoderado"
-                                id={"apoderado" + (i + 1)}
-                                label="¿Es apoderado?" />
-                        </FormControl>
+                <Grid item xs={12}>
+                    <Grid key={i} container spacing={3} justifyContent="flex-start" alignItems="center">
+                        <Grid item>
+                            <Button
+                                data-numdesocio={i + 1}
+                                variant="contained"
+                                style={{ backgroundColor: '#fa0000', 'color': 'white' }}
+                                onClick={this.removerSocio}
+                            >Remover
+                            </Button>
+                        </Grid>
+                        <Grid item xs={3}>
+                            <FormControl fullWidth={true}>
+                                <TextField
+                                    name="apellido"
+                                    id={"apellido" + (i + 1)}
+                                    placeholder="Ej: Gómez"
+                                    label="Apellido"
+                                    required={true}
+                                    value={this.state[soc].apellido}
+                                    onChange={this.handleChangeSocio}
+                                    //helperText="[Texto de ayuda]"
+                                    inputProps={{
+                                        'data-numdesocio': (i + 1)
+                                    }}
+                                />
+                            </FormControl>
+                        </Grid>
+                        <Grid item xs={3}>
+                            <FormControl fullWidth={true}>
+                                <TextField
+                                    name="nombre"
+                                    id={"nombre" + (i + 1)}
+                                    placeholder="Ej: Roberto"
+                                    label="Nombre"
+                                    required={true}
+                                    value={this.state[soc].nombre}
+                                    onChange={this.handleChangeSocio}
+                                    //helperText="[Texto de ayuda]"
+                                    inputProps={{
+                                        'data-numdesocio': (i + 1)
+                                    }}
+                                />
+                            </FormControl>
+                        </Grid>
+                        <Grid item xs={2}>
+                            <FormControl fullWidth={true}>
+                                <TextField
+                                    type="number"
+                                    name="porcentaje"
+                                    id={"porcentaje" + (i + 1)}
+                                    placeholder="Entre 0 y 100"
+                                    label="Porcentaje"
+                                    required={true}
+                                    value={this.state[soc].porcentaje}
+                                    onChange={this.handleChangeSocio}
+                                    //helperText="Entre 0 y 100"
+                                    inputProps={{
+                                        'data-numdesocio': (i + 1)
+                                    }}
+                                />
+                            </FormControl>
+                        </Grid>
+                        <Grid item xs={2}>
+                            <FormControl fullWidth={true}>
+                                <FormControlLabel
+                                    control={
+                                        <Checkbox
+                                            onChange={this.handleChangeEsApoderado}
+                                            inputProps={{
+                                                'data-numdesocio': (i + 1)
+                                            }} />
+                                    }
+                                    name="apoderado"
+                                    id={"apoderado" + (i + 1)}
+                                    label="¿Es apoderado?" />
+                            </FormControl>
+                        </Grid>
                     </Grid>
                 </Grid>
             )
         }
-        return forms;
+        return (
+            <Grid container spacing={2}>
+                {forms}
+            </Grid>
+        )
     }
 
     // Arma un JSON con los socios
@@ -683,7 +689,14 @@ export default class ApoderadoRegistrarSociedadAnonima extends Component {
                                 </Grid>
                                 :
                                 <Grid item xs={12}>
-                                    <span>Se asignará Argentina como país por defecto.</span>
+                                    <Alert
+                                        severity="info"
+                                        sx={{
+                                            width: "fit-content"
+                                        }}
+                                    >
+                                    Se asignará por defecto <b>Argentina</b> y todos sus estados.
+                                    </Alert>
                                 </Grid>
                             }
                         </Grid>
@@ -697,11 +710,6 @@ export default class ApoderadoRegistrarSociedadAnonima extends Component {
                                     color="primary"
                                     onClick={this.habilitarFormPais}
                                 >Agregar otro país
-                                </Button>
-                            </Grid>
-                            <Grid item xs={5}>
-                                <Button onClick={() => this.armarJSONPaisesYEstados()} variant="outlined">
-                                    Mostrar JSON paises en consola
                                 </Button>
                             </Grid>
                         </Grid>
