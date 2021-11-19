@@ -1,6 +1,6 @@
-import { React, Component, useState } from "react";
+import { React, useState } from "react";
 
-import { TextField, Snackbar, Alert, AlertTitle, Divider, FormControl, InputAdornment, Grid, Typography } from "@mui/material";
+import { TextField, Alert, Divider, FormControl, InputAdornment, Grid, Typography } from "@mui/material";
 import { Box, Button } from "@mui/material";
 
 import MailOutlineIcon from '@mui/icons-material/MailOutline';
@@ -13,9 +13,8 @@ import { setearCookies } from "helpers/helpers.js";
 import { useHistory } from "react-router";
 import { MyAlert } from "./MyAlert";
 
-import * as yup from "yup";
-import { setLocale } from 'yup';
 import { Controller, useForm } from "react-hook-form";
+import * as yup from "yup";
 import { yupResolver } from '@hookform/resolvers/yup';
 
 
@@ -46,9 +45,9 @@ export default function Login(props) {
     const history = useHistory();
 
     // React hook form
-    const { control, handleSubmit, formState: { errors }, watch, getValues } = useForm({
+    const { control, handleSubmit, formState: { errors } } = useForm({
         defaultValues,
-        resolver: yupResolver(schema)
+        resolver: yupResolver(schema) // Le digo que use e resolver de yup
     });
 
     function noMostrarAlert() {
@@ -68,6 +67,7 @@ export default function Login(props) {
         })
     }
 
+    // En el parámetro data recibe los datos del form
     function originalSubmit(data, e) {
 
         let ruta = 'api/auth/login';
@@ -147,7 +147,6 @@ export default function Login(props) {
                                             id="email"
                                             placeholder="Ej: juan@gmail.com"
                                             label="Email"
-                                            //type="email"
                                             InputProps={{
                                                 startAdornment: (
                                                     <InputAdornment position="start">
@@ -155,6 +154,7 @@ export default function Login(props) {
                                                     </InputAdornment>
                                                 )
                                             }}
+                                            // El message lo trae del resolver de Yup, seteado arriba de todo
                                             helperText={errors.email?.message}
                                             error={errors.email && true}
                                         />
@@ -185,6 +185,7 @@ export default function Login(props) {
                                                     </InputAdornment>
                                                 )
                                             }}
+                                            // El message lo trae del resolver de Yup, seteado arriba de todo
                                             helperText={errors.password?.message}
                                             error={errors.password && true}
                                         />
@@ -210,6 +211,7 @@ export default function Login(props) {
                             </Grid>
                         }
 
+                        {/* Botón de submit */}
                         <Grid item xs={12}>
                             <Button
                                 color="primary"
@@ -220,6 +222,8 @@ export default function Login(props) {
                                 Ingresar
                             </Button>
                         </Grid>
+
+                        {/* Para ir al registro */}
                         <Grid item xs={12}>
                             <Divider
                                 textAlign="left"

@@ -1,10 +1,6 @@
-import { React, Component, useState, useEffect } from "react";
+import { React, useState, useEffect } from "react";
 
-import Card from "components/Card/Card.js";
-import CardBody from "components/Card/CardBody.js";
-
-import { Container, TextField, FormControl, InputLabel, InputAdornment, Grid, Typography, Alert } from "@mui/material";
-import { Box, Button } from "@mui/material";
+import { InputAdornment, Grid, Box, Alert, FormControl, Button, TextField } from "@mui/material";
 
 import MailOutlineIcon from '@mui/icons-material/MailOutline';
 import VpnKeyIcon from '@mui/icons-material/VpnKey';
@@ -15,16 +11,33 @@ import "assets/css/login.css";
 import env from "@beam-australia/react-env";
 import { setearCookies } from "helpers/helpers";
 import { useHistory } from "react-router";
+
 import { Controller, useForm } from "react-hook-form";
+import * as yup from "yup";
+import { yupResolver } from '@hookform/resolvers/yup';
+import { MyAlert } from "./MyAlert";
 
 
-
+// Valores default del form
 const defaultValues = {
     name: "",
     email: "",
     password: "",
     confirmPassword: ""
 }
+
+// Schema de Yup para las validaciones
+// - con el env() pongo el mensaje de error
+const schema = yup.object({
+    name: yup.string().required(env("REQUIRED_FIELD_ERROR_TEXT")),
+    email: yup.string().email(env("EMAIL_ERROR_TEXT")).required(env("REQUIRED_FIELD_ERROR_TEXT")),
+    password: yup.string().required(env("REQUIRED_FIELD_ERROR_TEXT")).min(6, "Debe contener como mínimo 6 caracteres"),
+    confirmPassword: yup
+        .string()
+        .required(env("REQUIRED_FIELD_ERROR_TEXT"))
+        .min(6, "Debe contener como mínimo 6 caracteres")
+        .oneOf([yup.ref('password'), null], env("PASSWORD_MATCH")),
+}).required(env("REQUIRED_FIELD_ERROR_TEXT"));
 
 export default function Registro(props) {
 
@@ -42,11 +55,11 @@ export default function Registro(props) {
         }
     )
 
-    const [huboErrores, setHuboErrores] = useState(false);
-    const [cantErrores, setCantErrores] = useState(0);
-
     // React hook form
-    const { control, handleSubmit, formState: { errors }, watch, getValues } = useForm({ defaultValues });
+    const { control, handleSubmit, formState: { errors }, getValues, watch, trigger } = useForm({
+        defaultValues,
+        resolver: yupResolver(schema) // Le digo que use e resolver de yup
+    });
 
 
     function handleChange(e) {
@@ -58,6 +71,7 @@ export default function Registro(props) {
     }
 
     function originalSubmit(data, e) {
+
         let ruta = 'api/auth/register';
 
         let datos = {
@@ -115,8 +129,6 @@ export default function Registro(props) {
     }
 
     function mostrarError(data) {
-        setCantErrores(1);
-        setHuboErrores(true);
         if (data.email) {
             emailError();
         }
@@ -126,10 +138,10 @@ export default function Registro(props) {
         setState(prevState => ({
             ...prevState,
             errorEmail: true,
-            textoErrorEmail: "El email " + state.email + " ya está en uso. Por favor, usá otro."
+            textoErrorEmail: "El email " + getValues("email") + " ya está en uso. Por favor, usá otro."
         }))
     }
-    function resetEmailError() {
+    function cerrarErrorEmail() {
         setState(prevState => ({
             ...prevState,
             errorEmail: false,
@@ -137,39 +149,6 @@ export default function Registro(props) {
         }))
     }
 
-    // Mensajes de validación
-    const nameErrorText = (errors) => {
-        if (errors.name?.type === "required") {
-            return env("REQUIRED_FIELD_ERROR_TEXT")
-        }
-    }
-    const emailErrorText = (errors) => {
-        if (errors.email?.type === "required") {
-            return env("REQUIRED_FIELD_ERROR_TEXT")
-        }
-        else if (errors.email?.type === "pattern") {
-            return env("EMAIL_ERROR_TEXT")
-        }
-    }
-    const passwordErrorText = (errors) => {
-        if (errors.password?.type === "required") {
-            return env("REQUIRED_FIELD_ERROR_TEXT")
-        }
-        else {
-            return "La contraseña debe tener como mínimo 6 caracteres"
-        }
-    }
-    const confirmPasswordErrorText = (errors) => {
-        if (errors.confirmPassword?.type === "required") {
-            return env("REQUIRED_FIELD_ERROR_TEXT")
-        }
-        else if (errors.confirmPassword?.type === "validate") {
-            return "Las contraseñas no coinciden"
-        }
-        else {
-            return "La contraseña debe tener como mínimo 6 caracteres"
-        }
-    }
 
     return (
         <>
@@ -189,7 +168,6 @@ export default function Registro(props) {
                                 <Controller
                                     name="name"
                                     control={control}
-                                    rules={{ required: true }}
                                     render={({
                                         field
                                     }) => (
@@ -207,7 +185,8 @@ export default function Registro(props) {
                                                     </InputAdornment>
                                                 )
                                             }}
-                                            helperText={nameErrorText(errors)}
+                                            // El message lo trae del resolver de Yup, seteado arriba de todo
+                                            helperText={errors.name?.message}
                                             error={errors.name && true}
                                         />
                                     )}
@@ -219,7 +198,6 @@ export default function Registro(props) {
                                 <Controller
                                     name="email"
                                     control={control}
-                                    rules={{ required: true, pattern: {value: /\S+@\S+\.\S+/} }}
                                     render={({
                                         field
                                     }) => (
@@ -238,8 +216,9 @@ export default function Registro(props) {
                                                     </InputAdornment>
                                                 )
                                             }}
+                                            // El message lo trae del resolver de Yup, seteado arriba de todo
+                                            helperText={errors.email?.message}
                                             error={errors.email && true}
-                                            helperText={emailErrorText(errors)}
                                         />
                                     )}
                                 />
@@ -250,12 +229,10 @@ export default function Registro(props) {
                                 <Controller
                                     name="password"
                                     control={control}
-                                    rules={{ required: true, minLength: 6 }}
                                     render={({
-                                        field
+                                        field: { onChange }
                                     }) => (
                                         <TextField
-                                            {...field}
                                             fullWidth
                                             name="password"
                                             id="password"
@@ -269,8 +246,13 @@ export default function Registro(props) {
                                                     </InputAdornment>
                                                 )
                                             }}
-                                            helperText={passwordErrorText(errors)}
+                                            // El message lo trae del resolver de Yup, seteado arriba de todo
+                                            helperText={errors.password?.message}
                                             error={errors.password && true}
+                                            onChange={e => {
+                                                onChange(e);
+                                                if (watch("confirmPassword") !== '') trigger("confirmPassword")
+                                            }}
                                         />
                                     )}
                                 />
@@ -281,9 +263,6 @@ export default function Registro(props) {
                                 <Controller
                                     name="confirmPassword"
                                     control={control}
-                                    rules={{
-                                        required: true, minLength: 6, validate: value => value === watch('password')
-                                    }}
                                     render={({
                                         field
                                     }) => (
@@ -302,8 +281,9 @@ export default function Registro(props) {
                                                     </InputAdornment>
                                                 )
                                             }}
+                                            // El message lo trae del resolver de Yup, seteado arriba de todo
+                                            helperText={errors.confirmPassword?.message}
                                             error={errors.confirmPassword && true}
-                                            helperText={confirmPasswordErrorText(errors)}
                                         />
                                     )}
                                 />
@@ -340,6 +320,16 @@ export default function Registro(props) {
                     </Grid>
                 </form>
             </Box>
+
+            {/* Alert de email ya usado */}
+            <MyAlert
+                open={state.errorEmail}
+                onClose={cerrarErrorEmail}
+                title={state.textoErrorEmail}
+                text=""
+                severity="error"
+                variant="filled"
+            />
         </>
     );
 }
