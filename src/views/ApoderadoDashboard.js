@@ -36,7 +36,6 @@ export default class ApoderadoDashboard extends Component {
     this.noMostrarAlertCorreccionSAExitosa = this.noMostrarAlertCorreccionSAExitosa.bind(this);
     this.noMostrarAlertActualizacionEstatutoExitosa = this.noMostrarAlertActualizacionEstatutoExitosa.bind(this);
     this.noMostrarAlertPrimerInicio = this.noMostrarAlertPrimerInicio.bind(this);
-    this.agruparEstadosPorPais = this.agruparEstadosPorPais.bind(this);
     this.redirectACorregirSolicitud = this.redirectACorregirSolicitud.bind(this);
     this.renderizarCorregirSolicitud = this.renderizarCorregirSolicitud.bind(this);
     this.renderizarSubidaEstatuto = this.renderizarSubidaEstatuto.bind(this);
