@@ -16,6 +16,8 @@ import 'assets/css/dashboard.css';
 
 import env from "@beam-australia/react-env";
 
+import { MyAlert } from "../components/MyAlert";
+
 
 // Apollo client - GraphQL
 import {
@@ -65,6 +67,12 @@ export default class ApoderadoRegistrarSociedadAnonima extends Component {
             cantPaises: 1,
             estados1: [],
             inputEstados1: '',
+
+            // Alert
+            mostrarAlert: false,
+            alertTitle: "",
+            alertSeverity: "",
+            alertVariant: "",
         }
 
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -88,6 +96,12 @@ export default class ApoderadoRegistrarSociedadAnonima extends Component {
         this.handleChangeInputEstados = this.handleChangeInputEstados.bind(this);
         this.armarJSONPaisesYEstados = this.armarJSONPaisesYEstados.bind(this);
         this.armarJSONArgentina = this.armarJSONArgentina.bind(this);
+
+        this.porcentajesSociosCorrectos = this.porcentajesSociosCorrectos.bind(this);
+        this.noMostrarAlert = this.noMostrarAlert.bind(this);
+        this.mostrarAlertPorcentajesSociosNoCorrectos = this.mostrarAlertPorcentajesSociosNoCorrectos.bind(this);
+        this.mostrarAlertMinimoUnSocio = this.mostrarAlertMinimoUnSocio.bind(this);
+        this.mostrarAlertMaximoUnApoderado = this.mostrarAlertMaximoUnApoderado.bind(this);
     }
 
     // Método que invoca el componente hijo FormPaises cuando se ejecuta por primera vez
@@ -115,11 +129,17 @@ export default class ApoderadoRegistrarSociedadAnonima extends Component {
     handleChangeEsApoderado(e) {
         let valor = e.target.checked ? "true" : "false";
         let socio = 'socio' + e.currentTarget.getAttribute('data-numdesocio');
-        this.setState({
-            [socio]: { ...this.state[socio], [e.target.name]: valor }
-        }, () => {
-            this.validarSiEstanTodosLosDatosCompletados()
-        })
+
+        if (valor === "true" && this.yaHayUnApoderado()) {
+            this.mostrarAlertMaximoUnApoderado();
+        }
+        else {
+            this.setState({
+                [socio]: { ...this.state[socio], [e.target.name]: valor }
+            }, () => {
+                this.validarSiEstanTodosLosDatosCompletados()
+            })
+        }
     }
 
     // Maneja la subida del archivo del estatuto
@@ -132,6 +152,13 @@ export default class ApoderadoRegistrarSociedadAnonima extends Component {
         else this.setState({
             archivo_estatuto: this.state.archivo_estatuto
         }, () => this.validarSiEstanTodosLosDatosCompletados())
+    }
+
+    // Oculta el alert
+    noMostrarAlert() {
+        this.setState({
+            mostrarAlert: false
+        })
     }
 
 
@@ -306,7 +333,7 @@ export default class ApoderadoRegistrarSociedadAnonima extends Component {
             })
         }
         else {
-            alert('La sociedad tiene que tener un socio como mínimo')
+            this.mostrarAlertMinimoUnSocio()
         }
     }
 
@@ -386,6 +413,7 @@ export default class ApoderadoRegistrarSociedadAnonima extends Component {
                                     control={
                                         <Checkbox
                                             onChange={this.handleChangeEsApoderado}
+                                            checked={this.state[soc].apoderado === "true" ? true : false}
                                             inputProps={{
                                                 'data-numdesocio': (i + 1)
                                             }} />
@@ -424,6 +452,43 @@ export default class ApoderadoRegistrarSociedadAnonima extends Component {
         }
     }
 
+    porcentajesSociosCorrectos() {
+        let suma = 0;
+        for (let i = 0; i < this.state.cantSocios; i++) {
+            let soc = 'socio' + (i + 1);
+            suma = suma + parseInt(this.state[soc].porcentaje);
+        }
+        console.log("Suma: " + suma);
+        return (suma === 100) ? true : false
+    }
+
+    mostrarAlertPorcentajesSociosNoCorrectos() {
+        this.setState({
+            alertTitle: "Los porcentajes de los socios deben sumar 100",
+            alertSeverity: "error",
+            alertVariant: "filled",
+            mostrarAlert: true
+        })
+    }
+
+    mostrarAlertMinimoUnSocio() {
+        this.setState({
+            alertTitle: "La sociedad debe tener como mínimo un socio",
+            alertSeverity: "error",
+            alertVariant: "filled",
+            mostrarAlert: true
+        })
+    }
+
+    mostrarAlertMaximoUnApoderado() {
+        this.setState({
+            alertTitle: "La sociedad debe tener sólo un socio apoderado",
+            alertSeverity: "error",
+            alertVariant: "filled",
+            mostrarAlert: true
+        })
+    }
+
 
     /*
         Métodos de validación de datos ingresados en los forms
@@ -431,9 +496,11 @@ export default class ApoderadoRegistrarSociedadAnonima extends Component {
 
     // Devuelve bool si están o no completos los datos de los socios
     seCompletaronLosSocios() {
+        /*
         if (!this.noHayDosApoderados()) {
             return false;
         };
+        */
         for (let i = 0; i < this.state.cantSocios; i++) {
             let soc = 'socio' + (i + 1);
             if (this.state[soc].apellido === '' || this.state[soc].nombre === '') {
@@ -444,6 +511,18 @@ export default class ApoderadoRegistrarSociedadAnonima extends Component {
     }
     seSubioElEstatuto() {
         return this.state.archivo_estatuto !== null;
+    }
+    yaHayUnApoderado() {
+        let cantApoderados = 0;
+        for (let i = 0; i < this.state.cantSocios; i++) {
+            let soc = 'socio' + (i + 1);
+            if (this.state[soc].apoderado === "true") {
+                cantApoderados++;
+            }
+        }
+        console.log(cantApoderados);
+        if (cantApoderados === 1) return true
+        else return false
     }
     noHayDosApoderados() {
         let cantApoderados = 0;
@@ -488,55 +567,67 @@ export default class ApoderadoRegistrarSociedadAnonima extends Component {
         this.setState({
             activarCircularProgress: true
         })
-        let ruta = 'api/sociedadAnonima';
-        let socios = this.armarJSONSocios();
-        let paises_estados = {};
-        if (!this.state.pais1 || this.state.pais1.name === "") {
-            // O sea no se eligió ninguno, así que asigno a Argentina
-            paises_estados = this.armarJSONArgentina();
-        }
-        else paises_estados = this.armarJSONPaisesYEstados();
-        let formData = new FormData();
-        formData.append('nombre', this.state.nombre);
-        formData.append('fecha_creacion', formatDate(this.state.fecha_creacion.toDateString()));
-        formData.append('domicilio_legal', this.state.domicilio_legal);
-        formData.append('domicilio_real', this.state.domicilio_real);
-        formData.append('email_apoderado', this.state.email_apoderado);
-        formData.append('socios', socios);
-        formData.append('archivo_estatuto', this.state.archivo_estatuto);
-        formData.append('paises_estados', paises_estados);
 
-        console.log(paises_estados);
+        // Chequear si la suma de porcentajes de los socios da 100
+        if (this.porcentajesSociosCorrectos()) {
 
-        fetch(env("BACKEND_URL") + ruta, {
-            method: 'POST',
-            credentials: 'include',
-            headers: {
-                'Authorization': 'Bearer ' + getCookie("access_token")
-            },
-            body: formData
-        })
-            .then(response => response.json())
-            .then(data => {
-                if (data.error) alert("Datos incorrectos")
-                else {
-                    console.log(data);
-                    this.setState({
-                        activarCircularProgress: false
-                    })
+            let ruta = 'api/sociedadAnonima';
+            let socios = this.armarJSONSocios();
+            let paises_estados = {};
+            if (!this.state.pais1 || this.state.pais1.name === "") {
+                // O sea no se eligió ninguno, así que asigno a Argentina
+                paises_estados = this.armarJSONArgentina();
+            }
+            else paises_estados = this.armarJSONPaisesYEstados();
+            let formData = new FormData();
+            formData.append('nombre', this.state.nombre);
+            formData.append('fecha_creacion', formatDate(this.state.fecha_creacion.toDateString()));
+            formData.append('domicilio_legal', this.state.domicilio_legal);
+            formData.append('domicilio_real', this.state.domicilio_real);
+            formData.append('email_apoderado', this.state.email_apoderado);
+            formData.append('socios', socios);
+            formData.append('archivo_estatuto', this.state.archivo_estatuto);
+            formData.append('paises_estados', paises_estados);
 
-                    // Redireccionar al dashboard
-                    this.props.history.push({
-                        pathname: '/apoderado/inicio',
-                        state: {
-                            registroDeSAExitoso: true,
-                            refreshTramites: true,
-                            data: this.props.location.state.data
-                        }
-                    })
-                }
+            console.log(paises_estados);
+
+            fetch(env("BACKEND_URL") + ruta, {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    'Authorization': 'Bearer ' + getCookie("access_token")
+                },
+                body: formData
             })
-            .catch(error => console.error(error));
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) alert("Datos incorrectos")
+                    else {
+                        console.log(data);
+                        this.setState({
+                            activarCircularProgress: false
+                        })
+
+                        // Redireccionar al dashboard
+                        this.props.history.push({
+                            pathname: '/apoderado/inicio',
+                            state: {
+                                registroDeSAExitoso: true,
+                                refreshTramites: true,
+                                data: this.props.location.state.data
+                            }
+                        })
+                    }
+                })
+                .catch(error => console.error(error));
+        }
+        // Los porcentajes de los socios no suman 100
+        else {
+            this.mostrarAlertPorcentajesSociosNoCorrectos();
+            this.setState({
+                activarCircularProgress: false
+            })
+        }
         e.preventDefault();
     }
 
@@ -593,7 +684,7 @@ export default class ApoderadoRegistrarSociedadAnonima extends Component {
                                         required={true}
                                         value={this.state.domicilio_legal}
                                         onChange={this.handleChange}
-                                        helperText="[Texto de ayuda]"
+                                    //helperText="[Texto de ayuda]"
                                     />
                                 </FormControl>
                             </Grid>
@@ -607,7 +698,7 @@ export default class ApoderadoRegistrarSociedadAnonima extends Component {
                                         required={true}
                                         value={this.state.domicilio_real}
                                         onChange={this.handleChange}
-                                        helperText="[Texto de ayuda]"
+                                    //helperText="[Texto de ayuda]"
                                     />
                                 </FormControl>
                             </Grid>
@@ -621,7 +712,7 @@ export default class ApoderadoRegistrarSociedadAnonima extends Component {
                                         required={true}
                                         value={this.state.email_apoderado}
                                         onChange={this.handleChange}
-                                        helperText="[Texto de ayuda]"
+                                    //helperText="[Texto de ayuda]"
                                     />
                                 </FormControl>
                             </Grid>
@@ -695,7 +786,7 @@ export default class ApoderadoRegistrarSociedadAnonima extends Component {
                                             width: "fit-content"
                                         }}
                                     >
-                                    Se asignará por defecto <b>Argentina</b> y todos sus estados.
+                                        Se asignará por defecto <b>Argentina</b> y todos sus estados.
                                     </Alert>
                                 </Grid>
                             }
@@ -785,6 +876,15 @@ export default class ApoderadoRegistrarSociedadAnonima extends Component {
                                 {this.state.activarCircularProgress && <CircularProgress />}
                             </Grid>
                         </Grid>
+
+                        {/* Alert */}
+                        <MyAlert
+                            open={this.state.mostrarAlert}
+                            onClose={this.noMostrarAlert}
+                            title={this.state.alertTitle}
+                            severity={this.state.alertSeverity}
+                            variant={this.state.alertVariant}
+                        />
 
                     </Paper>
                 </Box>

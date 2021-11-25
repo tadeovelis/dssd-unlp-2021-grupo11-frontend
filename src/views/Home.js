@@ -48,9 +48,9 @@ export default function Home(props) {
                     backgroundAttachment: 'fixed',
                     boxShadow: 'inset 0 0 0 1000px rgba(54, 181, 130, 0.95)',
                     alignItems: 'center',
-                    minHeight: '100vh'
+                    minHeight: '90vh'
                 }}>
-                <Grid item xs={7} py={10} pl={8} pr={16}>
+                <Grid item xs={7} py={7} pl={8} pr={16}>
                     <Grid container spacing={2}>
                         <Grid item xs={12}>
                             <Typography
