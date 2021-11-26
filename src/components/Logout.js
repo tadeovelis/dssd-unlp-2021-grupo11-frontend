@@ -4,6 +4,7 @@ import { useTheme } from '@mui/material';
 
 import env from "@beam-australia/react-env";
 import { getCookie } from 'helpers/helpers';
+import { borrarCookies } from 'helpers/helpers';
 
 
 export default function Logout(props) {
@@ -25,14 +26,8 @@ export default function Logout(props) {
             .then(data => {
                 if (data.error) alert("Ocurrió un error")
                 else {
-                    var cookies = document.cookie.split(";");
-
-                    for (var i = 0; i < cookies.length; i++) {
-                        var cookie = cookies[i];
-                        var eqPos = cookie.indexOf("=");
-                        var name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
-                        document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT";
-                    }
+                    
+                    borrarCookies();
 
                     history.push({
                         pathname: '/',

@@ -34,28 +34,28 @@ export function MostrarSociedad(props) {
         let paises = [];
         let pais = '';
         let estados = [];
-        for (let i = 0; i < s.estados.length; i++) {
+        for (let i = 0; i < s.geo.estados.length; i++) {
             if (pais === '') {
-                pais = s.estados[i].pais;
+                pais = s.geo.estados[i].pais;
                 paisObj = {
                     nombre: pais,
-                    continente: s.estados[i].continente
+                    continente: s.geo.estados[i].continente
                 };
             }
-            if (s.estados[i].pais !== pais) {
+            if (s.geo.estados[i].pais !== pais) {
                 paisObj.estados = estados; // le agrego los estados al obj del pais
                 paises.push(paisObj); // Pusheo el pais al array
 
-                pais = s.estados[i].pais; // Seteo el nuevo país
+                pais = s.geo.estados[i].pais; // Seteo el nuevo país
                 estados = []; // Reseteo el array de estados por país
                 // Reseteo el object del país
                 paisObj = {
                     nombre: pais,
-                    continente: s.estados[i].continente
+                    continente: s.geo.estados[i].continente
                 };
             }
-            estados.push(s.estados[i].name); // Le agrego el primer estado
-            if (i === s.estados.length - 1) { // si es el último...
+            estados.push(s.geo.estados[i].name); // Le agrego el primer estado
+            if (i === s.geo.estados.length - 1) { // si es el último...
                 paisObj.estados = estados; // le agrego los estados al obj del pais
                 paises.push(paisObj); // Pusheo el pais al array
             }
@@ -64,7 +64,7 @@ export function MostrarSociedad(props) {
     }
 
     const mostrarEstados = () => {
-        let paises = agruparEstadosPorPais(s.estados);
+        let paises = agruparEstadosPorPais(s.geo.estados);
         return paises.map((p) =>
             <Grid key={p.nombre} container>
                 <Grid item xs={12}>

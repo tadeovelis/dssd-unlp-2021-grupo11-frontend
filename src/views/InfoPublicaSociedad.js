@@ -4,10 +4,11 @@ import React, { useEffect, useState } from 'react';
 import { Document, Page } from 'react-pdf';
 import { useHistory, useLocation } from 'react-router';
 import { pdfjs } from 'react-pdf';
-import { Button, CircularProgress, Divider, Grid, Pagination, Typography } from '@mui/material';
+import { Alert, AlertTitle, Button, CircularProgress, Divider, Grid, Pagination, Typography } from '@mui/material';
 import { Box } from '@mui/system';
 import { userLogueado } from 'helpers/helpers';
 import { getCookie } from 'helpers/helpers';
+import BuscadorPublicoSociedad from 'components/BuscadorPublicoSociedad';
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
 
@@ -16,6 +17,8 @@ export default function InfoPublicaSociedad(props) {
     const [pageNumber, setPageNumber] = useState(1);
     const [pdf, setPdf] = useState(null);
     const [fileName, setFileName] = useState(null);
+
+    const [pdfNoEncontrado, setPdfNoEncontrado] = useState(false);
 
     const location = useLocation();
     const history = useHistory();
@@ -45,17 +48,24 @@ export default function InfoPublicaSociedad(props) {
             }
         })
             .then(response => {
-                setFileName(response.headers.get('Content-Disposition').split('filename=')[1])
-                return response.blob()
+                if (response.ok) {
+                    setFileName(response.headers.get('Content-Disposition').split('filename=')[1])
+                    return response.blob()
+                }
+                else {
+                    setPdfNoEncontrado(true);
+                }
+                response.json()
             })
             .then(data => {
+                if (data) {
+                    //Create a Blob from the PDF Stream
+                    let file = new File([data], fileName, {
+                        type: "application/pdf"
+                    });
 
-                //Create a Blob from the PDF Stream
-                let file = new File([data], fileName, {
-                    type: "application/pdf"
-                });
-
-                setPdf(file);
+                    setPdf(file);
+                }
             })
             .catch(error => console.error(error));
     }, [fileName])
@@ -159,8 +169,40 @@ export default function InfoPublicaSociedad(props) {
                         p: 15
                     }}
                 >
-                    <Box sx={{ m: 1 }}><h5>Se está cargando el PDF...</h5></Box>
-                    <Box sx={{ m: 1 }}><CircularProgress /></Box>
+                    {!pdfNoEncontrado ? (
+                        <>
+                            <Box sx={{ m: 1 }}><h5>Se está cargando el PDF...</h5></Box>
+                            <Box sx={{ m: 1 }}><CircularProgress /></Box>
+                        </>
+                    ) : (
+                        <>
+                            <Box sx={{ m: 1 }}>
+                                <Alert
+                                    severity="error"
+                                    variant="outlined"
+                                >
+                                    <AlertTitle>
+                                        No se encontró el PDF
+                                    </AlertTitle>
+                                    Asegurate de haber copiado bien el número de hash de la Sociedad.
+                                </Alert>
+                            </Box>
+                            <Box sx={{ m: 1 }}>
+                                <Button
+                                    variant="contained"
+                                    color="primary"
+                                    onClick={() => {
+                                        history.push({
+                                            pathname: '/',
+                                        })
+                                    }}
+                                >
+                                    Volver al Home
+                                </Button>
+                            </Box>
+                        </>
+                    )
+                    }
                 </Box>
             )}
         </div>
