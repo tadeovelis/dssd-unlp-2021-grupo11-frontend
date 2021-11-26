@@ -67,6 +67,7 @@ export default class ApoderadoRegistrarSociedadAnonima extends Component {
             cantPaises: 1,
             estados1: [],
             inputEstados1: '',
+            paisSinOpcionesDeEstados1: false,
 
             // Alert
             mostrarAlert: false,
@@ -102,6 +103,8 @@ export default class ApoderadoRegistrarSociedadAnonima extends Component {
         this.mostrarAlertPorcentajesSociosNoCorrectos = this.mostrarAlertPorcentajesSociosNoCorrectos.bind(this);
         this.mostrarAlertMinimoUnSocio = this.mostrarAlertMinimoUnSocio.bind(this);
         this.mostrarAlertMaximoUnApoderado = this.mostrarAlertMaximoUnApoderado.bind(this);
+
+        this.setPaisSinOpcionesDeEstados = this.setPaisSinOpcionesDeEstados.bind(this);
     }
 
     // Método que invoca el componente hijo FormPaises cuando se ejecuta por primera vez
@@ -170,29 +173,30 @@ export default class ApoderadoRegistrarSociedadAnonima extends Component {
 
     // Métodos que le paso como props a FormsPaises
     handleChangePais(e, pais, numPais) {
+        console.log("A");
         let p = 'pais' + numPais;
         this.setState({
             [p]: pais
-        });
+        }, () => this.validarSiEstanTodosLosDatosCompletados());
     }
     handleChangeInputPais(e, inputPais, numPais) {
         let iP = 'inputPais' + numPais;
         this.setState({
             [iP]: inputPais
-        })
+        }, () => this.validarSiEstanTodosLosDatosCompletados() )
     }
 
     handleChangeEstados(e, estados, numPais) {
         let es = 'estados' + numPais;
         this.setState({
             [es]: estados
-        })
+        }, () => this.validarSiEstanTodosLosDatosCompletados())
     }
     handleChangeInputEstados(e, inputEstados, numPais) {
         let iEs = 'inputEstados' + numPais;
         this.setState({
             [iEs]: inputEstados
-        })
+        }, () => this.validarSiEstanTodosLosDatosCompletados())
     }
 
     removerPais(e, numPais) {
@@ -202,6 +206,7 @@ export default class ApoderadoRegistrarSociedadAnonima extends Component {
                 inputPais1: '',
                 estados1: [],
                 inputEstados1: '',
+                paisSinOpcionesDeEstados1: false,
             });
         }
         else {
@@ -213,6 +218,8 @@ export default class ApoderadoRegistrarSociedadAnonima extends Component {
             let inputEstados = '';
             let nextEstados = '';
             let nextInputEstados = '';
+            let paisSinOpcionesDeEstados = false;
+            let nextPaisSinOpcionesDeEstados = false;
             for (let i = numPais; i < this.state.cantPaises; i++) {
                 pais = 'pais' + i;
                 inputPais = 'inputPais' + i;
@@ -222,21 +229,26 @@ export default class ApoderadoRegistrarSociedadAnonima extends Component {
                 inputEstados = 'inputEstados' + i;
                 nextEstados = 'estados' + (i + 1);
                 nextInputEstados = 'inputEstados' + (i + 1);
+                paisSinOpcionesDeEstados = 'paisSinOpcionesDeEstados' + i;
+                nextPaisSinOpcionesDeEstados = 'paisSinOpcionesDeEstados' + (i + 1);
                 let nextPaisState = this.state[nextPais];
                 let nextInputPaisState = this.state[nextInputPais];
                 let nextEstadosState = this.state[nextEstados];
                 let nextInputEstadosState = this.state[nextInputEstados];
+                let paisSinOpcionesDeEstados = this.state[paisSinOpcionesDeEstados];
+                let nextPaisSinOpcionesDeEstados = this.state[nextPaisSinOpcionesDeEstados];
                 this.setState({
                     [pais]: nextPaisState,
                     [inputPais]: nextInputPaisState,
                     [estados]: nextEstadosState,
                     [inputEstados]: nextInputEstadosState,
+                    [paisSinOpcionesDeEstados]: nextPaisSinOpcionesDeEstados
                 });
             };
         }
         this.setState({
             cantPaises: this.state.cantPaises - 1
-        })
+        }, () => this.validarSiEstanTodosLosDatosCompletados())
     }
     // Prepara un nuevo país vacío para que la función que arma los forms prepare otro
     habilitarFormPais() {
@@ -250,7 +262,7 @@ export default class ApoderadoRegistrarSociedadAnonima extends Component {
             [estados]: [],
             [inputEstados]: '',
         }, () => {
-            this.setState({ cantPaises: this.state.cantPaises + 1 })
+            this.setState({ cantPaises: this.state.cantPaises + 1 }, () => this.validarSiEstanTodosLosDatosCompletados())
         });
     }
 
@@ -291,6 +303,15 @@ export default class ApoderadoRegistrarSociedadAnonima extends Component {
         return false
     }
 
+    // Con esto seteo en el estado un paisSinOpcionesDeEstados{numPais}
+    // para que al validar no lo tome como un campo vacío
+    setPaisSinOpcionesDeEstados(numPais, bool) {
+        let pais = 'paisSinOpcionesDeEstados' + (numPais);
+        this.setState({
+            [pais]: bool
+        }, () => this.validarSiEstanTodosLosDatosCompletados())
+    }
+
 
     /*
         Métodos para manejar los forms de los sociso
@@ -310,7 +331,7 @@ export default class ApoderadoRegistrarSociedadAnonima extends Component {
         this.setState({
             [socio]: { apellido: '', nombre: '', porcentaje: "", apoderado: 'false' }
         }, () => {
-            this.setState({ cantSocios: this.state.cantSocios + 1 })
+            this.setState({ cantSocios: this.state.cantSocios + 1 }, () => this.validarSiEstanTodosLosDatosCompletados())
         });
     }
 
@@ -330,7 +351,7 @@ export default class ApoderadoRegistrarSociedadAnonima extends Component {
             };
             this.setState({
                 cantSocios: this.state.cantSocios - 1
-            })
+            }, () => this.validarSiEstanTodosLosDatosCompletados())
         }
         else {
             this.mostrarAlertMinimoUnSocio()
@@ -395,7 +416,7 @@ export default class ApoderadoRegistrarSociedadAnonima extends Component {
                                     type="number"
                                     name="porcentaje"
                                     id={"porcentaje" + (i + 1)}
-                                    placeholder="Entre 0 y 100"
+                                    placeholder="Entre 0.01 y 100"
                                     label="Porcentaje"
                                     required={true}
                                     value={this.state[soc].porcentaje}
@@ -458,7 +479,6 @@ export default class ApoderadoRegistrarSociedadAnonima extends Component {
             let soc = 'socio' + (i + 1);
             suma = suma + parseInt(this.state[soc].porcentaje);
         }
-        console.log("Suma: " + suma);
         return (suma === 100) ? true : false
     }
 
@@ -520,7 +540,6 @@ export default class ApoderadoRegistrarSociedadAnonima extends Component {
                 cantApoderados++;
             }
         }
-        console.log(cantApoderados);
         if (cantApoderados === 1) return true
         else return false
     }
@@ -546,10 +565,23 @@ export default class ApoderadoRegistrarSociedadAnonima extends Component {
         }
         else return true
     }
+    seCompletaronLosPaisesEstados() {
+        for (let i = 0; i < this.state.cantPaises; i++) {
+            let pais = 'pais' + (i + 1);
+            let estados = 'estados' + (i + 1);
+            let paisSinOpcionesDeEstados = 'paisSinOpcionesDeEstados' + (i + 1);
+            if (!this.state[pais] || this.state[pais] === '') return false
+            else if (!this.state[estados].length && !this.state[paisSinOpcionesDeEstados]) {
+                return false
+            }
+        }
+        return true
+    }
     validarSiEstanTodosLosDatosCompletados() {
         if (this.seCompletaronLosSocios() &&
             this.seCompletaronLosDatosGenerales() &&
-            this.seSubioElEstatuto()) {
+            this.seSubioElEstatuto() &&
+            this.seCompletaronLosPaisesEstados()) {
             this.setState({
                 todosLosDatosCompletados: true
             })
@@ -588,8 +620,6 @@ export default class ApoderadoRegistrarSociedadAnonima extends Component {
             formData.append('socios', socios);
             formData.append('archivo_estatuto', this.state.archivo_estatuto);
             formData.append('paises_estados', paises_estados);
-
-            console.log(paises_estados);
 
             fetch(env("BACKEND_URL") + ruta, {
                 method: 'POST',
@@ -668,7 +698,7 @@ export default class ApoderadoRegistrarSociedadAnonima extends Component {
                                             value={this.state.fecha_creacion}
                                             onChange={this.cambiarFecha}
                                             renderInput={params =>
-                                                <TextField {...params} helperText="Ej: 24/09/2015" />
+                                                <TextField {...params} helperText="Ej: 24/09/2015" required />
                                             }
                                         />
                                     </LocalizationProvider>
@@ -776,6 +806,8 @@ export default class ApoderadoRegistrarSociedadAnonima extends Component {
 
                                         handleChangeEstados={this.handleChangeEstados}
                                         handleChangeInputEstados={this.handleChangeInputEstados}
+
+                                        setPaisSinOpcionesDeEstados={this.setPaisSinOpcionesDeEstados}
                                     />
                                 </Grid>
                                 :
