@@ -29,11 +29,18 @@ export function MostrarSociedad(props) {
         )
     }
 
+    const terminarYGuardarPais = (paisObj, estados, paises, paisesConEstados) => {
+        paisObj.estados = estados; // le agrego los estados al obj del pais
+        paises.push(paisObj); // Pusheo el pais al array
+        paisesConEstados.push(paisObj.nombre) // Pusheo el nombre del pais al array de paises con estados
+    }
+
     const agruparEstadosPorPais = () => {
         let paisObj = {};
         let paises = [];
         let pais = '';
         let estados = [];
+        let paisesConEstados = []; // para después chequear si hay países sin estados
         for (let i = 0; i < s.geo.estados.length; i++) {
             if (pais === '') {
                 pais = s.geo.estados[i].pais;
@@ -42,9 +49,10 @@ export function MostrarSociedad(props) {
                     continente: s.geo.estados[i].continente
                 };
             }
+
+            // Si tengo que cambiar de país pero no es el último...
             if (s.geo.estados[i].pais !== pais) {
-                paisObj.estados = estados; // le agrego los estados al obj del pais
-                paises.push(paisObj); // Pusheo el pais al array
+                terminarYGuardarPais(paisObj, estados, paises, paisesConEstados);
 
                 pais = s.geo.estados[i].pais; // Seteo el nuevo país
                 estados = []; // Reseteo el array de estados por país
@@ -55,9 +63,26 @@ export function MostrarSociedad(props) {
                 };
             }
             estados.push(s.geo.estados[i].name); // Le agrego el primer estado
-            if (i === s.geo.estados.length - 1) { // si es el último...
-                paisObj.estados = estados; // le agrego los estados al obj del pais
-                paises.push(paisObj); // Pusheo el pais al array
+
+            // Si es el último estado y, por ende, el último país también...
+            if (i === s.geo.estados.length - 1) {
+                terminarYGuardarPais(paisObj, estados, paises, paisesConEstados);
+            }
+        }
+
+        // Ahora agregamos los países que no tienen estados (si es que hay)
+        if (paises.length !== s.geo.paises.length) {
+            for (let i = 0; i < s.geo.paises.length; i++) {
+                if (!paisesConEstados.includes(s.geo.paises[i].name)) {
+                    // Si existe un país sin estados entonces armo el obj
+                    paisObj =  {
+                        nombre: s.geo.paises[i].name,
+                        continente: s.geo.paises[i].continente,
+                        estados: []
+                    };
+                    // y lo pusheo al array que estamos armando
+                    paises.push(paisObj);
+                }
             }
         }
         return paises
@@ -69,9 +94,8 @@ export function MostrarSociedad(props) {
             <Grid key={p.nombre} container>
                 <Grid item xs={12}>
                     <Typography variant="body1"><strong>{p.nombre}</strong> <i>({p.continente})</i>:{' '}
-                        {p.estados.map((e) => {
-                            return e === p.estados[p.estados.length - 1] ? e : e + ', '
-                        })}
+                        {!p.estados.length && 'No tiene estados registrados, exporta a todo el país'}
+                        {p.estados.map((e) => e === p.estados[p.estados.length - 1] ? e : e + ', ' )}
                     </Typography>
                 </Grid>
             </Grid>
