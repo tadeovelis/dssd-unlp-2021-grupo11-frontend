@@ -9,7 +9,7 @@ const Home = lazy(() => import("views/Home.js"));
 
 const ApoderadoDashboard = lazy(() => import("views/ApoderadoDashboard.js"));
 const ApoderadoRegistrarSociedadAnonima = lazy(() => import("views/ApoderadoRegistrarSociedadAnonima.js"));
-const ApoderadoCorregirSociedadAnonima = lazy(() => import("views/ApoderadoCorregirSociedadAnonima.js"));
+const ApoderadoCorregirSociedadAnonima = lazy(() => import("views/ApoderadoCorregirSociedadAnonimaNuevo.js"));
 
 const MesaDeEntradasDashboard = lazy(() => import("views/MesaDeEntradasDashboard.js"));
 
