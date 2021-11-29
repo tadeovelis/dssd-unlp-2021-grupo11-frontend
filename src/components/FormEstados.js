@@ -24,22 +24,10 @@ export function FormEstados(props) {
         variables: {
             code: props.pais.code
         },
-        /*
-        onCompleted: (data) => {
-            // Seteo los estados por si no elige ninguno para mandar
-            // todos por defecto
-            props.handleChangeEstados(0, data.country.states, props.numPais);
-        }
-        */
     });
 
     const handleChangeEstados = (event, estados, numPais) => {
         props.handleChangeEstados(event, estados, numPais);
-        // Si está vacío envía todos los estados
-        /*
-        if (estados.length) console.log("tiene algo")
-        else console.log("está vacío")
-        */
     }
 
     const [checkboxTodosLosEstados, setCheckboxTodosLosEstados] = useState(false);

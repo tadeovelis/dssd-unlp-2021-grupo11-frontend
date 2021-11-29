@@ -1,20 +1,3 @@
-/*!
-
-=========================================================
-* Material Dashboard React - v1.10.0
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/material-dashboard-react
-* Copyright 2021 Creative Tim (https://www.creative-tim.com)
-* Licensed under MIT (https://github.com/creativetimofficial/material-dashboard-react/blob/master/LICENSE.md)
-
-* Coded by Creative Tim
-
-=========================================================
-
-* The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-*/
 import React from "react";
 import ReactDOM from "react-dom";
 import { BrowserRouter, Route, Switch, Redirect } from "react-router-dom";
@@ -37,6 +20,9 @@ import {
   gql
 } from "@apollo/client";
 
+// React-cookie
+import { CookiesProvider } from "react-cookie";
+
 const client = new ApolloClient({
   uri: 'https://countries.trevorblades.com',
   cache: new InMemoryCache()
@@ -50,8 +36,8 @@ const theme = createTheme({
       main: "#4ebc58",
       contrastText: '#ffffff'
       */
-     main: "#36b582",
-     contrastText: '#ffffff'
+      main: "#36b582",
+      contrastText: '#ffffff'
     },
     secondary: {
       //main: "#6783FF"
@@ -61,7 +47,7 @@ const theme = createTheme({
       main: '#ffffff',
       contrastText: '#4ebc58'
     },
-    
+
   },
   components: {
     MuiTextField: {
@@ -78,7 +64,9 @@ ReactDOM.render(
   <ThemeProvider theme={theme}>
     <BrowserRouter>
       <ApolloProvider client={client}>
-        <App />
+        <CookiesProvider>
+          <App />
+        </CookiesProvider>
       </ApolloProvider>
     </BrowserRouter>
   </ThemeProvider>,

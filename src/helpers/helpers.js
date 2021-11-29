@@ -122,10 +122,6 @@ export function borrarCookies() {
   }
 }
 
-export function userLogueado() {
-  return (getCookie("name")) ? true : false
-}
-
 export function formatDate(date) {
   var d = new Date(date),
     month = '' + (d.getMonth() + 1),

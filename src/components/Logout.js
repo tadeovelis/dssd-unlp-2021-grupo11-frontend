@@ -3,14 +3,26 @@ import { useHistory } from 'react-router';
 import { useTheme } from '@mui/material';
 
 import env from "@beam-australia/react-env";
-import { getCookie } from 'helpers/helpers';
-import { borrarCookies } from 'helpers/helpers';
+
+import { useCookies } from 'react-cookie';
 
 
 export default function Logout(props) {
 
+    // React-cookie
+    const [cookies, setCookie, removeCookie] = useCookies();
+
     const history = useHistory();
     const theme = useTheme();
+
+    const borrarCookies = () => {
+        removeCookie('X-Bonita-API-Token', { path: '/' })
+        removeCookie("JSESSIONID", { path: '/' });
+        removeCookie("access_token", { path: '/' });
+        removeCookie("name", { path: '/' });
+        removeCookie("email", { path: '/' });
+        removeCookie("rol", { path: '/' });
+    }
 
     const handleClick = () => {
         var ruta = 'api/auth/logout';
@@ -19,7 +31,7 @@ export default function Logout(props) {
             method: 'POST',
             credentials: 'include',
             headers: {
-                'Authorization': 'Bearer ' + getCookie("access_token")
+                'Authorization': 'Bearer ' + cookies.access_token
             }
         })
             .then(response => response.json())

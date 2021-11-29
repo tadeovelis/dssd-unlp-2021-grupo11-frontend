@@ -6,10 +6,9 @@ import { useHistory, useLocation } from 'react-router';
 import { pdfjs } from 'react-pdf';
 import { Alert, AlertTitle, Button, CircularProgress, Divider, Grid, Pagination, Typography } from '@mui/material';
 import { Box } from '@mui/system';
-import { userLogueado } from 'helpers/helpers';
-import { getCookie } from 'helpers/helpers';
-import BuscadorPublicoSociedad from 'components/BuscadorPublicoSociedad';
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
+
+import { useCookies } from 'react-cookie';
 
 
 export default function InfoPublicaSociedad(props) {
@@ -22,6 +21,9 @@ export default function InfoPublicaSociedad(props) {
 
     const location = useLocation();
     const history = useHistory();
+
+    // cookies
+    const [cookies] = useCookies();
 
     function onDocumentLoadSuccess({ numPages }) {
         setNumPages(numPages);
@@ -44,7 +46,7 @@ export default function InfoPublicaSociedad(props) {
             method: 'GET',
             credentials: 'include',
             headers: {
-                'Authorization': 'Bearer ' + getCookie("access_token")
+                'Authorization': 'Bearer ' + cookies.access_token
             }
         })
             .then(response => {
@@ -95,7 +97,7 @@ export default function InfoPublicaSociedad(props) {
 
                                 {/* Si no estoy logueado muestro un botón para ir al Home, 
                                 sino uno para ir al panel */}
-                                {!userLogueado() ? (
+                                {!cookies.name ? (
                                     <Button
                                         variant="contained"
                                         color="primary"
@@ -113,7 +115,7 @@ export default function InfoPublicaSociedad(props) {
                                         color="primary"
                                         onClick={() => {
                                             history.push({
-                                                pathname: '/' + getCookie("rol") + '/inicio',
+                                                pathname: '/' + cookies.rol + '/inicio',
                                             })
                                         }}
                                     >

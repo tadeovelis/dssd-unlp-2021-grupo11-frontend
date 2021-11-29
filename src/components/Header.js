@@ -3,7 +3,7 @@ import { React, Component } from 'react';
 import { Box, AppBar, Toolbar, IconButton, Typography, Slide, useScrollTrigger } from '@mui/material';
 import Logout from './Logout';
 import { UserInfo } from './UserInfo';
-import { userLogueado } from 'helpers/helpers';
+import { withCookies } from 'react-cookie';
 
 
 function HideOnScroll(props) {
@@ -22,14 +22,15 @@ function HideOnScroll(props) {
     );
 }
 
-export default class Header extends Component {
+class Header extends Component {
     constructor(props) {
         super(props);
-
-
     }
 
     render() {
+
+        const { cookies } = this.props;
+
         return (
             <Box sx={{ flexGrow: 1 }}>
                 <HideOnScroll {...this.props}>
@@ -39,7 +40,7 @@ export default class Header extends Component {
                             <Box sx={{ flexGrow: 1 }}>
                                 <Typography sx={{ fontWeight: 800 }}>Dirección Nacional de Personas Jurídicas</Typography>
                             </Box>
-                            {userLogueado() && (<>
+                            {cookies.get('name') && (<>
                                 <Box>
                                     <Logout />
                                 </Box>
@@ -55,3 +56,5 @@ export default class Header extends Component {
 
     }
 }
+
+export default withCookies(Header);

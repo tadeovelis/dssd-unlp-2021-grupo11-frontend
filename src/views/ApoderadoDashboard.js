@@ -6,19 +6,21 @@ import '../assets/css/dashboard.css'
 
 import env from "@beam-australia/react-env";
 
-import { getCookie } from '../helpers/helpers';
-
 import { MostrarSociedad } from "components/MostrarSociedad";
 import { MyAlert } from "components/MyAlert";
 import ActualizacionEstatuto from "components/ActualizacionEstatuto";
 import RequisitosRegistrarSociedadAnonima from "components/RequisitosRegistrarSociedadAnonima";
+import { withCookies } from "react-cookie";
 
 
-export default class ApoderadoDashboard extends Component {
+class ApoderadoDashboard extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
+      // access_token desde las cookies|
+      access_token: this.props.cookies.get('access_token'),
+
       mostrarAlertRegistroSAExitoso: false,
       primerInicio: false,
       alertPrimerInicio: false,
@@ -100,8 +102,6 @@ export default class ApoderadoDashboard extends Component {
 
   // Maneja la subida del archivo del estatuto
   handleChangeEstatuto(e, s) {
-    console.log(e);
-    console.log("Handle: " + s.id);
     let estatuto = 'archivo_estatuto' + s.id;
     if (e.target.files[0]) {
       this.setState({
@@ -128,7 +128,7 @@ export default class ApoderadoDashboard extends Component {
         method: 'POST',
         credentials: 'include',
         headers: {
-          'Authorization': 'Bearer ' + getCookie("access_token")
+          'Authorization': 'Bearer ' + this.state.access_token
         },
         body: formData
       })
@@ -192,13 +192,14 @@ export default class ApoderadoDashboard extends Component {
 
   // Obtiene los trámites en curso
   getTramitesEnCurso() {
+
     let ruta = 'api/sociedadesAnonimas';
 
     fetch(env("BACKEND_URL") + ruta, {
       method: 'GET',
       credentials: 'include',
       headers: {
-        'Authorization': 'Bearer ' + getCookie("access_token")
+        'Authorization': 'Bearer ' + this.state.access_token
       }
     })
       .then(response => response.json())
@@ -232,7 +233,7 @@ export default class ApoderadoDashboard extends Component {
   render() {
 
     // Nombre del usuario
-    const user_name = getCookie("name");
+    const user_name = this.props.cookies.get("name");
 
     return (
       <Container>
@@ -250,7 +251,6 @@ export default class ApoderadoDashboard extends Component {
                 }
               </Paper>
             </Grid>
-
 
             {/* Registro de S.A. - Paper */}
             <Grid item xs={4}>
@@ -359,3 +359,5 @@ export default class ApoderadoDashboard extends Component {
     )
   }
 }
+
+export default withCookies(ApoderadoDashboard)

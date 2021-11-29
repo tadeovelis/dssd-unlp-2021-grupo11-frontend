@@ -25,7 +25,8 @@ import {
     gql
 } from "@apollo/client";
 import { FormsPaises } from "../components/FormsPaises.js";
-import { getCookie, formatDate } from "helpers/helpers.js";
+import { formatDate } from "helpers/helpers.js";
+import { withCookies } from "react-cookie";
 
 
 const formatosValidosEstatuto = 'application/pdf,' +
@@ -33,11 +34,13 @@ const formatosValidosEstatuto = 'application/pdf,' +
     'application/vnd.oasis.opendocument.text';
 
 
-export default class ApoderadoRegistrarSociedadAnonima extends Component {
+class ApoderadoRegistrarSociedadAnonima extends Component {
     constructor(props) {
         super(props);
 
         this.state = {
+            // access_token desde las cookies|
+            access_token: this.props.cookies.get('access_token'),
 
             // Generales
             nombre: '',
@@ -635,7 +638,7 @@ export default class ApoderadoRegistrarSociedadAnonima extends Component {
                 method: 'POST',
                 credentials: 'include',
                 headers: {
-                    'Authorization': 'Bearer ' + getCookie("access_token")
+                    'Authorization': 'Bearer ' + this.state.access_token
                 },
                 body: formData
             })
@@ -934,3 +937,5 @@ export default class ApoderadoRegistrarSociedadAnonima extends Component {
         )
     }
 }
+
+export default withCookies(ApoderadoRegistrarSociedadAnonima)

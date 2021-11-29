@@ -12,13 +12,17 @@ import env from "@beam-australia/react-env";
 import { getCookie } from '../helpers/helpers';
 
 import { MostrarSociedad } from "components/MostrarSociedad";
+import { withCookies } from "react-cookie";
 
 
-export default class MesaDeEntradasDashboard extends Component {
+class MesaDeEntradasDashboard extends Component {
     constructor(props) {
         super(props);
 
         this.state = {
+            // access_token desde las cookies|
+            access_token: this.props.cookies.get('access_token'),
+
             solicitudes: null,
             solicitudesCargadas: false,
 
@@ -121,7 +125,7 @@ export default class MesaDeEntradasDashboard extends Component {
             method: 'GET',
             credentials: 'include',
             headers: {
-                'Authorization': 'Bearer ' + getCookie("access_token")
+                'Authorization': 'Bearer ' + this.state.access_token
             }
         })
             .then(response => response.json())
@@ -144,7 +148,7 @@ export default class MesaDeEntradasDashboard extends Component {
             method: 'GET',
             credentials: 'include',
             headers: {
-                'Authorization': 'Bearer ' + getCookie("access_token")
+                'Authorization': 'Bearer ' + this.state.access_token
             }
         })
             .then(response => response.json())
@@ -169,7 +173,7 @@ export default class MesaDeEntradasDashboard extends Component {
                 method: 'GET',
                 credentials: 'include',
                 headers: {
-                    'Authorization': 'Bearer ' + getCookie("access_token")
+                    'Authorization': 'Bearer ' + this.state.access_token
                 }
             })
                 .then(response => response.json())
@@ -203,7 +207,7 @@ export default class MesaDeEntradasDashboard extends Component {
                 method: 'POST',
                 credentials: 'include',
                 headers: {
-                    'Authorization': 'Bearer ' + getCookie("access_token")
+                    'Authorization': 'Bearer ' + this.state.access_token
                 }
             })
                 .then(response => response.json())
@@ -231,7 +235,7 @@ export default class MesaDeEntradasDashboard extends Component {
                 method: 'POST',
                 credentials: 'include',
                 headers: {
-                    'Authorization': 'Bearer ' + getCookie("access_token")
+                    'Authorization': 'Bearer ' + this.state.access_token
                 }
             })
                 .then(response => response.json())
@@ -254,7 +258,7 @@ export default class MesaDeEntradasDashboard extends Component {
             method: 'POST',
             credentials: 'include',
             headers: {
-                'Authorization': 'Bearer ' + getCookie("access_token")
+                'Authorization': 'Bearer ' + this.state.access_token
             },
             body: formData
         })
@@ -275,7 +279,7 @@ export default class MesaDeEntradasDashboard extends Component {
             method: 'POST',
             credentials: 'include',
             headers: {
-                'Authorization': 'Bearer ' + getCookie("access_token")
+                'Authorization': 'Bearer ' + this.state.access_token
             }
         })
             .then(response => response.json())
@@ -302,7 +306,7 @@ export default class MesaDeEntradasDashboard extends Component {
                 texto = 'Creaste la carpeta correctamente'
                 break;
         }
-        
+
         this.setState({
             textoAlertAprobacionORechazoExitoso: texto
         }, () => {
@@ -420,10 +424,10 @@ export default class MesaDeEntradasDashboard extends Component {
 
     mostrarInfoSociedad(s) {
         return (
-           <MostrarSociedad
+            <MostrarSociedad
                 sociedad={s}
                 rol={env("ROL_MESA_ENTRADAS")}
-           />
+            />
         )
     }
 
@@ -451,8 +455,7 @@ export default class MesaDeEntradasDashboard extends Component {
     render() {
 
         // Acá me traigo el response del login
-        const user = this.props.location.state.data.user;
-        const auth = this.props.location.state.data.auth;
+        const user = this.props.cookies.get("name");
 
         return (
             <Container>
@@ -606,3 +609,5 @@ export default class MesaDeEntradasDashboard extends Component {
         )
     }
 }
+
+export default withCookies(MesaDeEntradasDashboard)

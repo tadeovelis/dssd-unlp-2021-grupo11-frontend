@@ -2,11 +2,11 @@ import { Avatar, IconButton, Tooltip, Grid, Menu, MenuItem, Divider, Typography 
 import { useState } from "react";
 
 import PersonIcon from "@mui/icons-material/Person";
-import Logout from '@mui/icons-material/Logout';
-import { getCookie } from "helpers/helpers";
-import { Box } from "@mui/system";
 
 import '../assets/css/user-info.css';
+
+import { useCookies } from 'react-cookie';
+
 
 export function UserInfo(props) {
 
@@ -19,6 +19,8 @@ export function UserInfo(props) {
     const handleClose = () => {
         setMenu(null);
     };
+
+    const [ cookies, setCookie ] = useCookies();
 
     return (
         <>
@@ -64,10 +66,10 @@ export function UserInfo(props) {
                 anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
             >
                 <Grid container direction="column" spacing={1} sx={{px: 3, py: 2}}>
-                    <Grid item xs={5}><span className="nombre">{getCookie("name")}</span></Grid>
+                    <Grid item xs={5}><span className="nombre">{cookies.name}</span></Grid>
                     <Grid item xs={5}><Divider /></Grid>
-                    <Grid item xs={5}><span className="email">Email: {getCookie("email")}</span><br /></Grid>
-                    <Grid item xs={5}><span className="email">Rol: {getCookie("rol")}</span></Grid>
+                    <Grid item xs={5}><span className="email">Email: {cookies.email}</span><br /></Grid>
+                    <Grid item xs={5}><span className="email">Rol: {cookies.rol}</span></Grid>
                 </Grid>
             </Menu>
         </>

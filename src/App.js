@@ -6,8 +6,9 @@ import AppRoutes from './AppRoutes';
 import './assets/css/dashboard.css';
 
 class App extends Component {
+
     constructor(props) {
-        super(props)
+        super(props);
     }
 
     componentDidMount() {
