@@ -12,10 +12,10 @@ import '../assets/css/dashboard.css'
 import env from "@beam-australia/react-env";
 
 import { MostrarSociedad } from "components/MostrarSociedad";
+import { withCookies } from "react-cookie";
 
 
-
-export default class EscribanoDashboard extends Component {
+class EscribanoDashboard extends Component {
     constructor(props) {
         super(props);
 
@@ -403,7 +403,7 @@ export default class EscribanoDashboard extends Component {
                     <Grid container spacing={2}>
                         <Grid item xs={12}>
                             <Paper className="dashboard-paper">
-                                <Typography variant="h6">¡Hola {user.name}!</Typography>
+                                <Typography variant="h6">¡Hola {user}!</Typography>
                             </Paper>
                         </Grid>
                         <Grid item xs={12}>
@@ -516,3 +516,5 @@ export default class EscribanoDashboard extends Component {
         )
     }
 }
+
+export default withCookies(EscribanoDashboard)

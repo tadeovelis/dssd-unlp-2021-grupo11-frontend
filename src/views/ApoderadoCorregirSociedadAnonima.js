@@ -122,7 +122,6 @@ class ApoderadoCorregirSociedadAnonima extends Component {
             domicilio_legal: s.domicilio_legal,
             domicilio_real: s.domicilio_real,
             email_apoderado: s.email_apoderado,
-            cantSocios: s.socios.length
         }, () => {
             // Actualizar el estado y forms de socios
             this.actualizarSocios(s);
@@ -145,7 +144,7 @@ class ApoderadoCorregirSociedadAnonima extends Component {
             }, () => {
                 if (i === s.socios.length - 1) {
                     // Habilitar el armado de los forms de los socios
-                    this.setState({ sociosCargados: true }, () => {
+                    this.setState({ cantSocios: s.socios.length, sociosCargados: true }, () => {
                         // Actualizar botón final
                         this.validarSiEstanTodosLosDatosCompletados();
                     })

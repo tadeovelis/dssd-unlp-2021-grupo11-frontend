@@ -20,10 +20,6 @@ import { MyAlert } from "../components/MyAlert";
 
 
 // Apollo client - GraphQL
-import {
-    useQuery,
-    gql
-} from "@apollo/client";
 import { FormsPaises } from "../components/FormsPaises.js";
 import { formatDate } from "helpers/helpers.js";
 import { withCookies } from "react-cookie";
@@ -176,7 +172,7 @@ class ApoderadoRegistrarSociedadAnonima extends Component {
 
     // Métodos que le paso como props a FormsPaises
     handleChangePais(e, pais, numPais) {
-        this.resetEstados();
+        this.resetEstados(numPais);
         let p = 'pais' + numPais;
         this.setState({
             [p]: pais
@@ -201,15 +197,14 @@ class ApoderadoRegistrarSociedadAnonima extends Component {
             [iEs]: inputEstados
         }, () => this.validarSiEstanTodosLosDatosCompletados())
     }
-    resetEstados() {
-        for (let i = 0; i < this.state.cantPaises; i++) {
-            let estados = 'estados' + (i + 1);
-            let inputEstados = 'inputEstados' + (i + 1);
-            this.setState({
-                [estados]: [],
-                [inputEstados]: ''
-            })
-        }
+    // Reset forms de estados cuando se cambia el país
+    resetEstados(numPais) {
+        let estados = 'estados' + numPais;
+        let inputEstados = 'inputEstados' + numPais;
+        this.setState({
+            [estados]: [],
+            [inputEstados]: ''
+        })
     }
 
     removerPais(e, numPais) {
