@@ -104,6 +104,8 @@ class ApoderadoRegistrarSociedadAnonima extends Component {
         this.mostrarAlertMaximoUnApoderado = this.mostrarAlertMaximoUnApoderado.bind(this);
 
         this.setPaisSinOpcionesDeEstados = this.setPaisSinOpcionesDeEstados.bind(this);
+
+        this.hayApoderado = this.hayApoderado.bind(this);
     }
 
     // Método que invoca el componente hijo FormPaises cuando se ejecuta por primera vez
@@ -522,20 +524,26 @@ class ApoderadoRegistrarSociedadAnonima extends Component {
         Métodos de validación de datos ingresados en los forms
     */
 
-    // Devuelve bool si están o no completos los datos de los socios
-    seCompletaronLosSocios() {
-        /*
-        if (!this.noHayDosApoderados()) {
-            return false;
-        };
-        */
+    // Devuelve true si se tildó el apoderado
+    hayApoderado() {
         for (let i = 0; i < this.state.cantSocios; i++) {
             let soc = 'socio' + (i + 1);
+            if (this.state[soc].apoderado === "true") return true;
+        }
+        return false
+    }
+    // Devuelve bool si están o no completos los datos de los socios
+    seCompletaronLosSocios() {
+        let hayApoderado = false;
+        for (let i = 0; i < this.state.cantSocios; i++) {
+            let soc = 'socio' + (i + 1);
+            if (this.state[soc].apoderado === "true") hayApoderado = true;
             if (this.state[soc].apellido === '' || this.state[soc].nombre === '') {
                 return false
             }
         }
-        return true
+        if (hayApoderado) return true
+        else return false
     }
     seSubioElEstatuto() {
         return this.state.archivo_estatuto !== null;
@@ -767,6 +775,16 @@ class ApoderadoRegistrarSociedadAnonima extends Component {
                             <Grid container spacing={2}>
                                 <Grid item xs={12}>
                                     <p>Agregá los socios. Si querés eliminar alguno hacé click en 'Remover'.</p>
+                                </Grid>
+                                <Grid item xs={12}>
+                                    {!this.hayApoderado() &&
+                                        <Alert
+                                            severity="warning"
+                                            sx={{ maxWidth: 'fit-content' }}
+                                        >
+                                            Recordá que tiene que haber un socio seleccionado como apoderado
+                                        </Alert>
+                                    }
                                 </Grid>
 
                                 {/* Forms de los socios */}
