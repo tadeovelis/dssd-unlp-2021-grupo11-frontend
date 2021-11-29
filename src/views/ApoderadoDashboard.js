@@ -1,35 +1,26 @@
 import { React, Component } from "react";
 
-import { Container, Grid, Paper, Chip, Divider, Typography, CircularProgress, Box, Button, Snackbar, Alert, AlertTitle, TextField, ListItemIcon, ListItemText, List, ListItem } from '@mui/material';
-import DescriptionIcon from '@mui/icons-material/Description';
-import GroupIcon from '@mui/icons-material/Group';
-import ApartmentIcon from '@mui/icons-material/Apartment';
-import EventIcon from '@mui/icons-material/Event';
-import RoomIcon from '@mui/icons-material/Room';
-import EmailIcon from '@mui/icons-material/Email';
-import PublicIcon from '@mui/icons-material/Public';
-import DomainIcon from '@mui/icons-material/Domain';
+import { Container, Grid, Paper, Typography, CircularProgress, Box, Button } from '@mui/material';
 
 import '../assets/css/dashboard.css'
 
 import env from "@beam-australia/react-env";
 
-import { getCookie } from '../helpers/helpers';
-
 import { MostrarSociedad } from "components/MostrarSociedad";
 import { MyAlert } from "components/MyAlert";
+import ActualizacionEstatuto from "components/ActualizacionEstatuto";
+import RequisitosRegistrarSociedadAnonima from "components/RequisitosRegistrarSociedadAnonima";
+import { withCookies } from "react-cookie";
 
 
-const formatosValidosEstatuto = 'application/pdf,' +
-  'application/vnd.openxmlformats-officedocument.wordprocessingml.document,' +
-  'application/vnd.oasis.opendocument.text';
-
-
-export default class ApoderadoDashboard extends Component {
+class ApoderadoDashboard extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
+      // access_token desde las cookies|
+      access_token: this.props.cookies.get('access_token'),
+
       mostrarAlertRegistroSAExitoso: false,
       primerInicio: false,
       alertPrimerInicio: false,
@@ -47,10 +38,11 @@ export default class ApoderadoDashboard extends Component {
     this.noMostrarAlertCorreccionSAExitosa = this.noMostrarAlertCorreccionSAExitosa.bind(this);
     this.noMostrarAlertActualizacionEstatutoExitosa = this.noMostrarAlertActualizacionEstatutoExitosa.bind(this);
     this.noMostrarAlertPrimerInicio = this.noMostrarAlertPrimerInicio.bind(this);
-    this.agruparEstadosPorPais = this.agruparEstadosPorPais.bind(this);
     this.redirectACorregirSolicitud = this.redirectACorregirSolicitud.bind(this);
     this.renderizarCorregirSolicitud = this.renderizarCorregirSolicitud.bind(this);
     this.renderizarSubidaEstatuto = this.renderizarSubidaEstatuto.bind(this);
+    this.handleChangeEstatuto = this.handleChangeEstatuto.bind(this);
+    this.actualizarEstatuto = this.actualizarEstatuto.bind(this);
 
   }
 
@@ -107,9 +99,9 @@ export default class ApoderadoDashboard extends Component {
     })
   }
 
+
   // Maneja la subida del archivo del estatuto
-  handleChangeEstatuto(s, e) {
-    console.log("Handle: " + s.id);
+  handleChangeEstatuto(e, s) {
     let estatuto = 'archivo_estatuto' + s.id;
     if (e.target.files[0]) {
       this.setState({
@@ -121,58 +113,54 @@ export default class ApoderadoDashboard extends Component {
     })
   }
 
+  actualizarEstatuto(e, sociedad) {
+    let ruta = 'api/sociedadAnonima/' + sociedad.id + '/estatuto';
+    let estatuto = 'archivo_estatuto' + sociedad.id;
+    let cargandoSubidaEstatuto = 'cargandoSubidaEstatuto' + sociedad.id;
+
+    this.setState({
+      [cargandoSubidaEstatuto]: true
+    }, () => {
+      let formData = new FormData();
+      formData.append('archivo_estatuto', this.state[estatuto]);
+
+      fetch(env("BACKEND_URL") + ruta, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Authorization': 'Bearer ' + this.state.access_token
+        },
+        body: formData
+      })
+        .then(response => response.json())
+        .then(data => {
+          console.log(data);
+          this.setState({
+            [estatuto]: null,
+            mostrarAlertActualizacionEstatutoExitosa: true,
+            [cargandoSubidaEstatuto]: false
+          }, () => this.getTramitesEnCurso())
+        })
+        .catch(error => console.error(error));
+    })
+  }
+
   // Renderiza todo el manejo del estatuto
   renderizarSubidaEstatuto(s) {
     let estatuto = 'archivo_estatuto' + s.id;
     let cargandoSubidaEstatuto = 'cargandoSubidaEstatuto' + s.id;
     return (
-      <Grid item xs={12}>
-        <Grid container spacing={1}>
-          <Grid item xs={5}>
-            <label htmlFor={"botonSubirEstatuto" + s.id}>
-              <TextField
-                id={'botonSubirEstatuto' + s.id}
-                type="file"
-                inputProps={{ accept: formatosValidosEstatuto }}
-                style={{ display: 'none' }}
-                onChange={this.handleChangeEstatuto.bind(this, s)}
-                required
-              />
-              <Button
-                variant="outlined"
-                component="span"
-                color="warning"
-                startIcon={<DescriptionIcon />}
-              >
-                Actualizar estatuto
-              </Button>
-            </label>
-          </Grid>
-          <Grid item xs={7}>
-            {this.state[estatuto] &&
-              <span>Nombre: {this.state[estatuto].name}</span>
-            }
-          </Grid>
-          <Grid item xs={12} sx={{ mb: 2, fontSize: 15 }}>
-            <span>Recordá que los formatos válidos son: PDF, docx, ODT.</span>
-          </Grid>
-          {this.state[estatuto] &&
-            <Grid item xs={12} sx={{ mb: 2, fontSize: 15 }}>
-              <Button
-                variant="contained"
-                color="warning"
-                onClick={this.actualizarEstatuto.bind(this, s)}
-              >
-                Enviar estatuto actualizado
-              </Button>
-              {this.state[cargandoSubidaEstatuto] && <CircularProgress />}
-            </Grid>
-          }
-        </Grid>
-      </Grid>
+      <ActualizacionEstatuto
+        s={s}
+        handleChangeEstatuto={this.handleChangeEstatuto}
+        actualizarEstatuto={this.actualizarEstatuto}
+        estatuto={this.state[estatuto]}
+        cargandoSubidaEstatuto={this.state[cargandoSubidaEstatuto]}
+      />
     )
   }
 
+  // Redirect a corregir solicitud por rechazo de mesa de entradas
   renderizarCorregirSolicitud(s) {
     return (
       <Grid item xs={12}>
@@ -191,46 +179,27 @@ export default class ApoderadoDashboard extends Component {
     )
   }
 
-  actualizarEstatuto(sociedad) {
-    let ruta = 'api/sociedadAnonima/' + sociedad.id + '/estatuto';
-    let estatuto = 'archivo_estatuto' + sociedad.id;
-    let cargandoSubidaEstatuto = 'cargandoSubidaEstatuto' + sociedad.id;
-
-    this.setState({
-      [cargandoSubidaEstatuto]: true
-    }, () => {
-      let formData = new FormData();
-      formData.append('archivo_estatuto', this.state[estatuto]);
-
-      fetch(env("BACKEND_URL") + ruta, {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Authorization': 'Bearer ' + getCookie("access_token")
-        },
-        body: formData
-      })
-        .then(response => response.json())
-        .then(data => {
-          console.log(data);
-          this.setState({
-            [estatuto]: null,
-            mostrarAlertActualizacionEstatutoExitosa: true,
-            [cargandoSubidaEstatuto]: false
-          }, () => this.getTramitesEnCurso())
-        })
-        .catch(error => console.error(error));
+  redirectACorregirSolicitud(sociedad) {
+    this.props.history.push({
+      pathname: '/apoderado/corregir-sociedad-anonima',
+      state: {
+        data: this.props.location.state.data,
+        sociedad: sociedad,
+      }
     })
   }
 
+
+  // Obtiene los trámites en curso
   getTramitesEnCurso() {
+
     let ruta = 'api/sociedadesAnonimas';
 
     fetch(env("BACKEND_URL") + ruta, {
       method: 'GET',
       credentials: 'include',
       headers: {
-        'Authorization': 'Bearer ' + getCookie("access_token")
+        'Authorization': 'Bearer ' + this.state.access_token
       }
     })
       .then(response => response.json())
@@ -244,77 +213,8 @@ export default class ApoderadoDashboard extends Component {
       .catch(error => console.error(error));
   }
 
-  redirectACorregirSolicitud(sociedad) {
-    this.props.history.push({
-      pathname: '/apoderado/corregir-sociedad-anonima',
-      state: {
-        data: this.props.location.state.data,
-        sociedad: sociedad,
-      }
-    })
-  }
 
-  mostrarSocios(sociedad) {
-    return sociedad.socios.map((s) =>
-      <Grid key={s.id} item xs={12}>
-        <Typography
-          variant="body1"
-        >
-          <b>{s.nombre} {s.apellido}</b>, con un {s.porcentaje}% {s.id == sociedad.apoderado_id ? <Chip label="Apoderado" color="primary" variant="outlined" /> : '.'}
-        </Typography>
-      </Grid>
-    )
-  }
-
-  agruparEstadosPorPais(estadosData) {
-    let paisObj = {};
-    let paises = [];
-    let pais = '';
-    let estados = [];
-    for (let i = 0; i < estadosData.length; i++) {
-      if (pais === '') {
-        pais = estadosData[i].pais;
-        paisObj = {
-          nombre: pais,
-          continente: estadosData[i].continente
-        };
-      }
-      if (estadosData[i].pais !== pais) {
-        paisObj.estados = estados; // le agrego los estados al obj del pais
-        paises.push(paisObj); // Pusheo el pais al array
-
-        pais = estadosData[i].pais; // Seteo el nuevo país
-        estados = []; // Reseteo el array de estados por país
-        // Reseteo el object del país
-        paisObj = {
-          nombre: pais,
-          continente: estadosData[i].continente
-        };
-      }
-      estados.push(estadosData[i].name); // Le agrego el primer estado
-      if (i === estadosData.length - 1) { // si es el último...
-        paisObj.estados = estados; // le agrego los estados al obj del pais
-        paises.push(paisObj); // Pusheo el pais al array
-      }
-    }
-    return paises
-  }
-
-  mostrarEstados(sociedad) {
-    let paises = this.agruparEstadosPorPais(sociedad.estados);
-    return paises.map((p) =>
-      <Grid key={p.nombre} container>
-        <Grid item xs={12}>
-          <Typography variant="body1"><strong>{p.nombre}</strong> <i>({p.continente})</i>:{' '}
-            {p.estados.map((e) => {
-              return e === p.estados[p.estados.length - 1] ? e : e + ', '
-            })}
-          </Typography>
-        </Grid>
-      </Grid>
-    )
-  }
-
+  // Muestra las sociedades con el componente MostrarSociedad
   mostrarSociedades() {
     if (this.state.sociedadesCargadas) {
       return this.state.sociedades.map((s) =>
@@ -329,12 +229,11 @@ export default class ApoderadoDashboard extends Component {
   }
 
 
+  // RENDER
   render() {
 
-    // Acá me traigo el response del login
-    //const user = this.props.location.state.data.user;
-    const user_name = getCookie("name");
-    //const auth = this.props.location.state.data.auth;
+    // Nombre del usuario
+    const user_name = this.props.cookies.get("name");
 
     return (
       <Container>
@@ -352,7 +251,6 @@ export default class ApoderadoDashboard extends Component {
                 }
               </Paper>
             </Grid>
-
 
             {/* Registro de S.A. - Paper */}
             <Grid item xs={4}>
@@ -379,73 +277,7 @@ export default class ApoderadoDashboard extends Component {
                     </Button>
                   </Grid>
                   <Grid item xs={12}>
-                    <Typography>Recordá que necesitás tener la siguiente información:</Typography>
-                    <List dense={true}>
-                      <ListItem sx={{ px: 0 }}>
-                        <ListItemIcon sx={{ minWidth: '15%' }}>
-                          <ApartmentIcon />
-                        </ListItemIcon>
-                        <ListItemText
-                          primary="Nombre de la S.A."
-                        />
-                      </ListItem>
-                      <ListItem sx={{ px: 0 }}>
-                        <ListItemIcon sx={{ minWidth: '15%' }}>
-                          <EventIcon />
-                        </ListItemIcon>
-                        <ListItemText
-                          primary="Fecha de creación"
-                        />
-                      </ListItem>
-                      <ListItem sx={{ px: 0 }}>
-                        <ListItemIcon sx={{ minWidth: '15%' }}>
-                          <RoomIcon />
-                        </ListItemIcon>
-                        <ListItemText
-                          primary="Domicilio legal"
-                        />
-                      </ListItem>
-                      <ListItem sx={{ px: 0 }}>
-                        <ListItemIcon sx={{ minWidth: '15%' }}>
-                          <RoomIcon />
-                        </ListItemIcon>
-                        <ListItemText
-                          primary="Domicilio real"
-                        />
-                      </ListItem>
-                      <ListItem sx={{ px: 0 }}>
-                        <ListItemIcon sx={{ minWidth: '15%' }}>
-                          <EmailIcon />
-                        </ListItemIcon>
-                        <ListItemText
-                          primary="Email del apoderado"
-                        />
-                      </ListItem>
-                      <ListItem sx={{ px: 0 }}>
-                        <ListItemIcon sx={{ minWidth: '15%' }}>
-                          <GroupIcon />
-                        </ListItemIcon>
-                        <ListItemText
-                          primary="Información de los socios"
-                        />
-                      </ListItem>
-                      <ListItem sx={{ px: 0 }}>
-                        <ListItemIcon sx={{ minWidth: '15%' }}>
-                          <PublicIcon />
-                        </ListItemIcon>
-                        <ListItemText
-                          primary="Países y estados a los que exporta"
-                        />
-                      </ListItem>
-                      <ListItem sx={{ px: 0 }}>
-                        <ListItemIcon sx={{ minWidth: '15%' }}>
-                          <DescriptionIcon />
-                        </ListItemIcon>
-                        <ListItemText
-                          primary="Estatuto en formato docx, PDF u ODT"
-                        />
-                      </ListItem>
-                    </List>
+                    <RequisitosRegistrarSociedadAnonima />
                   </Grid>
                 </Grid>
               </Paper>
@@ -527,3 +359,5 @@ export default class ApoderadoDashboard extends Component {
     )
   }
 }
+
+export default withCookies(ApoderadoDashboard)

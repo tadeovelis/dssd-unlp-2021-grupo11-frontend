@@ -3,13 +3,26 @@ import { useHistory } from 'react-router';
 import { useTheme } from '@mui/material';
 
 import env from "@beam-australia/react-env";
-import { getCookie } from 'helpers/helpers';
+
+import { useCookies } from 'react-cookie';
 
 
 export default function Logout(props) {
 
+    // React-cookie
+    const [cookies, setCookie, removeCookie] = useCookies();
+
     const history = useHistory();
     const theme = useTheme();
+
+    const borrarCookies = () => {
+        removeCookie('X-Bonita-API-Token', { path: '/' })
+        removeCookie("JSESSIONID", { path: '/' });
+        removeCookie("access_token", { path: '/' });
+        removeCookie("name", { path: '/' });
+        removeCookie("email", { path: '/' });
+        removeCookie("rol", { path: '/' });
+    }
 
     const handleClick = () => {
         var ruta = 'api/auth/logout';
@@ -18,21 +31,15 @@ export default function Logout(props) {
             method: 'POST',
             credentials: 'include',
             headers: {
-                'Authorization': 'Bearer ' + getCookie("access_token")
+                'Authorization': 'Bearer ' + cookies.access_token
             }
         })
             .then(response => response.json())
             .then(data => {
                 if (data.error) alert("Ocurrió un error")
                 else {
-                    var cookies = document.cookie.split(";");
-
-                    for (var i = 0; i < cookies.length; i++) {
-                        var cookie = cookies[i];
-                        var eqPos = cookie.indexOf("=");
-                        var name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
-                        document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT";
-                    }
+                    
+                    borrarCookies();
 
                     history.push({
                         pathname: '/',

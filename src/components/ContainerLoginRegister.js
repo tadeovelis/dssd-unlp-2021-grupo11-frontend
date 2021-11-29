@@ -18,7 +18,7 @@ export function ContainerLoginRegister(props) {
                 flexDirection: 'column',
                 background: '#f1f6f7',
                 px: 8,
-                py: 10,
+                py: 8,
                 boxShadow: 3,
                 mr: 6
             }}

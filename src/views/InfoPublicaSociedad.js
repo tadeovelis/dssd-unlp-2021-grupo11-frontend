@@ -4,11 +4,11 @@ import React, { useEffect, useState } from 'react';
 import { Document, Page } from 'react-pdf';
 import { useHistory, useLocation } from 'react-router';
 import { pdfjs } from 'react-pdf';
-import { Button, CircularProgress, Divider, Grid, Pagination, Typography } from '@mui/material';
+import { Alert, AlertTitle, Button, CircularProgress, Divider, Grid, Pagination, Typography } from '@mui/material';
 import { Box } from '@mui/system';
-import { userLogueado } from 'helpers/helpers';
-import { getCookie } from 'helpers/helpers';
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
+
+import { useCookies } from 'react-cookie';
 
 
 export default function InfoPublicaSociedad(props) {
@@ -17,8 +17,13 @@ export default function InfoPublicaSociedad(props) {
     const [pdf, setPdf] = useState(null);
     const [fileName, setFileName] = useState(null);
 
+    const [pdfNoEncontrado, setPdfNoEncontrado] = useState(false);
+
     const location = useLocation();
     const history = useHistory();
+
+    // cookies
+    const [cookies] = useCookies();
 
     function onDocumentLoadSuccess({ numPages }) {
         setNumPages(numPages);
@@ -41,21 +46,28 @@ export default function InfoPublicaSociedad(props) {
             method: 'GET',
             credentials: 'include',
             headers: {
-                'Authorization': 'Bearer ' + getCookie("access_token")
+                'Authorization': 'Bearer ' + cookies.access_token
             }
         })
             .then(response => {
-                setFileName(response.headers.get('Content-Disposition').split('filename=')[1])
-                return response.blob()
+                if (response.ok) {
+                    setFileName(response.headers.get('Content-Disposition').split('filename=')[1])
+                    return response.blob()
+                }
+                else {
+                    setPdfNoEncontrado(true);
+                }
+                response.json()
             })
             .then(data => {
+                if (data) {
+                    //Create a Blob from the PDF Stream
+                    let file = new File([data], fileName, {
+                        type: "application/pdf"
+                    });
 
-                //Create a Blob from the PDF Stream
-                let file = new File([data], fileName, {
-                    type: "application/pdf"
-                });
-
-                setPdf(file);
+                    setPdf(file);
+                }
             })
             .catch(error => console.error(error));
     }, [fileName])
@@ -85,7 +97,7 @@ export default function InfoPublicaSociedad(props) {
 
                                 {/* Si no estoy logueado muestro un botón para ir al Home, 
                                 sino uno para ir al panel */}
-                                {!userLogueado() ? (
+                                {!cookies.name ? (
                                     <Button
                                         variant="contained"
                                         color="primary"
@@ -103,7 +115,7 @@ export default function InfoPublicaSociedad(props) {
                                         color="primary"
                                         onClick={() => {
                                             history.push({
-                                                pathname: '/' + getCookie("rol") + '/inicio',
+                                                pathname: '/' + cookies.rol + '/inicio',
                                             })
                                         }}
                                     >
@@ -159,8 +171,40 @@ export default function InfoPublicaSociedad(props) {
                         p: 15
                     }}
                 >
-                    <Box sx={{ m: 1 }}><h5>Se está cargando el PDF...</h5></Box>
-                    <Box sx={{ m: 1 }}><CircularProgress /></Box>
+                    {!pdfNoEncontrado ? (
+                        <>
+                            <Box sx={{ m: 1 }}><h5>Se está cargando el PDF...</h5></Box>
+                            <Box sx={{ m: 1 }}><CircularProgress /></Box>
+                        </>
+                    ) : (
+                        <>
+                            <Box sx={{ m: 1 }}>
+                                <Alert
+                                    severity="error"
+                                    variant="outlined"
+                                >
+                                    <AlertTitle>
+                                        No se encontró el PDF
+                                    </AlertTitle>
+                                    Asegurate de haber copiado bien el número de hash de la Sociedad.
+                                </Alert>
+                            </Box>
+                            <Box sx={{ m: 1 }}>
+                                <Button
+                                    variant="contained"
+                                    color="primary"
+                                    onClick={() => {
+                                        history.push({
+                                            pathname: '/',
+                                        })
+                                    }}
+                                >
+                                    Volver al Home
+                                </Button>
+                            </Box>
+                        </>
+                    )
+                    }
                 </Box>
             )}
         </div>

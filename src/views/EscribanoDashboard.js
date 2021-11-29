@@ -11,17 +11,18 @@ import '../assets/css/dashboard.css'
 
 import env from "@beam-australia/react-env";
 
-import { getCookie } from '../helpers/helpers';
-
 import { MostrarSociedad } from "components/MostrarSociedad";
+import { withCookies } from "react-cookie";
 
 
-
-export default class EscribanoDashboard extends Component {
+class EscribanoDashboard extends Component {
     constructor(props) {
         super(props);
 
         this.state = {
+            // access_token desde las cookies|
+            access_token: this.props.cookies.get('access_token'),
+
             solicitudes: null,
             solicitudesCargadas: false,
 
@@ -104,7 +105,7 @@ export default class EscribanoDashboard extends Component {
             method: 'GET',
             credentials: 'include',
             headers: {
-                'Authorization': 'Bearer ' + this.props.location.state.data.auth.access_token
+                'Authorization': 'Bearer ' + this.state.access_token
             }
         })
             .then(response => response.json())
@@ -127,7 +128,7 @@ export default class EscribanoDashboard extends Component {
             method: 'GET',
             credentials: 'include',
             headers: {
-                'Authorization': 'Bearer ' + getCookie("access_token")
+                'Authorization': 'Bearer ' + this.state.access_token
             }
         })
             .then(response => response.json())
@@ -153,7 +154,7 @@ export default class EscribanoDashboard extends Component {
                 method: 'GET',
                 credentials: 'include',
                 headers: {
-                    'Authorization': 'Bearer ' + getCookie("access_token")
+                    'Authorization': 'Bearer ' + this.state.access_token
                 }
             })
                 .then(response => response.json())
@@ -187,7 +188,7 @@ export default class EscribanoDashboard extends Component {
                 method: 'POST',
                 credentials: 'include',
                 headers: {
-                    'Authorization': 'Bearer ' + getCookie("access_token")
+                    'Authorization': 'Bearer ' + this.state.access_token
                 }
             })
                 .then(response => response.json())
@@ -215,7 +216,7 @@ export default class EscribanoDashboard extends Component {
                 method: 'POST',
                 credentials: 'include',
                 headers: {
-                    'Authorization': 'Bearer ' + getCookie("access_token")
+                    'Authorization': 'Bearer ' + this.state.access_token
                 }
             })
                 .then(response => response.json())
@@ -238,7 +239,7 @@ export default class EscribanoDashboard extends Component {
             method: 'POST',
             credentials: 'include',
             headers: {
-                'Authorization': 'Bearer ' + getCookie("access_token")
+                'Authorization': 'Bearer ' + this.state.access_token
             },
             body: formData
         })
@@ -394,8 +395,7 @@ export default class EscribanoDashboard extends Component {
     render() {
 
         // Acá me traigo el response del login
-        const user = this.props.location.state.data.user;
-        const auth = this.props.location.state.data.auth;
+        const user = this.props.cookies.get("name");
 
         return (
             <Container>
@@ -403,7 +403,7 @@ export default class EscribanoDashboard extends Component {
                     <Grid container spacing={2}>
                         <Grid item xs={12}>
                             <Paper className="dashboard-paper">
-                                <Typography variant="h6">¡Hola {user.name}!</Typography>
+                                <Typography variant="h6">¡Hola {user}!</Typography>
                             </Paper>
                         </Grid>
                         <Grid item xs={12}>
@@ -516,3 +516,5 @@ export default class EscribanoDashboard extends Component {
         )
     }
 }
+
+export default withCookies(EscribanoDashboard)

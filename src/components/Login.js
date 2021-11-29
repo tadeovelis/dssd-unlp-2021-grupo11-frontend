@@ -1,6 +1,6 @@
-import { React, Component, useState } from "react";
+import { React, useState } from "react";
 
-import { TextField, Snackbar, Alert, AlertTitle, Divider, FormControl, InputAdornment, Grid, Typography } from "@mui/material";
+import { TextField, Alert, Divider, FormControl, InputAdornment, Grid, Typography, Tooltip, IconButton } from "@mui/material";
 import { Box, Button } from "@mui/material";
 
 import MailOutlineIcon from '@mui/icons-material/MailOutline';
@@ -9,23 +9,55 @@ import VpnKeyIcon from '@mui/icons-material/VpnKey';
 import "assets/css/login.css";
 
 import env from "@beam-australia/react-env";
-import { setearCookies } from "helpers/helpers.js";
 import { useHistory } from "react-router";
 import { MyAlert } from "./MyAlert";
+
+import { Controller, useForm } from "react-hook-form";
+import * as yup from "yup";
+import { yupResolver } from '@hookform/resolvers/yup';
+
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+
+import { useCookies } from 'react-cookie';
+
+
+// Valores default del form
+const defaultValues = {
+    email: "",
+    password: ""
+}
+
+// Schema de Yup para las validaciones
+// - con el env() pongo el mensaje de error
+const schema = yup.object({
+    email: yup.string().email(env("EMAIL_ERROR_TEXT")).required(env("REQUIRED_FIELD_ERROR_TEXT")),
+    password: yup.string().required(env("REQUIRED_FIELD_ERROR_TEXT")),
+}).required(env("REQUIRED_FIELD_ERROR_TEXT"));
 
 
 export default function Login(props) {
 
-    const [state, setState] = useState({ email: '', password: '' });
-    const [alert, setAlert] = useState({ 
+    // React-cookie
+    const [cookies, setCookie] = useCookies();
+
+    const [alert, setAlert] = useState({
         mostrarAlert: false,
         alertTitle: '',
         alertText: '',
         alertSeverity: 'info',
         alertVariant: 'filled'
     })
-    const [mostrarAlertLogoutExitoso, setMostrarAlertLogoutExitoso] = useState(false);
+
+    const [mostrarPassword, setMostrarPassword] = useState(false);
+
     const history = useHistory();
+
+    // React hook form
+    const { control, handleSubmit, formState: { errors } } = useForm({
+        defaultValues,
+        resolver: yupResolver(schema) // Le digo que use e resolver de yup
+    });
 
     function noMostrarAlert() {
         setAlert(prevState => ({
@@ -44,7 +76,9 @@ export default function Login(props) {
         })
     }
 
-    function handleSubmit(e) {
+    // En el parámetro data recibe los datos del form
+    function originalSubmit(data, e) {
+
         let ruta = 'api/auth/login';
 
         fetch(env("BACKEND_URL") + ruta, {
@@ -53,8 +87,8 @@ export default function Login(props) {
                 'Content-Type': 'application/x-www-form-urlencoded'
             },
             body: new URLSearchParams({
-                'email': state.email,
-                'password': state.password
+                'email': data.email,
+                'password': data.password
             })
         })
             .then(response => response.json())
@@ -72,11 +106,13 @@ export default function Login(props) {
         e.preventDefault();
     }
 
-    function handleChange(e) {
-        const { name, value } = e.target;
-        setState(prevState => ({
-            ...prevState, [name]: value
-        }))
+    function setearCookies(data) {
+        setCookie('X-Bonita-API-Token', data.auth['X-Bonita-API-Token'], { path: '/' })
+        setCookie("JSESSIONID", data.auth.JSESSIONID, { path: '/' });
+        setCookie("access_token", data.auth.access_token, { path: '/' });
+        setCookie("name", data.user.name, { path: '/' });
+        setCookie("email", data.user.email, { path: '/' });
+        setCookie("rol", data.user.roles[0], { path: '/' });
     }
 
     function loginExitoso(data) {
@@ -92,6 +128,7 @@ export default function Login(props) {
         });
     }
 
+
     return (
         <>
             <Box>
@@ -106,51 +143,103 @@ export default function Login(props) {
                 sx={{
                     mr: 6
                 }}>
-                <form onSubmit={handleSubmit}>
+                <form
+                    // Con handlesubmit de hook-form se valida, después invoca al submit original
+                    onSubmit={handleSubmit(originalSubmit)}
+                >
 
                     <Grid container spacing={2}>
                         <Grid item xs={12}>
                             <FormControl fullWidth={true}>
-                                <TextField
+                                <Controller
                                     name="email"
-                                    id="email"
-                                    placeholder="Ej: juan@gmail.com"
-                                    label="Email"
-                                    type="email"
-                                    required={true}
-                                    InputProps={{
-                                        startAdornment: (
-                                            <InputAdornment position="start">
-                                                <MailOutlineIcon />
-                                            </InputAdornment>
-                                        )
-                                    }}
-                                    value={state.email}
-                                    onChange={handleChange}
+                                    control={control}
+                                    render={({
+                                        field
+                                    }) => (
+                                        <TextField
+                                            {...field}
+                                            fullWidth={true}
+                                            name="email"
+                                            id="email"
+                                            placeholder="Ej: juan@gmail.com"
+                                            label="Email"
+                                            InputProps={{
+                                                startAdornment: (
+                                                    <InputAdornment position="start">
+                                                        <MailOutlineIcon />
+                                                    </InputAdornment>
+                                                )
+                                            }}
+                                            // El message lo trae del resolver de Yup, seteado arriba de todo
+                                            helperText={errors.email?.message}
+                                            error={errors.email && true}
+                                        />
+                                    )}
                                 />
                             </FormControl>
                         </Grid>
                         <Grid item xs={12}>
                             <FormControl fullWidth={true}>
-                                <TextField
+                                <Controller
                                     name="password"
-                                    id="password"
-                                    placeholder=""
-                                    label="Contraseña"
-                                    type="password"
-                                    required
-                                    InputProps={{
-                                        startAdornment: (
-                                            <InputAdornment position="start">
-                                                <VpnKeyIcon />
-                                            </InputAdornment>
-                                        )
-                                    }}
-                                    value={state.password}
-                                    onChange={handleChange}
+                                    control={control}
+                                    render={({
+                                        field
+                                    }) => (
+                                        <TextField
+                                            {...field}
+                                            fullWidth={true}
+                                            name="password"
+                                            id="password"
+                                            placeholder=""
+                                            label="Contraseña"
+                                            type={mostrarPassword ? "text" : "password"}
+                                            InputProps={{
+                                                startAdornment: (
+                                                    <InputAdornment position="start">
+                                                        <VpnKeyIcon />
+                                                    </InputAdornment>
+                                                ),
+                                                endAdornment: (
+                                                    <InputAdornment position="end">
+                                                        <Tooltip title={mostrarPassword ? "Ocultar contraseña" : "Revelar contraseña"}>
+                                                            <IconButton
+                                                                onClick={() => setMostrarPassword(!mostrarPassword)}
+                                                            >
+                                                                {mostrarPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                                                            </IconButton>
+                                                        </Tooltip>
+                                                    </InputAdornment>
+                                                )
+                                            }}
+                                            // El message lo trae del resolver de Yup, seteado arriba de todo
+                                            helperText={errors.password?.message}
+                                            error={errors.password && true}
+                                        />
+                                    )}
                                 />
                             </FormControl>
                         </Grid>
+
+                        {/* Alert avisando que hay errores en los campos */}
+                        {Object.entries(errors).length !== 0 &&
+                            <Grid item xs={12}>
+                                <Alert severity="error" variant="outlined"
+                                    sx={{
+                                        fontSize: '.8em'
+                                    }}
+                                >
+                                    {(Object.entries(errors).length > 1) ?
+                                        "Por favor, corregí los campos marcados en rojo y volvé a intentar."
+                                        :
+                                        "Por favor, corregí el campo marcado en rojo y volvé a intentar."
+                                    }
+                                </Alert>
+                            </Grid>
+                        }
+
+                        {/* Botón de submit */}
                         <Grid item xs={12}>
                             <Button
                                 color="primary"
@@ -161,6 +250,8 @@ export default function Login(props) {
                                 Ingresar
                             </Button>
                         </Grid>
+
+                        {/* Para ir al registro */}
                         <Grid item xs={12}>
                             <Divider
                                 textAlign="left"
@@ -189,7 +280,7 @@ export default function Login(props) {
             </Box>
 
             {/* Alert de datos erróneos */}
-            <MyAlert 
+            <MyAlert
                 open={alert.mostrarAlert}
                 onClose={noMostrarAlert}
                 title={alert.alertTitle}

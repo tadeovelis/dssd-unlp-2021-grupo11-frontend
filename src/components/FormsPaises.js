@@ -49,7 +49,6 @@ export function FormsPaises(props) {
     const argentina = useQuery(GET_ARGENTINA, {
         onCompleted: (data) => {
             props.setearArgentinaPorDefecto(data);
-            console.log(data);
         }
     });
 
@@ -57,12 +56,18 @@ export function FormsPaises(props) {
     //if (errorArgentina) return `¡Error! ${errorPaises.message}`;
     if (paises.loading) return 'Cargando países...';
     if (paises.error) return `¡Error! ${paises.error.message}`;
+
     const handleChangeEstados = (e, estados, numPais) => {
         props.handleChangeEstados(e, estados, numPais);
     }
 
     const handleChangeInputEstados = (e, inputEstados, numPais) => {
         props.handleChangeInputEstados(e, inputEstados, numPais);
+    }
+
+
+    const setPaisSinOpcionesDeEstados = (numPais, bool) => {
+        props.setPaisSinOpcionesDeEstados(numPais, bool);
     }
 
 
@@ -103,7 +108,7 @@ export function FormsPaises(props) {
                         placeholder="Buscá el país"
                         sx={{ width: 300 }}
                         renderInput={(params) =>
-                            <TextField {...params} label="País" />
+                            <TextField {...params} label="País" required />
                         }
                         options={paises.data.countries}
                         getOptionLabel={(option) => option.name ? option.name : ""}
@@ -116,7 +121,7 @@ export function FormsPaises(props) {
                         handleChangeEstados={handleChangeEstados}
                         handleChangeInputEstados={handleChangeInputEstados}
                         state={props.state}
-
+                        setPaisSinOpcionesDeEstados={setPaisSinOpcionesDeEstados}
                     />
                 }
             </Grid>
