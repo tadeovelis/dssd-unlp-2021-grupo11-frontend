@@ -173,7 +173,7 @@ export default class ApoderadoRegistrarSociedadAnonima extends Component {
 
     // Métodos que le paso como props a FormsPaises
     handleChangePais(e, pais, numPais) {
-        console.log("A");
+        this.resetEstados();
         let p = 'pais' + numPais;
         this.setState({
             [p]: pais
@@ -183,7 +183,7 @@ export default class ApoderadoRegistrarSociedadAnonima extends Component {
         let iP = 'inputPais' + numPais;
         this.setState({
             [iP]: inputPais
-        }, () => this.validarSiEstanTodosLosDatosCompletados() )
+        }, () => this.validarSiEstanTodosLosDatosCompletados())
     }
 
     handleChangeEstados(e, estados, numPais) {
@@ -197,6 +197,16 @@ export default class ApoderadoRegistrarSociedadAnonima extends Component {
         this.setState({
             [iEs]: inputEstados
         }, () => this.validarSiEstanTodosLosDatosCompletados())
+    }
+    resetEstados() {
+        for (let i = 0; i < this.state.cantPaises; i++) {
+            let estados = 'estados' + (i + 1);
+            let inputEstados = 'inputEstados' + (i + 1);
+            this.setState({
+                [estados]: [],
+                [inputEstados]: ''
+            })
+        }
     }
 
     removerPais(e, numPais) {

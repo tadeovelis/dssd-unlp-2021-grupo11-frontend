@@ -61,7 +61,10 @@ export function FormEstados(props) {
             props.setPaisSinOpcionesDeEstados(props.numPais, true);
             setPaisSinOpcionesDeEstados(true);
         }
-        else props.setPaisSinOpcionesDeEstados(props.numPais, false);
+        else {
+            props.setPaisSinOpcionesDeEstados(props.numPais, false);
+            setPaisSinOpcionesDeEstados(false);
+        }
     }, [data])
 
     if (loading) return 'Cargando estados...';

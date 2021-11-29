@@ -56,6 +56,7 @@ export function FormsPaises(props) {
     //if (errorArgentina) return `¡Error! ${errorPaises.message}`;
     if (paises.loading) return 'Cargando países...';
     if (paises.error) return `¡Error! ${paises.error.message}`;
+
     const handleChangeEstados = (e, estados, numPais) => {
         props.handleChangeEstados(e, estados, numPais);
     }
@@ -107,7 +108,7 @@ export function FormsPaises(props) {
                         placeholder="Buscá el país"
                         sx={{ width: 300 }}
                         renderInput={(params) =>
-                            <TextField {...params} label="País" required/>
+                            <TextField {...params} label="País" required />
                         }
                         options={paises.data.countries}
                         getOptionLabel={(option) => option.name ? option.name : ""}

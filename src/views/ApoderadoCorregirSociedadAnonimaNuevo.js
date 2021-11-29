@@ -1,6 +1,6 @@
 import { React, Component } from "react";
 
-import { Container, Grid, Paper, FormControl, TextField, InputAdornment, Divider, FormControlLabel, Alert } from '@mui/material';
+import { Container, Grid, Paper, FormControl, TextField, Divider, FormControlLabel, Alert } from '@mui/material';
 import { Box, Button, Checkbox, CircularProgress } from "@mui/material";
 
 import DescriptionIcon from '@mui/icons-material/Description';
@@ -18,12 +18,6 @@ import env from "@beam-australia/react-env";
 
 import { MyAlert } from "../components/MyAlert";
 
-
-// Apollo client - GraphQL
-import {
-    useQuery,
-    gql
-} from "@apollo/client";
 import { FormsPaises } from "../components/FormsPaises.js";
 import { getCookie, formatDate } from "helpers/helpers.js";
 
@@ -33,7 +27,7 @@ const formatosValidosEstatuto = 'application/pdf,' +
     'application/vnd.oasis.opendocument.text';
 
 
-export default class ApoderadoRegistrarSociedadAnonima extends Component {
+export default class ApoderadoCorregirSociedadAnonimaNuevo extends Component {
     constructor(props) {
         super(props);
 
@@ -68,6 +62,7 @@ export default class ApoderadoRegistrarSociedadAnonima extends Component {
             estados1: [],
             inputEstados1: '',
             paisSinOpcionesDeEstados1: false,
+            paisesYEstadosCargados: false,
 
             // Alert
             mostrarAlert: false,
@@ -124,18 +119,17 @@ export default class ApoderadoRegistrarSociedadAnonima extends Component {
             email_apoderado: s.email_apoderado,
             cantSocios: s.socios.length
         }, () => {
-            // Actualizar el estado de socios
+            // Actualizar el estado y forms de socios
             this.actualizarSocios(s);
-            // Actualizar el estado de paises y estados
+            // Actualizar el estado y forms de paises y estados
             this.actualizarPaisesYEstados(s);
         });
-
     }
 
     actualizarSocios(s) {
         for (let i = 0; i < s.socios.length; i++) {
             let soc = 'socio' + (i + 1);
-            let apoderado = (s.socios[i].id === s.apoderado_id) ? true : false;
+            let apoderado = (s.socios[i].id === s.apoderado_id) ? 'true' : 'false';
             this.setState({
                 [soc]: {
                     apellido: s.socios[i].apellido,
@@ -155,11 +149,109 @@ export default class ApoderadoRegistrarSociedadAnonima extends Component {
         }
     }
 
-    actualizarPaisesYEstados() {
-        console.log(s);
+    actualizarPaisesYEstados(s) {
+        let paisesYEstados = this.agruparEstadosPorPais(s);
+        for (let i = 0; i < paisesYEstados.length; i++) {
+            let pais = 'pais' + (i + 1);
+            let inputPais = 'inputPais' + (i + 1);
+            let estados = 'estados' + (i + 1);
+            let inputEstados = 'inputEstados' + (i + 1);
+            this.setState({
+                [pais]: {
+                    '__typename': 'Country',
+                    'code': paisesYEstados[i].code,
+                    'name': paisesYEstados[i].nombre,
+                    'continent': {
+                        'name': paisesYEstados[i].continente,
+                        '__typename': 'Continent'
+                    },
+
+                },
+                [inputPais]: paisesYEstados[i].nombre,
+                [estados]: paisesYEstados[i].estados,
+                [inputEstados]: '',
+            })
+        }
+
+        this.setState({
+            cantPaises: paisesYEstados.length
+        }, () => this.setState({ paisesYEstadosCargados: true }))
     }
 
-    
+    terminarYGuardarPais(paisObj, estados, paises, paisesConEstados) {
+        paisObj.estados = estados; // le agrego los estados al obj del pais
+        paises.push(paisObj); // Pusheo el pais al array
+        paisesConEstados.push(paisObj.nombre) // Pusheo el nombre del pais al array de paises con estados
+    }
+
+    buscarCode(s, pais) {
+        for (let i = 0; i < s.geo.paises.length; i++) {
+            if (s.geo.paises[i].name === pais) {
+                return s.geo.paises[i].code
+            }
+        }
+    }
+
+    agruparEstadosPorPais(s) {
+        let paisObj = {};
+        let paises = [];
+        let pais = '';
+        let estados = [];
+        let paisesConEstados = []; // para después chequear si hay países sin estados
+        let code = ''; // el code del país
+        for (let i = 0; i < s.geo.estados.length; i++) {
+            if (pais === '') {
+                pais = s.geo.estados[i].pais;
+                code = this.buscarCode(s, pais);
+                paisObj = {
+                    nombre: pais,
+                    continente: s.geo.estados[i].continente,
+                    code: code
+                };
+            }
+
+            // Si tengo que cambiar de país pero no es el último...
+            if (s.geo.estados[i].pais !== pais) {
+                this.terminarYGuardarPais(paisObj, estados, paises, paisesConEstados);
+
+                pais = s.geo.estados[i].pais; // Seteo el nuevo país
+                code = this.buscarCode(s, pais);
+                estados = []; // Reseteo el array de estados por país
+                // Reseteo el object del país
+                paisObj = {
+                    nombre: pais,
+                    continente: s.geo.estados[i].continente,
+                    code: code
+                };
+            }
+            estados.push(s.geo.estados[i]); // Le agrego el primer estado
+
+            // Si es el último estado y, por ende, el último país también...
+            if (i === s.geo.estados.length - 1) {
+                this.terminarYGuardarPais(paisObj, estados, paises, paisesConEstados);
+            }
+        }
+
+        // Ahora agregamos los países que no tienen estados (si es que hay)
+        if (paises.length !== s.geo.paises.length) {
+            for (let i = 0; i < s.geo.paises.length; i++) {
+                if (!paisesConEstados.includes(s.geo.paises[i].name)) {
+                    // Si existe un país sin estados entonces armo el obj
+                    paisObj = {
+                        nombre: s.geo.paises[i].name,
+                        continente: s.geo.paises[i].continente,
+                        code: s.geo.paises[i].code,
+                        estados: []
+                    };
+                    // y lo pusheo al array que estamos armando
+                    paises.push(paisObj);
+                }
+            }
+        }
+        return paises
+    }
+
+
 
     // Método que invoca el componente hijo FormPaises cuando se ejecuta por primera vez
     setearArgentinaPorDefecto(dataArgentina) {
@@ -227,11 +319,14 @@ export default class ApoderadoRegistrarSociedadAnonima extends Component {
 
     // Métodos que le paso como props a FormsPaises
     handleChangePais(e, pais, numPais) {
-        console.log("A");
+        this.resetEstados(numPais);
         let p = 'pais' + numPais;
         this.setState({
             [p]: pais
-        }, () => this.validarSiEstanTodosLosDatosCompletados());
+        }, () => {
+            console.log(pais);
+            this.validarSiEstanTodosLosDatosCompletados()
+        });
     }
     handleChangeInputPais(e, inputPais, numPais) {
         let iP = 'inputPais' + numPais;
@@ -252,7 +347,17 @@ export default class ApoderadoRegistrarSociedadAnonima extends Component {
             [iEs]: inputEstados
         }, () => this.validarSiEstanTodosLosDatosCompletados())
     }
+    // Reset forms de estados cuando se cambia el país
+    resetEstados(numPais) {
+        let estados = 'estados' + numPais;
+        let inputEstados = 'inputEstados' + numPais;
+        this.setState({
+            [estados]: [],
+            [inputEstados]: ''
+        })
+    }
 
+    // Algoritmo para borrar un form de un país y que se reordene todo el estado
     removerPais(e, numPais) {
         if (this.state.cantPaises === 1) {
             this.setState({
@@ -316,10 +421,13 @@ export default class ApoderadoRegistrarSociedadAnonima extends Component {
             [estados]: [],
             [inputEstados]: '',
         }, () => {
-            this.setState({ cantPaises: this.state.cantPaises + 1 }, () => this.validarSiEstanTodosLosDatosCompletados())
+            this.setState({
+                cantPaises: this.state.cantPaises + 1
+            }, () => this.validarSiEstanTodosLosDatosCompletados())
         });
     }
 
+    // Se arma el JSON para mandar a la API
     armarJSONPaisesYEstados() {
         let paises = [];
         if (this.state.cantPaises > 0) {
@@ -345,6 +453,7 @@ export default class ApoderadoRegistrarSociedadAnonima extends Component {
         return jsonPaises;
     }
 
+    // Arma el JSON de Argentina por defecto (si no se elige ningún país o estado)
     armarJSONArgentina() {
         if (this.state.argentina) {
             return (JSON.stringify([{
@@ -367,8 +476,9 @@ export default class ApoderadoRegistrarSociedadAnonima extends Component {
     }
 
 
-    /*
-        Métodos para manejar los forms de los sociso
+
+    /* ----------------------------------------------
+        Métodos para manejar los forms de los socios
     */
 
     // Maneja los cambios de los forms de los socios
@@ -509,7 +619,7 @@ export default class ApoderadoRegistrarSociedadAnonima extends Component {
         )
     }
 
-    // Arma un JSON con los socios
+    // Arma un JSON con los socios para la API
     armarJSONSocios() {
         if (this.seCompletaronLosSocios()) {
             let socios = [];
@@ -527,6 +637,7 @@ export default class ApoderadoRegistrarSociedadAnonima extends Component {
         }
     }
 
+    // Me dice si la suma de porcentajes da 100 o no
     porcentajesSociosCorrectos() {
         let suma = 0;
         for (let i = 0; i < this.state.cantSocios; i++) {
@@ -536,6 +647,7 @@ export default class ApoderadoRegistrarSociedadAnonima extends Component {
         return (suma === 100) ? true : false
     }
 
+    // Seteo algunos alerts par algunas validaciones
     mostrarAlertPorcentajesSociosNoCorrectos() {
         this.setState({
             alertTitle: "Los porcentajes de los socios deben sumar 100",
@@ -544,7 +656,6 @@ export default class ApoderadoRegistrarSociedadAnonima extends Component {
             mostrarAlert: true
         })
     }
-
     mostrarAlertMinimoUnSocio() {
         this.setState({
             alertTitle: "La sociedad debe tener como mínimo un socio",
@@ -553,7 +664,6 @@ export default class ApoderadoRegistrarSociedadAnonima extends Component {
             mostrarAlert: true
         })
     }
-
     mostrarAlertMaximoUnApoderado() {
         this.setState({
             alertTitle: "La sociedad debe tener sólo un socio apoderado",
@@ -564,17 +674,12 @@ export default class ApoderadoRegistrarSociedadAnonima extends Component {
     }
 
 
-    /*
+    /*  -------------------------------------------------------
         Métodos de validación de datos ingresados en los forms
     */
 
     // Devuelve bool si están o no completos los datos de los socios
     seCompletaronLosSocios() {
-        /*
-        if (!this.noHayDosApoderados()) {
-            return false;
-        };
-        */
         for (let i = 0; i < this.state.cantSocios; i++) {
             let soc = 'socio' + (i + 1);
             if (this.state[soc].apellido === '' || this.state[soc].nombre === '') {
@@ -597,20 +702,6 @@ export default class ApoderadoRegistrarSociedadAnonima extends Component {
         if (cantApoderados === 1) return true
         else return false
     }
-    noHayDosApoderados() {
-        let cantApoderados = 0;
-        for (let i = 0; i < this.state.cantSocios; i++) {
-            let soc = 'socio' + (i + 1);
-            if (this.state[soc].apoderado === "true") {
-                cantApoderados++;
-                if (cantApoderados === 2) {
-                    alert("La sociedad no puede registrar dos o más apoderados. Por favor, seleccioná uno solo con el check verde.");
-                    return false
-                }
-            }
-        }
-        return true
-    }
     seCompletaronLosDatosGenerales() {
         if (this.state.nombre === '' || this.state.fecha_creacion === null ||
             this.state.domicilio_legal === '' || this.state.domicilio_real === '' ||
@@ -631,10 +722,12 @@ export default class ApoderadoRegistrarSociedadAnonima extends Component {
         }
         return true
     }
+
+    // Este método me habilita o deshabilita el botón de submit
     validarSiEstanTodosLosDatosCompletados() {
         if (this.seCompletaronLosSocios() &&
             this.seCompletaronLosDatosGenerales() &&
-            this.seSubioElEstatuto() &&
+            //this.seSubioElEstatuto() &&
             this.seCompletaronLosPaisesEstados()) {
             this.setState({
                 todosLosDatosCompletados: true
@@ -657,31 +750,30 @@ export default class ApoderadoRegistrarSociedadAnonima extends Component {
         // Chequear si la suma de porcentajes de los socios da 100
         if (this.porcentajesSociosCorrectos()) {
 
-            let ruta = 'api/sociedadAnonima';
+            let ruta = 'api/sociedadAnonima/' + this.props.location.state.sociedad.id;
             let socios = this.armarJSONSocios();
+
             let paises_estados = {};
             if (!this.state.pais1 || this.state.pais1.name === "") {
                 // O sea no se eligió ninguno, así que asigno a Argentina
                 paises_estados = this.armarJSONArgentina();
             }
             else paises_estados = this.armarJSONPaisesYEstados();
-            let formData = new FormData();
-            formData.append('nombre', this.state.nombre);
-            formData.append('fecha_creacion', formatDate(this.state.fecha_creacion.toDateString()));
-            formData.append('domicilio_legal', this.state.domicilio_legal);
-            formData.append('domicilio_real', this.state.domicilio_real);
-            formData.append('email_apoderado', this.state.email_apoderado);
-            formData.append('socios', socios);
-            formData.append('archivo_estatuto', this.state.archivo_estatuto);
-            formData.append('paises_estados', paises_estados);
 
             fetch(env("BACKEND_URL") + ruta, {
-                method: 'POST',
+                method: 'PATCH',
                 credentials: 'include',
                 headers: {
                     'Authorization': 'Bearer ' + getCookie("access_token")
                 },
-                body: formData
+                body: new URLSearchParams({
+                    'fecha_creacion': formatDate(new Date(this.state.fecha_creacion).toDateString()),
+                    'domicilio_legal': this.state.domicilio_legal,
+                    'domicilio_real': this.state.domicilio_real,
+                    'email_apoderado': this.state.email_apoderado,
+                    'socios': socios,
+                    'paises_estados': paises_estados
+                })
             })
                 .then(response => response.json())
                 .then(data => {
@@ -696,7 +788,7 @@ export default class ApoderadoRegistrarSociedadAnonima extends Component {
                         this.props.history.push({
                             pathname: '/apoderado/inicio',
                             state: {
-                                registroDeSAExitoso: true,
+                                correccionDeSAExitoso: true,
                                 refreshTramites: true,
                                 data: this.props.location.state.data
                             }
@@ -722,13 +814,14 @@ export default class ApoderadoRegistrarSociedadAnonima extends Component {
                 <Box p={2}>
                     <Paper className="dashboard-paper">
                         <span className="apoderado-registrar-sa-titulo">
-                            Registro de Sociedad Anónima
+                            Corrección de solicitud de registro de Sociedad Anónima
                         </span>
-                        <p>Ingresá los siguientes datos. Todos los campos son obligatorios.</p>
+                        <p>Modificá los datos que se especificaron en el email.</p>
                         <Grid container spacing={3}>
                             <Grid item xs={4}>
                                 <FormControl fullWidth={true}>
                                     <TextField
+                                        disabled
                                         name="nombre"
                                         id="nombre"
                                         placeholder="Sancor S.A."
@@ -844,39 +937,41 @@ export default class ApoderadoRegistrarSociedadAnonima extends Component {
                         />
 
                         {/* Países a los que exporta */}
-                        <Grid container spacing={2}>
-                            <Grid item xs={12}>
-                                <p>Seleccioná el o los países a los que exporta la sociedad. Luego, para cada país, los estados.</p>
+                        {this.state.paisesYEstadosCargados &&
+                            <Grid container spacing={2}>
+                                <Grid item xs={12}>
+                                    <p>Seleccioná el o los países a los que exporta la sociedad. Luego, para cada país, los estados.</p>
+                                </Grid>
+                                {this.state.cantPaises > 0 ?
+                                    <Grid item xs={12}>
+                                        <FormsPaises
+                                            setearArgentinaPorDefecto={this.setearArgentinaPorDefecto}
+                                            cantPaises={this.state.cantPaises}
+                                            handleChangePais={this.handleChangePais}
+                                            handleChangeInputPais={this.handleChangeInputPais}
+                                            state={this.state}
+                                            removerPais={this.removerPais}
+
+                                            handleChangeEstados={this.handleChangeEstados}
+                                            handleChangeInputEstados={this.handleChangeInputEstados}
+
+                                            setPaisSinOpcionesDeEstados={this.setPaisSinOpcionesDeEstados}
+                                        />
+                                    </Grid>
+                                    :
+                                    <Grid item xs={12}>
+                                        <Alert
+                                            severity="info"
+                                            sx={{
+                                                width: "fit-content"
+                                            }}
+                                        >
+                                            Se asignará por defecto <b>Argentina</b> y todos sus estados.
+                                        </Alert>
+                                    </Grid>
+                                }
                             </Grid>
-                            {this.state.cantPaises > 0 ?
-                                <Grid item xs={12}>
-                                    <FormsPaises
-                                        setearArgentinaPorDefecto={this.setearArgentinaPorDefecto}
-                                        cantPaises={this.state.cantPaises}
-                                        handleChangePais={this.handleChangePais}
-                                        handleChangeInputPais={this.handleChangeInputPais}
-                                        state={this.state}
-                                        removerPais={this.removerPais}
-
-                                        handleChangeEstados={this.handleChangeEstados}
-                                        handleChangeInputEstados={this.handleChangeInputEstados}
-
-                                        setPaisSinOpcionesDeEstados={this.setPaisSinOpcionesDeEstados}
-                                    />
-                                </Grid>
-                                :
-                                <Grid item xs={12}>
-                                    <Alert
-                                        severity="info"
-                                        sx={{
-                                            width: "fit-content"
-                                        }}
-                                    >
-                                        Se asignará por defecto <b>Argentina</b> y todos sus estados.
-                                    </Alert>
-                                </Grid>
-                            }
-                        </Grid>
+                        }
                         <br />
                         <br />
                         <Grid container spacing={2}>
@@ -904,11 +999,12 @@ export default class ApoderadoRegistrarSociedadAnonima extends Component {
                         {/* Componente para el archivo del estatuto */}
                         <Grid container spacing={2} alignItems='center'>
                             <Grid item xs={12}>
-                                <p>Hacé click en el botón para subir el Estatuto. Los formatos válidos son: PDF, docx, ODT.</p>
+                                <p>El estatuto se validará en la próxima instancia, ahora no es necesario que lo modifiques.</p>
                             </Grid>
                             <Grid item xs={2}>
                                 <label htmlFor="botonSubirEstatuto">
                                     <TextField
+                                        disabled
                                         id='botonSubirEstatuto'
                                         type="file"
                                         inputProps={{ accept: formatosValidosEstatuto }}
@@ -917,6 +1013,7 @@ export default class ApoderadoRegistrarSociedadAnonima extends Component {
                                         required
                                     />
                                     <Button
+                                        disabled
                                         variant="outlined"
                                         component="span"
                                         color="primary"
@@ -955,7 +1052,7 @@ export default class ApoderadoRegistrarSociedadAnonima extends Component {
                                     disabled={!this.state.todosLosDatosCompletados}
                                     onClick={this.handleSubmit}
                                 >
-                                    Registrar mi sociedad anónima
+                                    Enviar la corrección de la solicitud
                                 </Button>
                             </Grid>
                             <Grid item xs={3}>
